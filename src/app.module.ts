@@ -3,6 +3,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+import { LobbyModule } from './modules/lobby/lobby.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { join } from 'path';
         'comersant-frontend',
       ),
     }),
+    LobbyModule,
   ],
   controllers: [AppController],
   providers: [AppService],
