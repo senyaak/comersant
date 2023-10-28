@@ -2,20 +2,25 @@ import {
   WebSocketGateway,
   SubscribeMessage,
   MessageBody,
-  ConnectedSocket,
   OnGatewayConnection,
+  WebSocketServer,
 } from '@nestjs/websockets';
-// import {} from '@nestjs/platform-socket.io';
-// import { Controller, Get } from '@nestjs/common';
-// import { AppService } from './app.service';
+import { Server, Socket } from 'socket.io';
 
-// @WebSocketGateway()
 @WebSocketGateway({ namespace: 'lobby' })
 export class EventsGateway implements OnGatewayConnection {
+  @WebSocketServer()
+  server: Server;
   constructor() {}
 
-  handleConnection(client: any, ...args: any[]) {
-    console.log('handleConnection', args);
+  async handleConnection(client: Socket /* ...args: any[]*/) {
+    /** after connection join the lobby */
+    client.join('lobby');
+    /** get and send list of rooms to all users in lobby room */
+    const roomList = (await this.server.in('lobby').fetchSockets()).map(
+      ({ id }) => id,
+    );
+    this.server.in('lobby').emit('players_list', roomList);
   }
 
   /**
@@ -25,13 +30,10 @@ export class EventsGateway implements OnGatewayConnection {
    * @return {string} The data returned from the event.
    */
   @SubscribeMessage('events')
-  // handleEvent(client: Socket, data: string): string {
   handleEvent(
     @MessageBody() data: string,
-    @ConnectedSocket() socket: /*Socket */ any,
+    // @ConnectedSocket() socket: Socket,
   ): string {
-    console.log('data', data);
-    // console.log('data', data, socket);
     return data;
   }
 }

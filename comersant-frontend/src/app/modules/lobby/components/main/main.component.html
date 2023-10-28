@@ -1,0 +1,14 @@
+<div>
+  <h1>Lobby</h1>
+  <ul>
+    <li *ngFor="let user of lobbyList">
+      <ng-container *ngIf="userId === user; then you; else id"></ng-container>
+      <ng-template #you>
+        <span>YOU</span>
+      </ng-template>
+      <ng-template #id>
+        <span>{{ user }}</span>
+      </ng-template>
+    </li>
+  </ul>
+</div>

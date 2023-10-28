@@ -1,13 +1,31 @@
 {
   "root": true,
-  "ignorePatterns": [
-    "projects/**/*"
-  ],
+  "plugins": ["sort-class-members"],
+  "rules": {
+    "sort-class-members/sort-class-members": [
+      2,
+      {
+        "order": [
+          "[static-properties]",
+          "[properties]",
+          "constructor",
+          {
+            "type": "property",
+            "propertyType": "ArrowFunctionExpression"
+          },
+          "[static-methods]",
+          "[methods]",
+          "[conventional-private-properties]",
+          "[conventional-private-methods]"
+        ],
+        "accessorPairPositioning": "getThenSet"
+      }
+    ]
+  },
+  "ignorePatterns": ["projects/**/*"],
   "overrides": [
     {
-      "files": [
-        "*.ts"
-      ],
+      "files": ["*.ts"],
       "extends": [
         "eslint:recommended",
         "plugin:@typescript-eslint/recommended",
@@ -34,9 +52,7 @@
       }
     },
     {
-      "files": [
-        "*.html"
-      ],
+      "files": ["*.html"],
       "extends": [
         "plugin:@angular-eslint/template/recommended",
         "plugin:@angular-eslint/template/accessibility"
