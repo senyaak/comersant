@@ -1,0 +1,10 @@
+<dialog #setNameDialog (keydown)="disableEscKey($event)" tabindex="-1">
+  <form (submit)="setName()">
+    <h2>Set the user name:</h2>
+    <label>
+      <span> min 3 characters </span>
+      <input [(ngModel)]="name" type="text" name="name" autocomplete="off" />
+    </label>
+    <button [disabled]="name.length < 3" type="submit">Set</button>
+  </form>
+</dialog>

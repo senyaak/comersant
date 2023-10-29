@@ -1,0 +1,11 @@
+<dialog #setNameDialog>
+  <form (submit)="createGame()">
+    <h2>Create new game.</h2>
+    <label>
+      <span> Enter the game name: </span>
+      <input [(ngModel)]="name" type="text" name="name" />
+    </label>
+    <button [disabled]="name.length < 3" type="submit">create</button>
+    <button (click)="hide()" type="button">cancel</button>
+  </form>
+</dialog>

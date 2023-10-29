@@ -7,17 +7,9 @@ import { LobbyService } from '../../services/lobby.service';
   styleUrls: ['./main.component.scss'],
 })
 export class MainComponent implements OnInit {
-  lobbyList: string[] = [];
-
   constructor(private readonly lobbyService: LobbyService) {}
 
-  ngOnInit(): void {
-    this.lobbyService.LobbyList.subscribe(list => {
-      this.lobbyList = list;
-    });
-  }
-
-  get userId() {
-    return this.lobbyService.Id;
+  ngOnInit() {
+    this.lobbyService.join();
   }
 }

@@ -3,10 +3,24 @@ import { CommonModule } from '@angular/common';
 import { LobbyService } from './services/lobby.service';
 import { MainComponent } from './components/main/main.component';
 import { LobbyRoutingModule } from './lobby-routing.module';
+import { RoomsComponent } from './components/main/rooms/rooms.component';
+import { UsersComponent } from './components/main/users/users.component';
+import { RoomComponent } from './components/room/room.component';
+import { SetNameComponent } from './components/main/users/set-name/set-name.component';
+import { FormsModule } from '@angular/forms';
+import { CreateRoomComponent } from './components/main/rooms/create-room/create-room.component';
+import { HttpClientModule } from '@angular/common/http';
 
 @NgModule({
-  declarations: [MainComponent],
+  declarations: [
+    MainComponent,
+    RoomsComponent,
+    UsersComponent,
+    RoomComponent,
+    SetNameComponent,
+    CreateRoomComponent,
+  ],
   providers: [LobbyService],
-  imports: [CommonModule, LobbyRoutingModule],
+  imports: [CommonModule, LobbyRoutingModule, FormsModule, HttpClientModule],
 })
 export class LobbyModule {}

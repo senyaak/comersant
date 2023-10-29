@@ -1,0 +1,18 @@
+<ul>
+  <li *ngFor="let room of roomsList">
+    <span>{{ room }}</span>
+    <!-- <ng-container *ngIf="userId === user; then you; else id"></ng-container> -->
+    <!-- <ng-template #you>
+      <span>YOU</span>
+    </ng-template>
+    <ng-template #id> -->
+    <!-- </ng-template> -->
+  </li>
+  <div *ngIf="roomsList.length < 1">
+    <span>No games.</span>
+  </div>
+  <div>
+    <button (click)="createDialog.show()">Create</button>
+  </div>
+</ul>
+<app-create-room #createDialog />
