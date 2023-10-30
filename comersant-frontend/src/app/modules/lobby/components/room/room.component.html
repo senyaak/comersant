@@ -1,1 +1,8 @@
-<p>room works!</p>
+<h1>{{ roomName }}</h1>
+<div *ngFor="let user of users; let i = index">
+  <span [ngClass]="{ owner: user.owner }"> {{ user.name }} </span>
+  <span *ngIf="user.id === userId">(YOU)</span>
+</div>
+<div>
+  <button (click)="leaveRoom()">leave</button>
+</div>

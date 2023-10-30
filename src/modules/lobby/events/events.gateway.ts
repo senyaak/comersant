@@ -8,7 +8,7 @@ import {
   ConnectedSocket,
 } from '@nestjs/websockets';
 import { Socket, Namespace } from 'socket.io';
-import { ClientEvents, RoomsPrefix, ServerEvents } from './../types';
+import { ClientEvents, Room, RoomsPrefix, ServerEvents } from './../types';
 import { Rooms } from './../types';
 import { UserIdentity } from '../types';
 
@@ -52,24 +52,55 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   ) {
     const room = `${RoomsPrefix}${roomName}`;
     socket.data.room = room;
-    socket.join(room);
     socket.leave(Rooms.Lobby);
+    await socket.join(room);
 
-    socket.data.userroom = room;
-
-    socket.emit(ServerEvents.JoinedRoom, room);
+    socket.emit(ServerEvents.CreatedRoom, room);
     this.server.emit(ServerEvents.UpdateRoomsList, this.rooms);
     this.server.emit(ServerEvents.UpdateConnectedUsers, await this.usersList);
   }
 
+  @SubscribeMessage(ClientEvents.EnterRoom)
+  async enterRoom(
+    @MessageBody() roomName: string,
+    @ConnectedSocket() socket: Socket,
+  ) {
+    socket.join(roomName);
+    socket.leave(Rooms.Lobby);
+
+    socket.emit(ServerEvents.EnteredRoom, roomName);
+    this.server.emit(ServerEvents.UpdateConnectedUsers, await this.usersList);
+
+    this.updateRoomUsers(roomName);
+  }
+
   @SubscribeMessage(ClientEvents.LeaveRoom)
-  async leaveRoom() {
-    // @ConnectedSocket() socket: Socket, // @MessageBody() roomName: string,
-    // socket.data.name = newName;
-    // const room = `${RoomsPrefix}${roomName}`;
-    // socket.join(room);
-    // socket.data.userroom = room;
-    // this.lobby.emit(ServerEvents.JoinedRoom, room);
+  async leaveRoom(@ConnectedSocket() socket: Socket) {
+    const roomToLeave = Array.from(socket.rooms).find(room =>
+      room.startsWith(RoomsPrefix),
+    );
+    if (!roomToLeave) {
+      return;
+    }
+    if (socket.data.room) {
+      await this.server.in(socket.data.room).emit(ServerEvents.RoomRemoved);
+      await this.server.in(socket.data.room).socketsLeave(socket.data.room);
+      await this.server.emit(ServerEvents.UpdateRoomsList, this.rooms);
+    } else {
+      socket.leave(roomToLeave);
+      this.updateRoomUsers(roomToLeave);
+    }
+  }
+
+  async getRoom(roomId): Promise<Room> {
+    const users = (await this.server.in(roomId).fetchSockets()).map(
+      ({ id, data }) => ({
+        id,
+        name: data.name,
+        owner: roomId === data.room,
+      }),
+    );
+    return { id: roomId, users };
   }
 
   private get lobby() {
@@ -87,6 +118,19 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       room.includes(RoomsPrefix),
     );
     return rooms;
+  }
+
+  async updateRoomUsers(room: string) {
+    const users: Room['users'] = (
+      await this.server.in(room).fetchSockets()
+    ).map(socket => ({
+      id: socket.id,
+      name: socket.data.name,
+      owner: socket.data.room === room,
+    }));
+    this.server
+      .in(room)
+      .emit(ServerEvents.UpdateRoomUsers, { id: room, users });
   }
   //   @SubscribeMessage('events') handleEvent(
   //     @MessageBody() data: string,

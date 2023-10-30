@@ -1,13 +1,16 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { LobbyService } from '../../services/lobby.service';
 import { Router } from '@angular/router';
+import { Room } from '$server/modules/lobby/types';
 
 @Component({
   selector: 'app-room',
   templateUrl: './room.component.html',
   styleUrls: ['./room.component.scss'],
 })
-export class RoomComponent implements OnInit {
+export class RoomComponent implements OnInit, OnDestroy {
+  roomName = '';
+  users: Room['users'] = [];
   constructor(
     private readonly lobbyService: LobbyService,
     private readonly router: Router,
@@ -17,5 +20,22 @@ export class RoomComponent implements OnInit {
     if (!this.lobbyService.RoomName) {
       this.router.navigate(['../']);
     }
+    this.lobbyService.getRoomUsers().subscribe(room => {
+      this.roomName = room.id;
+      this.users = room.users;
+    });
+    this.lobbyService.RoomUsers.subscribe(room => {
+      this.users = room.users;
+    });
+  }
+
+  ngOnDestroy() {
+    this.lobbyService.leaveRoom();
+  }
+  leaveRoom() {
+    this.router.navigate(['/']);
+  }
+  get userId() {
+    return this.lobbyService.Id;
   }
 }

@@ -12,11 +12,15 @@ export class RoomsComponent implements OnInit {
   constructor(private readonly lobbyService: LobbyService) {}
 
   ngOnInit(): void {
-    this.lobbyService.RoomsList.subscribe(list => {
-      this.roomsList = list;
-    });
     this.lobbyService.getRooms().subscribe(list => {
       this.roomsList = list;
     });
+    this.lobbyService.RoomsList.subscribe(list => {
+      this.roomsList = list;
+    });
+  }
+
+  enterRoom(roomName: string) {
+    this.lobbyService.enterRoom(roomName);
   }
 }

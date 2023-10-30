@@ -1,7 +1,10 @@
 {
   "root": true,
-  "plugins": ["sort-class-members"],
+  "plugins": ["sort-class-members", "typescript-sort-keys"],
   "rules": {
+    "typescript-sort-keys/interface": "error",
+    "typescript-sort-keys/string-enum": "error",
+
     "sort-class-members/sort-class-members": [
       2,
       {

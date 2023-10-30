@@ -1,6 +1,7 @@
 <ul>
   <li *ngFor="let room of roomsList">
-    <span>{{ room }}</span>
+    <span>{{ room }}</span
+    ><span><button (click)="enterRoom(room)">Join</button></span>
     <!-- <ng-container *ngIf="userId === user; then you; else id"></ng-container> -->
     <!-- <ng-template #you>
       <span>YOU</span>
