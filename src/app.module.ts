@@ -4,6 +4,7 @@ import { AppService } from './app.service';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { LobbyModule } from './modules/lobby/lobby.module';
+import { GameModule } from './modules/game/game.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { LobbyModule } from './modules/lobby/lobby.module';
       ),
     }),
     LobbyModule,
+    GameModule,
   ],
   controllers: [AppController],
   providers: [AppService],

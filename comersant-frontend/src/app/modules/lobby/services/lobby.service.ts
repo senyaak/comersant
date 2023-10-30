@@ -32,6 +32,7 @@ export class LobbyService {
     this.socket.on(ServerEvents.UpdateRoomUsers, this.updateSelectedRoom);
     this.socket.on(ServerEvents.RoomRemoved, this.roomRemoved);
     this.socket.on(ServerEvents.RoomIsFull, this.roomIsFull);
+    this.socket.on(ServerEvents.StartGame, this.intoGame);
     this.socket.on(ServerEvents.Disconnect, this.disconnected);
 
     /** connect socket */
@@ -62,10 +63,14 @@ export class LobbyService {
     this.roomName = null;
     this.router.navigate(['/']);
   };
+  intoGame = (id: string) => {
+    this.socket.off(ServerEvents.Disconnect, this.disconnected);
+    this.socket.disconnect();
+    this.router.navigate(['/', `game`, id]);
+  };
   roomIsFull = () => {
     alert('Room is full');
   };
-
   disconnected = async () => {
     await this.router.navigate(['/']);
     window.location.reload();

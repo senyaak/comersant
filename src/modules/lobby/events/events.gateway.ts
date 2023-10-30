@@ -16,11 +16,12 @@ import {
   RoomsPrefix,
   ServerEvents,
 } from './../types';
+import { GamesService } from 'src/modules/game/services/games/games.service';
 
 @WebSocketGateway({ namespace: 'lobby' })
 export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer() private server: Namespace;
-  constructor() {}
+  constructor(private gamesService: GamesService) {}
 
   async handleConnection() {}
   async handleDisconnect(@ConnectedSocket() socket: Socket) {
@@ -155,11 +156,8 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage(ClientEvents.StartGame)
   async startGame(@ConnectedSocket() socket: Socket) {
-    // socket.join(Rooms.Lobby);
-    // this.lobby.emit(ServerEvents.UpdateConnectedUsers, await this.usersInlobby);
-    // TODO: create new game and pass the game id to the clients
-    const gameId = Math.random().toString(36).substring(2);
-    console.log('gameid', gameId);
+    const gameId = this.gamesService.createGame();
     this.server.in(socket.data.room).emit(ServerEvents.StartGame, gameId);
+    this.server.emit(ServerEvents.UpdateRoomsList, await this.rooms);
   }
 }
