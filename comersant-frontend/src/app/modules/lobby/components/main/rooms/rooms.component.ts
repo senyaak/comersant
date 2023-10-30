@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { LobbyService } from '../../../services/lobby.service';
+import { Room } from '$server/modules/lobby/types';
 
 @Component({
   selector: 'app-rooms',
@@ -7,7 +8,7 @@ import { LobbyService } from '../../../services/lobby.service';
   styleUrls: ['./rooms.component.scss'],
 })
 export class RoomsComponent implements OnInit {
-  roomsList: string[] = [];
+  roomsList: Room[] = [];
 
   constructor(private readonly lobbyService: LobbyService) {}
 

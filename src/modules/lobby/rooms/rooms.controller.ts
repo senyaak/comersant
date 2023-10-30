@@ -6,8 +6,8 @@ import { Room } from '../types';
 export class RoomsController {
   constructor(private eventsGateway: EventsGateway) {}
   @Get()
-  getRooms() {
-    return this.eventsGateway.rooms;
+  async getRooms(): Promise<Room[]> {
+    return await this.eventsGateway.rooms;
   }
   @Get(':id')
   async getRoom(@Param() { id }: { id: string }): Promise<Room> {

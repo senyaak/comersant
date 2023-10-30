@@ -13,8 +13,8 @@ export class LobbyService {
   private name = '';
   private roomName: string | null = null;
   private lobbySubject = new Subject<UserIdentity[]>();
-  private roomsSubject = new Subject<string[]>();
-  private roomUsers = new Subject<Room>();
+  private roomsSubject = new Subject<Room[]>();
+  private selectedRoom = new Subject<Room>();
 
   constructor(
     private readonly router: Router,
@@ -29,8 +29,9 @@ export class LobbyService {
     this.socket.on(ServerEvents.RoomsUpdated, this.updatePlayersList);
     this.socket.on(ServerEvents.UpdateConnectedUsers, this.updatePlayersList);
     this.socket.on(ServerEvents.UpdateRoomsList, this.updateRoomsList);
-    this.socket.on(ServerEvents.UpdateRoomUsers, this.updateRoomUsers);
+    this.socket.on(ServerEvents.UpdateRoomUsers, this.updateSelectedRoom);
     this.socket.on(ServerEvents.RoomRemoved, this.roomRemoved);
+    this.socket.on(ServerEvents.RoomIsFull, this.roomIsFull);
     this.socket.on(ServerEvents.Disconnect, this.disconnected);
 
     /** connect socket */
@@ -47,11 +48,11 @@ export class LobbyService {
     this.roomName = roomName;
     this.router.navigate([`lobby`, roomName]);
   };
-  updateRoomsList = (list: string[]) => {
+  updateRoomsList = (list: Room[]) => {
     this.roomsSubject.next(list);
   };
-  updateRoomUsers = (room: Room) => {
-    this.roomUsers.next(room);
+  updateSelectedRoom = (room: Room) => {
+    this.selectedRoom.next(room);
   };
   enteredRoom = (roomName: string) => {
     this.roomName = roomName;
@@ -61,6 +62,10 @@ export class LobbyService {
     this.roomName = null;
     this.router.navigate(['/']);
   };
+  roomIsFull = () => {
+    alert('Room is full');
+  };
+
   disconnected = async () => {
     await this.router.navigate(['/']);
     window.location.reload();
@@ -72,8 +77,8 @@ export class LobbyService {
   get RoomsList() {
     return this.roomsSubject.asObservable();
   }
-  get RoomUsers() {
-    return this.roomUsers.asObservable();
+  get SelectedRoom() {
+    return this.selectedRoom.asObservable();
   }
   get Id() {
     return this.socket.id;
@@ -93,7 +98,7 @@ export class LobbyService {
     this.socket.emit(ClientEvents.CreateRoom, roomName);
   }
   getRooms() {
-    return this.http.get<string[]>('/rooms');
+    return this.http.get<Room[]>('/rooms');
   }
   getRoomUsers() {
     return this.http.get<Room>(`/rooms/${this.roomName}`);
@@ -105,5 +110,8 @@ export class LobbyService {
   leaveRoom() {
     this.socket.emit(ClientEvents.LeaveRoom);
     this.roomName = null;
+  }
+  startGame() {
+    this.socket.emit(ClientEvents.StartGame);
   }
 }

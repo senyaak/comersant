@@ -8,8 +8,10 @@ export enum ServerEvents {
   Disconnect = 'disconnect',
   EnteredRoom = 'enter-room',
   LeaveRoom = 'leave-room',
+  RoomIsFull = 'room-is-full',
   RoomRemoved = 'room-removed',
   RoomsUpdated = 'rooms-updated',
+  StartGame = 'start-game',
   UpdateConnectedUsers = 'update-connected-users',
   UpdateRoomUsers = 'update-room-users',
   UpdateRoomsList = 'update-rooms-list',
@@ -20,6 +22,7 @@ export enum ClientEvents {
   Join = 'join',
   LeaveRoom = 'leave-room',
   SetName = 'set-name',
+  StartGame = 'start-game',
 }
 export enum Rooms {
   Lobby = 'lobby',

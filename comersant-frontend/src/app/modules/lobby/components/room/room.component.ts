@@ -24,7 +24,7 @@ export class RoomComponent implements OnInit, OnDestroy {
       this.roomName = room.id;
       this.users = room.users;
     });
-    this.lobbyService.RoomUsers.subscribe(room => {
+    this.lobbyService.SelectedRoom.subscribe(room => {
       this.users = room.users;
     });
   }
@@ -37,5 +37,11 @@ export class RoomComponent implements OnInit, OnDestroy {
   }
   get userId() {
     return this.lobbyService.Id;
+  }
+  get isGameOwner() {
+    return this.users.find(user => user.owner)?.id === this.userId;
+  }
+  startGame() {
+    this.lobbyService.startGame();
   }
 }

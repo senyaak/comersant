@@ -1,7 +1,17 @@
 <ul>
   <li *ngFor="let room of roomsList">
-    <span>{{ room }}</span
-    ><span><button (click)="enterRoom(room)">Join</button></span>
+    <span>{{ room.id }}</span>
+
+    <ng-container
+      *ngIf="room.users.length < 2; then join; else full"></ng-container>
+    <ng-template #join>
+      <span>
+        <button (click)="enterRoom(room.id)">Join</button>
+      </span>
+    </ng-template>
+    <ng-template #full>
+      <span> (Full) </span>
+    </ng-template>
     <!-- <ng-container *ngIf="userId === user; then you; else id"></ng-container> -->
     <!-- <ng-template #you>
       <span>YOU</span>

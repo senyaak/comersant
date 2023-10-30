@@ -4,5 +4,11 @@
   <span *ngIf="user.id === userId">(YOU)</span>
 </div>
 <div>
+  <button
+    *ngIf="isGameOwner"
+    [disabled]="users.length < 2"
+    (click)="startGame()">
+    start game
+  </button>
   <button (click)="leaveRoom()">leave</button>
 </div>

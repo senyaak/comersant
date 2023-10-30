@@ -1,16 +1,21 @@
 import {
-  WebSocketGateway,
+  ConnectedSocket,
+  MessageBody,
   OnGatewayConnection,
   OnGatewayDisconnect,
-  WebSocketServer,
   SubscribeMessage,
-  MessageBody,
-  ConnectedSocket,
+  WebSocketGateway,
+  WebSocketServer,
 } from '@nestjs/websockets';
-import { Socket, Namespace } from 'socket.io';
-import { ClientEvents, Room, RoomsPrefix, ServerEvents } from './../types';
-import { Rooms } from './../types';
+import { Namespace, Socket } from 'socket.io';
 import { UserIdentity } from '../types';
+import {
+  ClientEvents,
+  Room,
+  Rooms,
+  RoomsPrefix,
+  ServerEvents,
+} from './../types';
 
 @WebSocketGateway({ namespace: 'lobby' })
 export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
@@ -21,9 +26,12 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   async handleDisconnect(@ConnectedSocket() socket: Socket) {
     if (socket.data.room) {
       this.server.in(socket.data.room).emit(ServerEvents.LeaveRoom);
-      this.server.emit(ServerEvents.UpdateRoomsList, this.rooms);
+      this.server.emit(ServerEvents.UpdateRoomsList, await this.rooms);
     } else if (socket.rooms.has(Rooms.Lobby)) {
-      this.lobby.emit(ServerEvents.UpdateConnectedUsers, await this.usersList);
+      this.lobby.emit(
+        ServerEvents.UpdateConnectedUsers,
+        await this.usersInlobby,
+      );
     }
   }
 
@@ -36,13 +44,13 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       throw new Error("Can't set already set name");
     }
     socket.data.name = newName;
-    this.lobby.emit(ServerEvents.UpdateConnectedUsers, await this.usersList);
+    this.lobby.emit(ServerEvents.UpdateConnectedUsers, await this.usersInlobby);
   }
 
   @SubscribeMessage(ClientEvents.Join)
   async join(@ConnectedSocket() socket: Socket) {
     socket.join(Rooms.Lobby);
-    this.lobby.emit(ServerEvents.UpdateConnectedUsers, await this.usersList);
+    this.lobby.emit(ServerEvents.UpdateConnectedUsers, await this.usersInlobby);
   }
 
   @SubscribeMessage(ClientEvents.CreateRoom)
@@ -56,8 +64,11 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     await socket.join(room);
 
     socket.emit(ServerEvents.CreatedRoom, room);
-    this.server.emit(ServerEvents.UpdateRoomsList, this.rooms);
-    this.server.emit(ServerEvents.UpdateConnectedUsers, await this.usersList);
+    this.server.emit(ServerEvents.UpdateRoomsList, await this.rooms);
+    this.server.emit(
+      ServerEvents.UpdateConnectedUsers,
+      await this.usersInlobby,
+    );
   }
 
   @SubscribeMessage(ClientEvents.EnterRoom)
@@ -65,12 +76,19 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @MessageBody() roomName: string,
     @ConnectedSocket() socket: Socket,
   ) {
+    if ((await this.server.in(roomName).fetchSockets()).length >= 2) {
+      socket.emit(ServerEvents.RoomIsFull);
+      return;
+    }
     socket.join(roomName);
     socket.leave(Rooms.Lobby);
 
     socket.emit(ServerEvents.EnteredRoom, roomName);
-    this.server.emit(ServerEvents.UpdateConnectedUsers, await this.usersList);
-
+    this.server.emit(
+      ServerEvents.UpdateConnectedUsers,
+      await this.usersInlobby,
+    );
+    this.server.emit(ServerEvents.UpdateRoomsList, await this.rooms);
     this.updateRoomUsers(roomName);
   }
 
@@ -83,13 +101,13 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       return;
     }
     if (socket.data.room) {
-      await this.server.in(socket.data.room).emit(ServerEvents.RoomRemoved);
-      await this.server.in(socket.data.room).socketsLeave(socket.data.room);
-      await this.server.emit(ServerEvents.UpdateRoomsList, this.rooms);
+      this.server.in(socket.data.room).emit(ServerEvents.RoomRemoved);
+      this.server.in(socket.data.room).socketsLeave(socket.data.room);
     } else {
       socket.leave(roomToLeave);
       this.updateRoomUsers(roomToLeave);
     }
+    this.server.emit(ServerEvents.UpdateRoomsList, await this.rooms);
   }
 
   async getRoom(roomId): Promise<Room> {
@@ -107,15 +125,17 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     return this.server.in(Rooms.Lobby);
   }
 
-  get usersList(): Promise<UserIdentity[]> {
+  get usersInlobby(): Promise<UserIdentity[]> {
     return this.lobby.fetchSockets().then(sockets => {
       return sockets.map(({ id, data }) => ({ id, data }));
     });
   }
 
-  public get rooms(): string[] {
-    const rooms = Array.from(this.server.adapter.rooms.keys()).filter(room =>
-      room.includes(RoomsPrefix),
+  public get rooms(): Promise<Room[]> {
+    const rooms = Promise.all(
+      Array.from(this.server.adapter.rooms.keys())
+        .filter(room => room.includes(RoomsPrefix))
+        .map(roomId => this.getRoom(roomId)),
     );
     return rooms;
   }
@@ -132,10 +152,14 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       .in(room)
       .emit(ServerEvents.UpdateRoomUsers, { id: room, users });
   }
-  //   @SubscribeMessage('events') handleEvent(
-  //     @MessageBody() data: string,
-  //     @ConnectedSocket() socket: Socket,
-  //   ) {
-  //
-  //   }
+
+  @SubscribeMessage(ClientEvents.StartGame)
+  async startGame(@ConnectedSocket() socket: Socket) {
+    // socket.join(Rooms.Lobby);
+    // this.lobby.emit(ServerEvents.UpdateConnectedUsers, await this.usersInlobby);
+    // TODO: create new game and pass the game id to the clients
+    const gameId = Math.random().toString(36).substring(2);
+    console.log('gameid', gameId);
+    this.server.in(socket.data.room).emit(ServerEvents.StartGame, gameId);
+  }
 }
