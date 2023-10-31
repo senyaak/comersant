@@ -1,7 +1,15 @@
-import { Controller, Post } from '@nestjs/common';
+import { Controller, Get, Param } from '@nestjs/common';
+import { GamesService } from './games.service';
 
 @Controller('games')
 export class GamesController {
-  @Post()
-  createGame() {}
+  constructor(private readonly gamesService: GamesService) {}
+
+  @Get(':id')
+  game(@Param('id') id: string) {
+    return this.gamesService.getGame(id);
+  }
+
+  // @Post()
+  // createGame() {}
 }
