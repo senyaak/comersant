@@ -2,7 +2,7 @@ import { Controller, Get /*Param*/, Param } from '@nestjs/common';
 import { EventsGateway } from '../events/events.gateway';
 import { Room } from '../types';
 
-@Controller('rooms')
+@Controller('api/rooms')
 export class RoomsController {
   constructor(private eventsGateway: EventsGateway) {}
   @Get()

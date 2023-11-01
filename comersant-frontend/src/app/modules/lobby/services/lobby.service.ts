@@ -103,10 +103,10 @@ export class LobbyService {
     this.socket.emit(ClientEvents.CreateRoom, roomName);
   }
   getRooms() {
-    return this.http.get<Room[]>('/rooms');
+    return this.http.get<Room[]>('/api/rooms');
   }
   getRoomUsers() {
-    return this.http.get<Room>(`/rooms/${this.roomName}`);
+    return this.http.get<Room>(`/api/rooms/${this.roomName}`);
   }
   enterRoom(name: string) {
     this.roomName = name;
