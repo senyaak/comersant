@@ -1,4 +1,4 @@
-import { Event, EventItem, EventType } from './events';
+import { Event, EventItem, EventType } from './../events';
 interface Cards {
   [key: string]: Event;
 }
