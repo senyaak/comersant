@@ -1,4 +1,5 @@
 import type { Game } from '$server/modules/game/models/type';
+import { Routes } from '$server/types/routes';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
@@ -21,29 +22,33 @@ export class GameService {
     } else if (gameId) {
       localStorage.setItem('gameId', gameId);
     } else {
-      console.log('------', this.game);
       throw new Error('gameId is not provided');
     }
 
     this.socket = this.socket = io('/game', { query: { gameId } });
-    this.game = await this.loadGame(gameId);
-    console.log('------', this.game);
+    try {
+      this.game = await this.loadGame(gameId);
+      return this.game;
+    } catch (e) {
+      return Promise.reject();
+    }
   }
 
   get Game() {
     return this.game;
   }
-  loadGame(gameId: string): Promise<Game> {
-    console.log('loadGame');
-    this.http.get<Game>(`/api/games/${gameId}`).subscribe(
-      game => {
-        console.log('game', game);
+  async loadGame(gameId: string): Promise<Game> {
+    return firstValueFrom(
+      this.http.get<Game>(`${Routes.games}/${gameId}`),
+    ).then(
+      () => {
+        console.log('game', this.game);
+        return this.game;
       },
       e => {
-        console.log('error', e);
+        console.log('rej', e);
+        return Promise.reject();
       },
     );
-    return null as any;
-    // return firstValueFrom(this.http.get<Game>(`/api/game/${gameId}`));
   }
 }

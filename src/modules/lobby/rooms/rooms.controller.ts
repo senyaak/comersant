@@ -1,8 +1,9 @@
 import { Controller, Get /*Param*/, Param } from '@nestjs/common';
 import { EventsGateway } from '../events/events.gateway';
 import { Room } from '../types';
+import { Routes } from '$types/routes';
 
-@Controller('api/rooms')
+@Controller(Routes.lobby)
 export class RoomsController {
   constructor(private eventsGateway: EventsGateway) {}
   @Get()

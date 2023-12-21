@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { GameService } from '../../services/game.service';
 
 @Component({
@@ -11,12 +11,18 @@ export class MainComponent implements OnInit {
   constructor(
     private readonly gameService: GameService,
     private readonly route: ActivatedRoute,
+    private readonly router: Router,
   ) {}
 
   ngOnInit() {
-    console.log('----');
-    this.route.paramMap.subscribe(params => {
-      this.gameService.init(params.get('id'));
+    this.route.paramMap.subscribe(async params => {
+      try {
+        await this.gameService.init(params.get('id'));
+        console.log('Game ID:', params.get('id'));
+      } catch (e) {
+        console.warn(`not found game id: ${params.get('id')}`);
+        this.router.navigate(['/']);
+      }
     });
   }
 }

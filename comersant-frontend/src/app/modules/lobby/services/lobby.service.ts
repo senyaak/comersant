@@ -4,6 +4,7 @@ import { io, type Socket } from 'socket.io-client';
 import { ClientEvents, Room, ServerEvents } from '$server/modules/lobby/types';
 
 import { UserIdentity } from '$server/modules/lobby/types';
+import { Routes } from '$server/types/routes';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 
@@ -103,10 +104,10 @@ export class LobbyService {
     this.socket.emit(ClientEvents.CreateRoom, roomName);
   }
   getRooms() {
-    return this.http.get<Room[]>('/api/rooms');
+    return this.http.get<Room[]>(Routes.lobby);
   }
   getRoomUsers() {
-    return this.http.get<Room>(`/api/rooms/${this.roomName}`);
+    return this.http.get<Room>(`${Routes.lobby}/${this.roomName}`);
   }
   enterRoom(name: string) {
     this.roomName = name;
