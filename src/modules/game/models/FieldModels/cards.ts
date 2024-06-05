@@ -155,13 +155,13 @@ export const Post: Cards = {
   },
   /* get events */
   getG: {
-    msg: 'Тащите карту G',
-    item: EventItem.G,
+    msg: 'Тащите карту Сюоприз',
+    item: EventItem.Mail,
     type: EventType.GetEvent,
   },
   getG2: {
-    msg: 'Тащите карту G',
-    item: EventItem.G,
+    msg: 'Тащите карту Сюрприз',
+    item: EventItem.Mail,
     type: EventType.GetEvent,
   },
   getTaxFree: {

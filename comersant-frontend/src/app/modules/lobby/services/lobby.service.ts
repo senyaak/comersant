@@ -23,7 +23,11 @@ export class LobbyService {
   ) {
     /** setup connection to the lobby module */
     this.socket = io('/lobby');
-    this.name = this.socket.id;
+    if (!this.socket.id) {
+      // throw new Error('SOCKET ID NOW PROVIDED');
+    }
+
+    this.name = this.socket.id!;
     /** subscribe to lobby events */
     this.socket.on(ServerEvents.CreatedRoom, this.createdRoom);
     this.socket.on(ServerEvents.EnteredRoom, this.enteredRoom);
@@ -118,6 +122,7 @@ export class LobbyService {
     this.roomName = null;
   }
   startGame() {
+    console.log('click');
     this.socket.emit(ClientEvents.StartGame);
   }
 }

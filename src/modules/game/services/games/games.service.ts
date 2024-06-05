@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { GameClass as Game } from '../../models/game';
+import { Game } from '../../models/GameModels/game';
 
 @Injectable()
 export class GamesService {
@@ -9,10 +9,11 @@ export class GamesService {
     console.log('GamesService');
   }
 
-  createGame() {
+  createGame(players: string[]): string {
     console.log('create game');
-    const game = new Game();
+    const game = new Game(players);
     this.games.push(game);
+
     console.log('this.games', this.games);
     return game.id;
   }

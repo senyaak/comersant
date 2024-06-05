@@ -10,7 +10,7 @@ export enum EventType {
   PropertyLoss,
 }
 export enum EventItem {
-  G,
+  Mail,
   Risk,
   Surprise,
   TaxFree,

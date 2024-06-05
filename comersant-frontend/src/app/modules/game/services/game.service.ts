@@ -1,4 +1,4 @@
-import type { Game } from '$server/modules/game/models/type';
+import type { IGame } from '$server/modules/game/models/type';
 import { Routes } from '$server/types/routes';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
@@ -8,7 +8,7 @@ import { Socket, io } from 'socket.io-client';
 @Injectable()
 export class GameService {
   private socket!: Socket;
-  private game!: Game;
+  private game!: IGame;
 
   constructor(private readonly http: HttpClient) {
     /** just placholder*/
@@ -37,9 +37,9 @@ export class GameService {
   get Game() {
     return this.game;
   }
-  async loadGame(gameId: string): Promise<Game> {
+  async loadGame(gameId: string): Promise<IGame> {
     return firstValueFrom(
-      this.http.get<Game>(`${Routes.games}/${gameId}`),
+      this.http.get<IGame>(`${Routes.games}/${gameId}`),
     ).then(
       () => {
         console.log('game', this.game);

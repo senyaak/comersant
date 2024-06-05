@@ -20,7 +20,7 @@ import { GamesService } from 'src/modules/game/services/games/games.service';
 
 @WebSocketGateway({ namespace: 'lobby' })
 export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
-  @WebSocketServer() private server: Namespace;
+  @WebSocketServer() private server!: Namespace;
   constructor(private gamesService: GamesService) {}
 
   async handleConnection() {}
@@ -122,12 +122,21 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     return { id: roomId, users };
   }
 
+  async getPlayerNames(roomName: string): Promise<string[]> {
+    return await this.server
+      .in(roomName)
+      .fetchSockets()
+      .then(sockets => sockets.map(({ data: { name } }) => name));
+  }
+
   private get lobby() {
     return this.server.in(Rooms.Lobby);
   }
 
   get usersInlobby(): Promise<UserIdentity[]> {
+    console.log('usersInlobby');
     return this.lobby.fetchSockets().then(sockets => {
+      console.log('usersInlobby2', sockets);
       return sockets.map(({ id, data }) => ({ id, data }));
     });
   }
@@ -156,7 +165,10 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage(ClientEvents.StartGame)
   async startGame(@ConnectedSocket() socket: Socket) {
-    const gameId = this.gamesService.createGame();
+    const gameId = this.gamesService.createGame(
+      await this.getPlayerNames(socket.data.room),
+    );
+
     this.server.in(socket.data.room).emit(ServerEvents.StartGame, gameId);
     this.server.emit(ServerEvents.UpdateRoomsList, await this.rooms);
   }
