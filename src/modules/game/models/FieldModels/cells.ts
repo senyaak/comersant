@@ -8,7 +8,7 @@ export abstract class Cell {
   abstract event(player: Player): Promise<void>;
 }
 
-export class CellStart extends Cell {
+export class StartCell extends Cell {
   constructor() {
     super('start');
   }

@@ -1,5 +1,7 @@
+import { Board } from '$server/modules/game/models/FieldModels/board';
 import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
-import { SVG } from '@svgdotjs/svg.js';
+
+// import { SVG } from '@svgdotjs/svg.js';
 @Component({
   selector: 'app-board',
   templateUrl: './board.component.html',
@@ -7,10 +9,11 @@ import { SVG } from '@svgdotjs/svg.js';
 })
 export class BoardComponent implements AfterViewInit {
   @ViewChild('svgContainer') svgContainer!: ElementRef;
-  cells: [] = [];
+  board: Board = new Board();
 
   ngAfterViewInit() {
-    console.log('test');
+    console.log('test', this.svgContainer.nativeElement);
+    console.log('2board', this.board.cells);
     // const draw = SVG()
     //   .addTo(this.svgContainer.nativeElement)
     //   .size('100%', '100%');

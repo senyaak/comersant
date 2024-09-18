@@ -1,6 +1,11 @@
-<!-- <div #svgContainer></div> -->
-
-<svg:svg id="board" [attr.viewBox]="'0 0 600 600'">
-  <svg:g app-cell />
-  <!-- <svg:rect [attr.width]="100" [attr.height]="100" /> -->
-</svg:svg>
+<div #svgContainer>
+  <svg:svg id="board" [attr.viewBox]="'0 0 600 600'">
+    <!-- <svg:g app-start [orderNumber]="$index" /> -->
+    @for (item of board.cells; track $index) {
+      <svg:g>
+        <svg:text>tsssest</svg:text>
+      </svg:g>
+    }
+    <!-- <svg:g app-start /> -->
+  </svg:svg>
+</div>

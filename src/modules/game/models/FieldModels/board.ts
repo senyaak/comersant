@@ -2,6 +2,7 @@ import {
   CardEventCell,
   CardEventCellTypes,
   Cell,
+  StartCell,
   EventCellTypes,
   PropertyCell,
   StaticEventCell,
@@ -12,6 +13,7 @@ export class Board {
   cells: Cell[];
   constructor() {
     const Cells = [
+      new StartCell(),
       new PropertyCell('gastronomie', new PrivateBussines()),
       new PropertyCell('conditerie', new PrivateBussines()),
       new PropertyCell('backer', new PrivateBussines()),
