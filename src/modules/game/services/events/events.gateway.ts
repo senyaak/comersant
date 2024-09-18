@@ -8,10 +8,10 @@ import {
 @WebSocketGateway({ namespace: 'game' })
 export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   handleConnection(client: any, ...args: any[]) {
-    // console.log(client, ...args);
+    console.log(client, ...args);
   }
   handleDisconnect(client: any) {
-    // console.log(client);
+    console.log(client);
   }
 
   @SubscribeMessage('message')

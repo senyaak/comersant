@@ -1,11 +1,25 @@
 <div #svgContainer>
-  <svg:svg id="board" [attr.viewBox]="'0 0 600 600'">
+  <svg:svg
+    id="board"
+    [attr.viewBox]="viewBox"
+    transform="scale(2)"
+    transform-origin="0 0">
     <!-- <svg:g app-start [orderNumber]="$index" /> -->
     @for (item of board.cells; track $index) {
       <svg:g>
-        <svg:text>tsssest</svg:text>
+        <!-- <svg:text>tsssest</svg:text> -->
+        @switch (getType(item)) {
+          @case ('StartCell') {
+            <svg:g app-start [orderNumber]="$index" />
+          }
+          @case ('PrivateBussines') {
+            <svg:g app-cell-wrapper [orderNumber]="$index" />
+          }
+          @default {
+            <!-- <svg:g app-land [orderNumber]="$index" /> -->
+          }
+        }
       </svg:g>
     }
-    <!-- <svg:g app-start /> -->
   </svg:svg>
 </div>

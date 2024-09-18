@@ -1,1 +1,11 @@
-<p>start works!</p>
+<svg:g app-cell-wrapper [orderNumber]="orderNumber">
+  <svg:g>
+    <svg:text
+      [attr.x]="x + 25"
+      [attr.y]="35"
+      font-family="Verdana"
+      font-size="30">
+      {{ 'start' | translate }}
+    </svg:text>
+  </svg:g>
+</svg:g>

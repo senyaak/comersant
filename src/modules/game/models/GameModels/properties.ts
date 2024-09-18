@@ -1,4 +1,4 @@
-import { Player } from './player';
+// import { Player } from './player';
 
 enum BussinessGrade {
   Zone = 1,
@@ -14,10 +14,12 @@ export abstract class Property {
 export class Site extends Property {}
 
 class Bussiness extends Property {
-  // grade: BussinessGrade;
+  grade: BussinessGrade = BussinessGrade.Zone;
 }
 
 export class GovBussines extends Bussiness {}
 export class PrivateBussines extends Bussiness {
-  // group: number;
+  constructor(private group: number) {
+    super();
+  }
 }
