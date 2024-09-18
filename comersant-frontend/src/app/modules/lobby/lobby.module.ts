@@ -9,18 +9,14 @@ import { RoomComponent } from './components/room/room.component';
 import { SetNameComponent } from './components/main/users/set-name/set-name.component';
 import { FormsModule } from '@angular/forms';
 import { CreateRoomComponent } from './components/main/rooms/create-room/create-room.component';
-import { HttpClientModule } from '@angular/common/http';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 
-@NgModule({
-  declarations: [
-    MainComponent,
-    RoomsComponent,
-    UsersComponent,
-    RoomComponent,
-    SetNameComponent,
-    CreateRoomComponent,
-  ],
-  providers: [LobbyService],
-  imports: [CommonModule, LobbyRoutingModule, FormsModule, HttpClientModule],
-})
+@NgModule({ declarations: [
+        MainComponent,
+        RoomsComponent,
+        UsersComponent,
+        RoomComponent,
+        SetNameComponent,
+        CreateRoomComponent,
+    ], imports: [CommonModule, LobbyRoutingModule, FormsModule], providers: [LobbyService, provideHttpClient(withInterceptorsFromDi())] })
 export class LobbyModule {}
