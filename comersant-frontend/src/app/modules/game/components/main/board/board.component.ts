@@ -1,15 +1,13 @@
 import { Board } from '$server/modules/game/models/FieldModels/board';
 import {
+  CardEventCell,
   Cell,
   PropertyCell,
   StartCell,
+  StaticEventCell,
 } from '$server/modules/game/models/FieldModels/cells';
-import {
-  GovBussines,
-  PrivateBussines,
-  Site,
-} from '$server/modules/game/models/GameModels/properties';
-import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
+import { AreaSite } from '$server/modules/game/models/GameModels/properties';
+import { Component, OnInit } from '@angular/core';
 import { CellHeight, CellOffset, CellWidth } from './cell/abstract/base';
 
 // import { SVG } from '@svgdotjs/svg.js';
@@ -18,48 +16,44 @@ import { CellHeight, CellOffset, CellWidth } from './cell/abstract/base';
   templateUrl: './board.component.html',
   styleUrls: ['./board.component.scss'],
 })
-export class BoardComponent implements AfterViewInit {
-  @ViewChild('svgContainer') svgContainer!: ElementRef;
+export class BoardComponent implements OnInit {
+  // @ViewChild('svgContainer') svgContainer!: ElementRef;
   board: Board = new Board();
   viewBox: string;
 
   constructor() {
-    this.viewBox = `0 0 ${this.boardWidth} ${this.boardHeight}`;
+    this.viewBox = `0 0 ${this.boardWidthC} ${this.boardHeightC}`;
   }
 
-  ngAfterViewInit() {
-    console.log('test', this.svgContainer.nativeElement);
+  ngOnInit() {
     console.log('2board', this.board.cells);
-    // const draw = SVG()
-    //   .addTo(this.svgContainer.nativeElement)
-    //   .size('100%', '100%');
-    // const rect = draw.rect(100, 100).attr({ fill: '#f06' });
-    // rect.node.addEventListener('click', () => {
-    //   // this.someAngularMethod();
-    // });
   }
 
   get boardWidth() {
+    return '50%';
+  }
+  get boardWidthC() {
     return this.board.cells.length * (CellWidth + CellOffset) + CellOffset;
   }
-  get boardHeight() {
+  get boardHeightC() {
     return CellHeight + CellOffset * 2;
   }
   getType(item: Cell) {
     if (item instanceof StartCell) {
       return 'StartCell';
     } else if (item instanceof PropertyCell) {
-      if (item.object instanceof PrivateBussines) {
-        return 'PrivateBussines';
-      } else if (item.object instanceof Site) {
-        return 'Site';
-      } else if (item.object instanceof GovBussines) {
-        return 'GovBussines';
+      if (item.object instanceof AreaSite) {
+        return 'AreaSite';
       } else {
-        throw new Error('dmb ass');
+        return 'Property';
       }
+    } else if (item instanceof CardEventCell) {
+      return 'CardEventCell';
+    } else if (item instanceof StaticEventCell) {
+      return 'StaticEventCell';
     }
 
+    console.log('item', item);
     throw new Error('dmb');
   }
 }

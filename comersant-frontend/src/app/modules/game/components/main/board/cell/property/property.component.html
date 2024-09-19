@@ -1,11 +1,13 @@
 <svg:g app-cell-wrapper [orderNumber]="orderNumber">
   <svg:g>
+    <!-- label -->
     <svg:text
-      [attr.x]="x + 25"
+      [attr.x]="x + width / 2"
       [attr.y]="35"
       font-family="Verdana"
-      font-size="30">
-      {{ 'start' | translate }}
+      text-anchor="middle"
+      font-size="20">
+      {{ label }}
     </svg:text>
   </svg:g>
 </svg:g>

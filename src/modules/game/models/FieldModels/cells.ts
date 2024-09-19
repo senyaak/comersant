@@ -3,32 +3,24 @@ import { Player } from '../GameModels/player';
 import { Property } from '../GameModels/properties';
 
 export abstract class Cell {
-  constructor(private name: string) {}
-
-  abstract event(player: Player): Promise<void>;
+  constructor(public readonly name: string) {}
 }
 
 export class StartCell extends Cell {
   constructor() {
     super('start');
   }
-  event() {
-    return Promise.resolve();
-  }
 }
 
 export class PropertyCell extends Cell {
   owner: Player | null;
-  object: Property;
 
-  constructor(name: string, propertyEntity: Property) {
+  constructor(
+    name: string,
+    public object: Property,
+  ) {
     super(name);
     this.owner = null;
-    this.object = propertyEntity;
-  }
-  event(player: Player): Promise<void> {
-    // TODO: implement
-    return Promise.resolve();
   }
 }
 
@@ -38,34 +30,33 @@ export abstract class EventCell extends Cell {
   }
 }
 export class StaticEventCell extends EventCell {
-  constructor(name: EventCellTypes.staticEvent) {
+  constructor(name: EventCellTypes.staticEvent, type: EventType);
+  constructor(
+    name: EventCellTypes.staticEvent,
+    type: EventType.BalanceChange,
+    amount: number,
+  );
+  constructor(
+    name: EventCellTypes.staticEvent,
+    public readonly type: EventType,
+    public readonly amount?: number,
+  ) {
     super(name);
   }
-  event(player: Player): Promise<void> {
-    // TODO: implement
-    return Promise.resolve();
-  }
 }
+
 export class InteractiveEventCell extends EventCell {
   constructor(name: EventCellTypes.interactiveEvent) {
     super(name);
-  }
-  event(player: Player): Promise<void> {
-    // TODO: implement
-    return Promise.resolve();
   }
 }
 
 export class CardEventCell extends EventCell {
   constructor(
     name: EventCellTypes.card,
-    private type: CardEventCellTypes,
+    public readonly type: CardEventCellTypes,
   ) {
     super(name);
-  }
-  event(player: Player): Promise<void> {
-    // TODO: implement
-    return Promise.resolve();
   }
 }
 

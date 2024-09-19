@@ -3,8 +3,8 @@
     id="board"
     [attr.viewBox]="viewBox"
     transform="scale(2)"
-    transform-origin="0 0">
-    <!-- <svg:g app-start [orderNumber]="$index" /> -->
+    transform-origin="0 0"
+    [attr.width]="boardWidth">
     @for (item of board.cells; track $index) {
       <svg:g>
         <!-- <svg:text>tsssest</svg:text> -->
@@ -12,8 +12,14 @@
           @case ('StartCell') {
             <svg:g app-start [orderNumber]="$index" />
           }
-          @case ('PrivateBussines') {
-            <svg:g app-cell-wrapper [orderNumber]="$index" />
+          @case ('Property') {
+            <svg:g
+              app-property-cell
+              [cell]="$any(item)"
+              [orderNumber]="$index" />
+          }
+          @case ('CardEventCell') {
+            <svg:g app-card-cell [cell]="$any(item)" [orderNumber]="$index" />
           }
           @default {
             <!-- <svg:g app-land [orderNumber]="$index" /> -->

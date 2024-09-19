@@ -11,14 +11,18 @@ export abstract class Property {
   // TODO IMPLEMENT!
   // owner: Player | null;
 }
-export class Site extends Property {}
+export class AreaSite extends Property {
+  constructor(private price: number) {
+    super();
+  }
+}
 
-class Bussiness extends Property {
+export class Business extends Property {
   grade: BussinessGrade = BussinessGrade.Zone;
 }
 
-export class GovBussines extends Bussiness {}
-export class PrivateBussines extends Bussiness {
+export class GovBusiness extends Business {}
+export class PrivateBusiness extends Business {
   constructor(private group: number) {
     super();
   }

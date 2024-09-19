@@ -7,4 +7,10 @@ import { BaseComponent } from './abstract/base';
   templateUrl: './wrapper.component.html',
   styleUrls: ['./wrapper.component.scss'],
 })
-export class CellWrapperComponent extends BaseComponent {}
+export class CellWrapperComponent extends BaseComponent {
+  viewBox: string = `0 0 ${this.width} ${this.height}`;
+}
+// [attr.x]="x"
+// [attr.y]="offset"
+// [attr.width]="width"
+// [attr.height]="height"

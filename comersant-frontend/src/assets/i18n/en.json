@@ -1,3 +1,11 @@
 {
-  "start": "Start"
+  "start": "Start",
+  "backer": "Baker",
+  "big": "Grand Mall",
+  "children": "Toy Store",
+  "conditerie": "Confectionery",
+  "gastronomie": "Gastronomy",
+  "mercery": "Mercery",
+  "site": "Land site",
+  "toys": "Toy Manufacturer"
 }

@@ -8,6 +8,7 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Namespace, Socket } from 'socket.io';
+import { GamesService } from 'src/modules/game/services/games/games.service';
 import { UserIdentity } from '../types';
 import {
   ClientEvents,
@@ -16,7 +17,6 @@ import {
   RoomsPrefix,
   ServerEvents,
 } from './../types';
-import { GamesService } from 'src/modules/game/services/games/games.service';
 
 @WebSocketGateway({ namespace: 'lobby' })
 export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
@@ -111,7 +111,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.server.emit(ServerEvents.UpdateRoomsList, await this.rooms);
   }
 
-  async getRoom(roomId): Promise<Room> {
+  async getRoom(roomId: string): Promise<Room> {
     const users = (await this.server.in(roomId).fetchSockets()).map(
       ({ id, data }) => ({
         id,
@@ -134,9 +134,9 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   get usersInlobby(): Promise<UserIdentity[]> {
-    console.log('usersInlobby');
+    // console.log('usersInlobby');
     return this.lobby.fetchSockets().then(sockets => {
-      console.log('usersInlobby2', sockets);
+      // console.log('usersInlobby2', sockets);
       return sockets.map(({ id, data }) => ({ id, data }));
     });
   }

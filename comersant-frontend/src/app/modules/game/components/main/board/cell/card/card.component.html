@@ -1,0 +1,17 @@
+<svg:g class="app-card-cell" app-cell-wrapper [orderNumber]="orderNumber">
+  <svg:g>
+    <svg:line
+      [attr.x1]="x"
+      [attr.y1]="positionY"
+      [attr.x2]="x + width"
+      [attr.y2]="positionY"
+      [attr.stroke]="color"></svg:line>
+    <svg:text
+      [attr.x]="x + 25"
+      [attr.y]="35"
+      font-family="Verdana"
+      font-size="30">
+      {{ label }}
+    </svg:text>
+  </svg:g>
+</svg:g>

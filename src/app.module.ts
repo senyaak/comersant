@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
-import { LobbyModule } from './modules/lobby/lobby.module';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
 import { GameModule } from './modules/game/game.module';
+import { LobbyModule } from './modules/lobby/lobby.module';
 
 @Module({
   imports: [

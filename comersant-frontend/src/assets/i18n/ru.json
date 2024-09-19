@@ -1,3 +1,11 @@
 {
-  "start": "Старт"
+	"start": "Старт",
+	"backer": "backer",
+	"big": "big",
+	"children": "children",
+	"conditerie": "conditerie",
+	"gastronomie": "gastronomie",
+	"mercery": "mercery",
+	"site": "site",
+	"toys": "toys"
 }
