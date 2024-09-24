@@ -3,11 +3,35 @@
     <!-- label -->
     <svg:text
       [attr.x]="x + width / 2"
-      [attr.y]="35"
-      font-family="Verdana"
-      text-anchor="middle"
-      font-size="20">
+      [attr.y]="padding + fontSize"
+      [attr.font-size]="fontSize"
+      [attr.font-family]="font"
+      text-anchor="middle">
+      <!-- TODO: handle case when title is too long(split+push(price)+ngForloop) -->
       {{ label }}
     </svg:text>
+    <!-- price -->
+    <svg:text
+      [attr.x]="x + width / 2"
+      [attr.y]="padding + fontSize * 2"
+      [attr.font-size]="fontSize"
+      [attr.font-family]="font"
+      text-anchor="middle">
+      {{ cell.object.price }}
+    </svg:text>
+    <!-- top separator -->
+    <svg:line
+      [attr.x1]="x"
+      [attr.y1]="padding + fontSize * 3"
+      [attr.x2]="x + width"
+      [attr.y2]="padding + fontSize * 3"
+      [attr.stroke]="black"></svg:line>
+    <!-- bot separator -->
+    <svg:line
+      [attr.x1]="x"
+      [attr.y1]="padding + height - fontSize * 3"
+      [attr.x2]="x + width"
+      [attr.y2]="padding + height - fontSize * 3"
+      [attr.stroke]="black"></svg:line>
   </svg:g>
 </svg:g>

@@ -22,4 +22,16 @@ export abstract class BaseComponent {
   protected get x() {
     return this.offset + this.orderNumber * (this.width + this.offset);
   }
+  protected get fontSize() {
+    return 20;
+  }
+  protected get padding() {
+    return 15;
+  }
+  protected get font() {
+    return 'Verdana';
+  }
+  protected get black() {
+    return 'black';
+  }
 }

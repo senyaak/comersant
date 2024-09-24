@@ -17,7 +17,7 @@ export class PropertyCell extends Cell {
 
   constructor(
     name: string,
-    public object: Property,
+    public readonly object: Property,
   ) {
     super(name);
     this.owner = null;

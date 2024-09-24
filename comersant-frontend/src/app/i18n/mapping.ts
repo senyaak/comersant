@@ -8,3 +8,8 @@ export const Gastronomie = _('gastronomie');
 export const Mercery = _('mercery');
 export const Site = _('site');
 export const Toys = _('toys');
+
+export const Area = _('area');
+export const Office = _('office');
+export const Department = _('department');
+export const Enterprise = _('enterprise');
