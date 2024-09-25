@@ -1,3 +1,4 @@
+import { EventType } from '$server/modules/game/models/events';
 import { Board } from '$server/modules/game/models/FieldModels/board';
 import {
   CardEventCell,
@@ -49,11 +50,20 @@ export class BoardComponent implements OnInit {
       }
     } else if (item instanceof CardEventCell) {
       return 'CardEventCell';
+    } else if (
+      item instanceof StaticEventCell &&
+      item.type === EventType.BalanceChange
+    ) {
+      if (item.amount! > 0) {
+        return 'IncomeCell';
+      } else {
+        return 'TaxCell';
+      }
     } else if (item instanceof StaticEventCell) {
       return 'StaticEventCell';
     }
 
-    console.log('item', item);
+    // console.log('item', item);
     throw new Error('dmb');
   }
 }

@@ -1,5 +1,8 @@
 {
+  "tax": "Tax",
   "start": "Start",
+  "upgradePrice": "Upgrade",
+  "income": "Income",
   "backer": "Baker",
   "big": "Grand Mall",
   "children": "Toy Store",
@@ -7,5 +10,9 @@
   "gastronomie": "Gastronomy",
   "mercery": "Mercery",
   "site": "Land site",
-  "toys": "Toy Manufacturer"
+  "toys": "Toy Manufacturer",
+  "area": "Area",
+  "office": "Office",
+  "department": "Department",
+  "enterprise": "Enterprise"
 }

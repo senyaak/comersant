@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { BaseComponent } from './abstract/base';
 
 @Component({
@@ -8,9 +8,6 @@ import { BaseComponent } from './abstract/base';
   styleUrls: ['./wrapper.component.scss'],
 })
 export class CellWrapperComponent extends BaseComponent {
+  @Input({ required: false }) fill: string = 'white';
   viewBox: string = `0 0 ${this.width} ${this.height}`;
 }
-// [attr.x]="x"
-// [attr.y]="offset"
-// [attr.width]="width"
-// [attr.height]="height"

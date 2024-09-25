@@ -1,0 +1,13 @@
+<svg:g class="app-card-cell" app-cell-wrapper [orderNumber]="orderNumber">
+  <svg:g>
+    <svg:text
+      [attr.x]="x + width / 2"
+      [attr.y]="height / 2"
+      [attr.font-family]="font"
+      [attr.font-size]="fontSize"
+      text-anchor="middle">
+      <!-- [attr.fill]="color" -->
+      {{ 'areasite' | translate }}: {{ cell.object.price }}
+    </svg:text>
+  </svg:g>
+</svg:g>

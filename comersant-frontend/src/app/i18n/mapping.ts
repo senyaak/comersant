@@ -13,3 +13,4 @@ export const Area = _('area');
 export const Office = _('office');
 export const Department = _('department');
 export const Enterprise = _('enterprise');
+export const PropertyMods = [Area, Office, Department, Enterprise];

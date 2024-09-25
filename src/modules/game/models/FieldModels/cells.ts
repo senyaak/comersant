@@ -12,12 +12,12 @@ export class StartCell extends Cell {
   }
 }
 
-export class PropertyCell extends Cell {
+export class PropertyCell<T extends Property = Property> extends Cell {
   owner: Player | null;
 
   constructor(
     name: string,
-    public readonly object: Property,
+    public readonly object: T,
   ) {
     super(name);
     this.owner = null;

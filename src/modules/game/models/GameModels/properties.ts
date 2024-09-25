@@ -26,7 +26,8 @@ export class Business extends Property {
 
   constructor(
     price: number,
-    readonly grades: Grades,
+    public readonly upgradePrice: number,
+    public readonly grades: Grades,
   ) {
     super(price);
   }
@@ -55,6 +56,22 @@ export class Business extends Property {
   get enterprisePayout(): number {
     return this.grades[3][1];
   }
+  get buys(): number[] {
+    return [
+      this.areaBuy,
+      this.officeBuy,
+      this.departmentBuy,
+      this.enterpriseBuy,
+    ];
+  }
+  get payouts(): number[] {
+    return [
+      this.areaPayout,
+      this.officePayout,
+      this.departmentPayout,
+      this.enterprisePayout,
+    ];
+  }
 }
 
 export class GovBusiness extends Business {}
@@ -62,8 +79,9 @@ export class PrivateBusiness extends Business {
   constructor(
     public readonly group: number,
     price: number,
+    upgradePrice: number,
     grades: Grades,
   ) {
-    super(price, grades);
+    super(price, upgradePrice, grades);
   }
 }

@@ -10,6 +10,7 @@ export const CellOffset = 10;
 })
 export abstract class BaseComponent {
   @Input({ required: true }) orderNumber!: number;
+
   protected get height() {
     return CellHeight;
   }
@@ -22,14 +23,29 @@ export abstract class BaseComponent {
   protected get x() {
     return this.offset + this.orderNumber * (this.width + this.offset);
   }
+  // protected get textTopPadding() {
+  //   return this.padding + this.textPadding;
+  // }
+  protected get textStartLine() {
+    return this.x + this.textPadding;
+  }
+  protected get textTopPadding() {
+    return this.padding + this.textPadding;
+  }
+  protected get textPadding() {
+    return this.fontSize * 0.2;
+  }
   protected get fontSize() {
-    return 20;
+    return 17;
   }
   protected get padding() {
-    return 15;
+    return this.offset;
+  }
+  protected get lineWidth() {
+    return 1;
   }
   protected get font() {
-    return 'Verdana';
+    return 'Liberation Mono';
   }
   protected get black() {
     return 'black';

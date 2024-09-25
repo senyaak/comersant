@@ -40,6 +40,7 @@ export class Board {
         new PrivateBusiness(
           BussinessGroups.Eat,
           30_000,
+          25_000,
           [
             [900, 400],
             [15_000, 1_500],
@@ -51,7 +52,7 @@ export class Board {
       ),
       new PropertyCell(
         'Conditerie',
-        new PrivateBusiness(BussinessGroups.Eat, 32_000, [
+        new PrivateBusiness(BussinessGroups.Eat, 32_000, 28_000, [
           [900, 800],
           [15_000, 1_500],
           [58_000, 6_000],
@@ -60,7 +61,7 @@ export class Board {
       ),
       new PropertyCell(
         'Backer',
-        new PrivateBusiness(BussinessGroups.Eat, 34_000, [
+        new PrivateBusiness(BussinessGroups.Eat, 34_000, 30_000, [
           [1_000, 300],
           [17_000, 1_600],
           [61_500, 6_100],
@@ -73,7 +74,7 @@ export class Board {
       new CardEventCell(EventCellTypes.card, CardEventCellTypes.surpise),
       new PropertyCell(
         'Toys',
-        new GovBusiness(40_000, [
+        new GovBusiness(40_000, 32_000, [
           [5_200, 500],
           [20_000, 2_000],
           [70_000, 7_000],
@@ -83,7 +84,7 @@ export class Board {
       new StaticEventCell(EventCellTypes.staticEvent, ET.BalanceChange, 15000),
       new PropertyCell(
         'Mercery',
-        new PrivateBusiness(BussinessGroups.Market, 29_000, [
+        new PrivateBusiness(BussinessGroups.Market, 29_000, 21_000, [
           [3_800, 400],
           [14_500, 1_300],
           [52_000, 5_300],
@@ -92,7 +93,7 @@ export class Board {
       ),
       new PropertyCell(
         'Children',
-        new PrivateBusiness(BussinessGroups.Market, 30_000, [
+        new PrivateBusiness(BussinessGroups.Market, 30_000, 22_000, [
           [3_900, 400],
           [15_000, 1_500],
           [54_000, 5_500],
@@ -101,7 +102,7 @@ export class Board {
       ),
       new PropertyCell(
         'Big',
-        new PrivateBusiness(BussinessGroups.Market, 28_000, [
+        new PrivateBusiness(BussinessGroups.Market, 28_000, 20_000, [
           [3_700, 400],
           [14_000, 1_400],
           [50_400, 5_100],

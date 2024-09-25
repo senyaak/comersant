@@ -18,8 +18,25 @@
               [cell]="$any(item)"
               [orderNumber]="$index" />
           }
+          @case ('AreaSite') {
+            <svg:g app-area-cell [cell]="$any(item)" [orderNumber]="$index" />
+          }
           @case ('CardEventCell') {
             <svg:g app-card-cell [cell]="$any(item)" [orderNumber]="$index" />
+          }
+          @case ('IncomeCell') {
+            <svg:g
+              app-income-cell
+              [income]="$any(item).amount"
+              [orderNumber]="$index" />
+            1
+          }
+          @case ('TaxCell') {
+            <svg:g
+              app-tax-cell
+              [tax]="$any(item).amount"
+              [orderNumber]="$index" />
+            1
           }
           @default {
             <!-- <svg:g app-land [orderNumber]="$index" /> -->

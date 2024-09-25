@@ -1,5 +1,8 @@
 {
+	"tax": "tax",
 	"start": "Старт",
+	"upgradePrice": "upgradePrice",
+	"income": "income",
 	"backer": "backer",
 	"big": "big",
 	"children": "children",
@@ -7,5 +10,9 @@
 	"gastronomie": "gastronomie",
 	"mercery": "mercery",
 	"site": "site",
-	"toys": "toys"
+	"toys": "toys",
+	"area": "area",
+	"office": "office",
+	"department": "department",
+	"enterprise": "enterprise"
 }
