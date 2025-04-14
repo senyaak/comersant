@@ -4,14 +4,15 @@ const fs = require('fs');
 const path = require('path');
 
 // Config
+const PROJECT_ROOT = path.resolve(__dirname, '..');
 const TEX_SOURCE = 'doc.tex';
-const OUTPUT_DIR = './../documentation/design';
+const OUTPUT_DIR = './documentation/design';
 const LATEXMK_ARGS = [
   '-pdf',
   '-file-line-error',
   '-interaction=nonstopmode',
   '-halt-on-error',
-  `-outdir=${OUTPUT_DIR}`,
+  `-output-directory=${path.resolve(PROJECT_ROOT, OUTPUT_DIR)}`,
 ];
 
 // Helper: Check if command exists

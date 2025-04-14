@@ -3,12 +3,15 @@
 \usepackage[margin=1in]{geometry}
 \usepackage{graphicx}
 \usepackage{tabularx}
+\usepackage{booktabs} % Added for better table formatting
 \usepackage{hyperref}
 \hypersetup{
     colorlinks=true,
     urlcolor=blue,
     pdftitle={Software Design Document},
-    pdfauthor={Senyaak}
+    pdfauthor={Senyaak},
+    pdfsubject={Comersant Design},
+    pdfkeywords={design, architecture, comersant}
 }
 
 % Remove section numbering
@@ -30,31 +33,31 @@
 \vspace{2em}
 
 % Document Content
-\section*{Introduction}
-\textbf{Purpose:} This document describes the architecture and design of Comersant. \\
+\section*{Introduction}\label{sec:intro}
+\textbf{Purpose:} This document describes the architecture and design of Comersant app. \\
 \textbf{Scope:} Covers backend services and web interface. \\
 \textbf{Audience:} Development team and stakeholders.
 
-\section*{System Overview}
+\section*{System Overview}\label{sec:overview}
 \textbf{High-Level Architecture:} \\
-\textit{Insert architecture diagram description here} \\  % Changed from [ ] to italic
+\textit{Insert architecture diagram description here} \\
 \textbf{Technology Stack:} 
 \begin{itemize}
-    \item Backend: Node.js, Express
-    \item Database: PostgreSQL
+    \item Backend: Node.js, Nest, socket.io
+    \item Frontend: Angular, socket.io
+    % \item Database: PostgreSQL
 \end{itemize}
 \textbf{Dependencies:} Auth0, AWS S3
 
-\section*{Detailed Design}
+\section*{Detailed Design}\label{sec:design}
 \subsection*{Core Modules}
-\begin{tabularx}{\textwidth}{@{} >{\bfseries}l | X @{}}  % Improved table format
-\hline
+\begin{tabularx}{\textwidth}{@{} >{\bfseries}l X @{}}
+\toprule
 Module & Description \\ 
-\hline
+\midrule
 Authentication & Handles user login via JWT \\ 
-\hline
 API Gateway & Routes requests to microservices \\
-\hline
+\bottomrule
 \end{tabularx}
 
 \subsection*{API Endpoints}
