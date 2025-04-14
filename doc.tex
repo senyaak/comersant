@@ -1,0 +1,66 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{graphicx}
+\usepackage{tabularx}
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    urlcolor=blue,
+    pdftitle={Software Design Document},
+    pdfauthor={Senyaak}
+}
+
+% Remove section numbering
+\makeatletter
+\renewcommand{\@seccntformat}[1]{}
+\makeatother
+
+\begin{document}
+
+% Title Section
+\noindent
+\begin{tabularx}{\textwidth}{@{} l X @{}}
+\textbf{Project Name:} & Comersant \\
+\textbf{Version:} & 0.0.1 \\
+\textbf{Authors:} & Senyaak \\
+\textbf{Last Updated:} & \today \\
+\end{tabularx}
+
+\vspace{2em}
+
+% Document Content
+\section*{Introduction}
+\textbf{Purpose:} This document describes the architecture and design of Comersant. \\
+\textbf{Scope:} Covers backend services and web interface. \\
+\textbf{Audience:} Development team and stakeholders.
+
+\section*{System Overview}
+\textbf{High-Level Architecture:} \\
+\textit{Insert architecture diagram description here} \\  % Changed from [ ] to italic
+\textbf{Technology Stack:} 
+\begin{itemize}
+    \item Backend: Node.js, Express
+    \item Database: PostgreSQL
+\end{itemize}
+\textbf{Dependencies:} Auth0, AWS S3
+
+\section*{Detailed Design}
+\subsection*{Core Modules}
+\begin{tabularx}{\textwidth}{@{} >{\bfseries}l | X @{}}  % Improved table format
+\hline
+Module & Description \\ 
+\hline
+Authentication & Handles user login via JWT \\ 
+\hline
+API Gateway & Routes requests to microservices \\
+\hline
+\end{tabularx}
+
+\subsection*{API Endpoints}
+\begin{verbatim}
+GET /api/users - Returns user list
+POST /api/auth - Handles authentication
+\end{verbatim}
+
+\end{document}
