@@ -1,11 +1,11 @@
-<div #svgContainer>
+<div #svgContainer id="svgContainer">
   <svg:svg
     id="board"
     [attr.viewBox]="viewBox"
     transform="scale(2)"
     transform-origin="0 0"
     [attr.width]="boardWidth">
-    @for (item of board.cells; track $index) {
+    @for (item of flatCells; track $index) {
       <svg:g>
         <!-- <svg:text>tsssest</svg:text> -->
         @switch (getType(item)) {
