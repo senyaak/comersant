@@ -12,6 +12,12 @@ export class StartCell extends Cell {
   }
 }
 
+export class InnerStartCell extends Cell {
+  constructor() {
+    super('InnerStart');
+  }
+}
+
 export class PropertyCell<T extends Property = Property> extends Cell {
   owner: Player | null;
 
