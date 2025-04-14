@@ -2,10 +2,11 @@ export enum EventType {
   BalanceChange,
   GetEvent,
   MoneyTransfer,
+  SkipTurn,
+  Ricatto,
   Move,
   MoveTo,
   MoveToCenter,
-  SkipTurn,
   MovePlayer,
   PropertyLoss,
 }

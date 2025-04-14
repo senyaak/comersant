@@ -1,13 +1,29 @@
 import { marker as _ } from '@colsen1991/ngx-translate-extract-marker';
 
-export const Backer = _('backer');
-export const Big = _('big');
-export const Children = _('children');
-export const Conditerie = _('conditerie');
-export const Gastronomie = _('gastronomie');
-export const Mercery = _('mercery');
+/** bussinesses */
+export const gastronomie = _('gastronomie');
+export const conditerie = _('conditerie');
+export const backer = _('backer');
+export const toys = _('toys');
+export const mercery = _('mercery');
+export const children = _('children');
+export const big = _('big');
+export const diner = _('diner');
+export const cafe = _('cafe');
+export const restorant = _('restorant');
+export const kiosk = _('kiosk');
+export const wegetables = _('wegetables');
+export const market = _('market');
+export const statefarm = _('statefarm');
+export const spartak = _('spartak');
+export const torpedo = _('torpedo');
+export const luzhniki = _('luzhniki');
+export const concerthall = _('concerthall');
+export const palaceofsport = _('palaceofsport');
+export const olympicstadium = _('olympicstadium');
+/**============================*/
+
 export const Site = _('site');
-export const Toys = _('toys');
 
 export const Area = _('area');
 export const Office = _('office');

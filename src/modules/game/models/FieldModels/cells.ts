@@ -46,7 +46,10 @@ export class StaticEventCell extends EventCell {
 }
 
 export class InteractiveEventCell extends EventCell {
-  constructor(name: EventCellTypes.interactiveEvent) {
+  constructor(
+    name: EventCellTypes.interactiveEvent,
+    public readonly type: EventType,
+  ) {
     super(name);
   }
 }

@@ -31,7 +31,7 @@ export class BoardComponent implements OnInit {
   }
 
   get boardWidth() {
-    return '50%';
+    return '150%';
   }
   get boardWidthC() {
     return this.board.cells.length * (CellWidth + CellOffset) + CellOffset;
@@ -59,11 +59,17 @@ export class BoardComponent implements OnInit {
       } else {
         return 'TaxCell';
       }
+    } else if (
+      item instanceof StaticEventCell &&
+      item.type === EventType.MoveToCenter
+    ) {
+      return 'MoveToCenter';
     } else if (item instanceof StaticEventCell) {
       return 'StaticEventCell';
     }
 
     // console.log('item', item);
-    throw new Error('dmb');
+    // throw new Error('dmb');
+    return 'unknown';
   }
 }
