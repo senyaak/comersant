@@ -1,3 +1,4 @@
+import { Component, OnInit } from '@angular/core';
 import { EventType } from '$server/modules/game/models/events';
 import { Board } from '$server/modules/game/models/FieldModels/board';
 import {
@@ -8,7 +9,7 @@ import {
   StaticEventCell,
 } from '$server/modules/game/models/FieldModels/cells';
 import { AreaSite } from '$server/modules/game/models/GameModels/properties';
-import { Component, OnInit } from '@angular/core';
+
 import { CellHeight, CellOffset, CellWidth } from './cell/abstract/base';
 
 // import { SVG } from '@svgdotjs/svg.js';
@@ -16,6 +17,7 @@ import { CellHeight, CellOffset, CellWidth } from './cell/abstract/base';
   selector: 'app-board',
   templateUrl: './board.component.html',
   styleUrls: ['./board.component.scss'],
+  standalone: false,
 })
 export class BoardComponent implements OnInit {
   public board: Board = new Board();

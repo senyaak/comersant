@@ -6,6 +6,7 @@ import { BaseComponent } from '../abstract/base';
   selector: '[app-income-cell]',
   templateUrl: './income.component.html',
   styleUrl: './income.component.scss',
+  standalone: false,
 })
 export class IncomeComponent extends BaseComponent implements OnInit {
   @Input({ required: true }) income!: number;

@@ -1,5 +1,6 @@
-import { Routes } from '$types/routes';
 import { Controller, Get, Param } from '@nestjs/common';
+import { Routes } from '$types/routes';
+
 import { GamesService } from './games.service';
 
 @Controller(Routes.games)

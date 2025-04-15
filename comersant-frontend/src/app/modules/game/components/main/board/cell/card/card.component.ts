@@ -1,15 +1,16 @@
+import { Component, Input, OnInit } from '@angular/core';
 import {
   CardEventCell,
   EventCell,
 } from '$server/modules/game/models/FieldModels/cells';
-import { Component, Input, OnInit } from '@angular/core';
+
 import { BaseComponent } from '../abstract/base';
 
 @Component({
-  // eslint-disable-next-line @angular-eslint/component-selector
   selector: '[app-card-cell]',
   templateUrl: './card.component.html',
   styleUrl: './card.component.scss',
+  standalone: false,
 })
 export class CardComponent extends BaseComponent implements OnInit {
   @Input({ required: true }) cell!: EventCell;

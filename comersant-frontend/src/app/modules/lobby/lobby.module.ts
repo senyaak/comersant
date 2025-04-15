@@ -5,6 +5,7 @@ import {
 } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+
 import { MainComponent } from './components/main/main.component';
 import { CreateRoomComponent } from './components/main/rooms/create-room/create-room.component';
 import { RoomsComponent } from './components/main/rooms/rooms.component';

@@ -1,16 +1,17 @@
+import { Component, Input, OnInit } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
 import { PropertyMods } from '$i18n/mapping';
 import { PropertyCell } from '$server/modules/game/models/FieldModels/cells';
 import { Business } from '$server/modules/game/models/GameModels/properties';
-import { Component, Input, OnInit } from '@angular/core';
-import { TranslateService } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
+
 import { BaseComponent } from '../abstract/base';
 
 @Component({
-  // eslint-disable-next-line @angular-eslint/component-selector
   selector: '[app-property-cell]',
   templateUrl: './property.component.html',
   styleUrl: './property.component.scss',
+  standalone: false,
 })
 export class PropertyComponent extends BaseComponent implements OnInit {
   @Input({ required: true }) cell!: PropertyCell<Business>;

@@ -2,7 +2,9 @@ import {
   OnGatewayConnection,
   OnGatewayDisconnect,
   SubscribeMessage,
-  WebSocketGateway,
+} from '@nestjs/websockets';
+import {
+  WebSocketGateway
 } from '@nestjs/websockets';
 
 @WebSocketGateway({ namespace: 'game' })
@@ -15,7 +17,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('message')
-  handleMessage(client: any, payload: any): string {
+  handleMessage(client: unknown, payload: unknown): string {
     console.log('ad', client, payload);
     return 'Hello world!';
   }

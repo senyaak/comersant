@@ -6,6 +6,7 @@ import { BaseComponent } from '../abstract/base';
   selector: '[app-tax-cell]',
   templateUrl: './tax.component.html',
   styleUrl: './tax.component.scss',
+  standalone: false,
 })
 export class TaxComponent extends BaseComponent implements OnInit {
   @Input({ required: true }) tax!: number;

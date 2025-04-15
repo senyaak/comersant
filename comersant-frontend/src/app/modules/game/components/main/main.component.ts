@@ -1,11 +1,13 @@
 import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+
 import { GameService } from '../../services/game.service';
 
 @Component({
   selector: 'app-main',
   templateUrl: './main.component.html',
   styleUrls: ['./main.component.scss'],
+  standalone: false,
   encapsulation: ViewEncapsulation.None,
 })
 export class MainComponent implements OnInit {
@@ -20,7 +22,7 @@ export class MainComponent implements OnInit {
       try {
         await this.gameService.init(params.get('id'));
         console.log('Game ID:', params.get('id'));
-      } catch (e) {
+      } catch (_e) {
         console.warn(`not found game id: ${params.get('id')}`);
         this.router.navigate(['/']);
       }

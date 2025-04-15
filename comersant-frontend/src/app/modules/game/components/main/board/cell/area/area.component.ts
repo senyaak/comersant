@@ -8,6 +8,7 @@ import { BaseComponent } from '../abstract/base';
   selector: '[app-area-cell]',
   templateUrl: './area.component.html',
   styleUrl: './area.component.scss',
+  standalone: false,
 })
 export class AreaComponent extends BaseComponent implements OnInit {
   @Input({ required: true }) cell!: PropertyCell<AreaSite>;

@@ -1,12 +1,11 @@
-import { ClientEvents, Room, ServerEvents } from '$server/modules/lobby/types';
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, Subject } from 'rxjs';
-import { io, type Socket } from 'socket.io-client';
-
+import { Router } from '@angular/router';
+import { ClientEvents, Room, ServerEvents } from '$server/modules/lobby/types';
 import { UserIdentity } from '$server/modules/lobby/types';
 import { Routes } from '$server/types/routes';
-import { HttpClient } from '@angular/common/http';
-import { Router } from '@angular/router';
+import { Observable, Subject } from 'rxjs';
+import { io, type Socket } from 'socket.io-client';
 
 @Injectable()
 export class LobbyService {

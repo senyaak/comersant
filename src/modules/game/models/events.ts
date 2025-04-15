@@ -33,13 +33,15 @@ export interface SkipTurnEvent extends BaseEvent {
   type: EventType.SkipTurn;
 }
 
-interface MoveToBase extends BaseEvent {
+interface MoveTo extends BaseEvent {
   type: EventType.MoveToCenter | EventType.MoveTo;
 }
 
-export interface MoveToCenterEvent extends MoveToBase {}
+export interface MoveToCenterEvent extends MoveTo {
+  type: EventType.MoveToCenter;
+}
 
-export interface MoveToEvent extends MoveToBase {
+export interface MoveToEvent extends MoveTo {
   to: number;
 }
 

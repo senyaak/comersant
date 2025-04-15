@@ -1,8 +1,9 @@
 import type { IGame } from '$server/modules/game/models/type';
-import { Routes } from '$server/types/routes';
+
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
+import { Routes } from '$server/types/routes';
 import { firstValueFrom } from 'rxjs';
 import { Socket, io } from 'socket.io-client';
 

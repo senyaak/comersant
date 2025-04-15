@@ -6,6 +6,7 @@ import { BaseComponent } from './abstract/base';
   selector: '[app-cell-wrapper]',
   templateUrl: './wrapper.component.html',
   styleUrls: ['./wrapper.component.scss'],
+  standalone: false,
 })
 export class CellWrapperComponent extends BaseComponent {
   @Input({ required: false }) fill: string = 'white';

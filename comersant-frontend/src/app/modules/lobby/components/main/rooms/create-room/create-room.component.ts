@@ -5,6 +5,7 @@ import { LobbyService } from 'src/app/modules/lobby/services/lobby.service';
   selector: 'app-create-room',
   templateUrl: './create-room.component.html',
   styleUrls: ['./create-room.component.scss'],
+  standalone: false,
 })
 export class CreateRoomComponent {
   @ViewChild('setNameDialog') dialog!: ElementRef<HTMLDialogElement>;

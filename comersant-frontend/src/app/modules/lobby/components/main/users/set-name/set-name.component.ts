@@ -1,10 +1,11 @@
-import { Component, ElementRef, AfterViewInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
 import { LobbyService } from 'src/app/modules/lobby/services/lobby.service';
 
 @Component({
   selector: 'app-set-name',
   templateUrl: './set-name.component.html',
   styleUrls: ['./set-name.component.scss'],
+  standalone: false,
 })
 export class SetNameComponent implements AfterViewInit {
   @ViewChild('setNameDialog') dialog!: ElementRef;

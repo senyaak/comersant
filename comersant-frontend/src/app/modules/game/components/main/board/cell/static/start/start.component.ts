@@ -6,6 +6,7 @@ import { BaseComponent } from '../../abstract/base';
   selector: '[app-start]',
   templateUrl: './start.component.html',
   styleUrls: ['./start.component.scss'],
+  standalone: false,
 })
 export class StartComponent extends BaseComponent implements OnInit {
   polygonPoints: string = '';

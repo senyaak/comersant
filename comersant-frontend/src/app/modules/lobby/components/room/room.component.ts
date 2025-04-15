@@ -1,12 +1,14 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { LobbyService } from '../../services/lobby.service';
 import { Router } from '@angular/router';
 import { Room } from '$server/modules/lobby/types';
+
+import { LobbyService } from '../../services/lobby.service';
 
 @Component({
   selector: 'app-room',
   templateUrl: './room.component.html',
   styleUrls: ['./room.component.scss'],
+  standalone: false,
 })
 export class RoomComponent implements OnInit, OnDestroy {
   roomName = '';
