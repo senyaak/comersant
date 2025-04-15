@@ -1,3 +1,8 @@
+#svgContainer {
+  height: calc(100vh - 1em);
+  width: 100vw;
+}
+
 #board {
   border: 1px solid black;
   // width: 80vh;

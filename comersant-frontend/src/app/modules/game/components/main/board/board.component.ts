@@ -18,22 +18,16 @@ import { CellHeight, CellOffset, CellWidth } from './cell/abstract/base';
   styleUrls: ['./board.component.scss'],
 })
 export class BoardComponent implements OnInit {
-  board: Board = new Board();
-
-  ngOnInit() {
-    console.log('2board', this.flatCells);
-  }
+  public board: Board = new Board();
+  private readonly board2: Board = new Board();
+  constructor() {}
 
   get viewBox(): string {
     return `0 0 ${this.boardWidthC} ${this.boardHeightC}`;
   }
 
-  get flatCells() {
-    return this.board.cells.flat();
-  }
-
-  get boardWidth() {
-    return '150%';
+  get boardWidthScale() {
+    return '350%';
   }
 
   get boardWidthC() {
@@ -42,6 +36,14 @@ export class BoardComponent implements OnInit {
 
   get boardHeightC() {
     return CellHeight + CellOffset * 2;
+  }
+
+  get flatCells() {
+    return this.board.cells.flat();
+  }
+
+  ngOnInit() {
+    console.log('2board', this.flatCells);
   }
 
   getType(item: Cell) {
