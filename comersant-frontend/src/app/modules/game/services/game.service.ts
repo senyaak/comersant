@@ -39,7 +39,7 @@ export class GameService {
       this.game = await this.loadGame(gameId);
       this.initSocket();
       return this.game;
-    } catch (e) {
+    } catch (_e) {
       return Promise.reject();
     }
   }

@@ -14,7 +14,9 @@ import { TaxComponent } from './components/main/board/cell/tax/tax.component';
 import { CellWrapperComponent } from './components/main/board/cell/wrapper.component';
 import { MainComponent } from './components/main/main.component';
 import { GameRoutingModule } from './game-routing.module';
+import { Split } from './pipes/singleWordLine';
 import { GameService } from './services/game.service';
+import { RacittoComponent } from './components/main/board/cell/static/racitto/racitto.component';
 
 @NgModule({
   declarations: [
@@ -28,6 +30,8 @@ import { GameService } from './services/game.service';
     TaxComponent,
     AreaComponent,
     MoveToCenterComponent,
+    Split,
+    RacittoComponent,
   ],
   imports: [CommonModule, GameRoutingModule, TranslateModule],
   providers: [GameService],

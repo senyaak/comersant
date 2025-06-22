@@ -1,14 +1,17 @@
 <svg:g app-cell-wrapper [orderNumber]="orderNumber">
   <svg:g>
     <svg:text
+      class="move-to-center-text"
       [attr.x]="x + width / 2"
       [attr.y]="textTopPadding + fontSize"
       [attr.font-size]="fontSize"
       [attr.font-family]="font"
       [attr.stroke-width]="lineWidth"
       dominant-baseline="hanging"
-      text-anchor="middle">
-      {{ 'centerEntrance' | translate }}
+      style="white-space: pre;"
+      text-anchor="middle"
+      >
+      <svg:tspan *ngFor="let word of 'centerEntrance' | translate | split" [attr.x]="x + width / 2" dy="1.2em">{{word}}</svg:tspan>
     </svg:text>
   </svg:g>
 </svg:g>

@@ -1,0 +1,102 @@
+const { defineConfig, globalIgnores } = require('eslint/config');
+const perfectionist = require('eslint-plugin-perfectionist');
+const typescriptEslintEslintPlugin = require('@typescript-eslint/eslint-plugin');
+const globals = require('globals');
+const tsParser = require('@typescript-eslint/parser');
+const espree = require('espree');
+const { fileURLToPath } = require('node:url');
+const js = require('@eslint/js');
+// const ts = require('typescript-eslint');
+const { FlatCompat } = require('@eslint/eslintrc');
+
+const compat = new FlatCompat({
+  baseDirectory: __dirname,
+  recommendedConfig: js.configs.recommended,
+  allConfig: js.configs.all,
+});
+
+module.exports = defineConfig([
+  // globalIgnores(['**/.eslintrc.js']),
+  {
+    extends: compat.extends(
+      'plugin:@typescript-eslint/recommended',
+      'plugin:prettier/recommended',
+    ),
+
+    plugins: {
+      perfectionist,
+      '@typescript-eslint': typescriptEslintEslintPlugin,
+    },
+
+    languageOptions: {
+      globals: {
+        ...globals.node,
+        ...globals.jest,
+      },
+
+      parser: tsParser,
+      ecmaVersion: 5,
+      sourceType: 'module',
+
+      parserOptions: {
+        project: 'tsconfig.json',
+      },
+    },
+
+    rules: {
+      '@typescript-eslint/interface-name-prefix': 'off',
+      '@typescript-eslint/explicit-function-return-type': 'off',
+      '@typescript-eslint/explicit-module-boundary-types': 'off',
+      '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/no-unused-vars': 'warn',
+      'perfectionist/sort-imports': 'error',
+    },
+  },
+  {
+    files: ['**/*.ts'],
+
+    extends: compat.extends(
+      'eslint:recommended',
+      'plugin:@typescript-eslint/recommended',
+      'plugin:@angular-eslint/recommended',
+      'plugin:@angular-eslint/template/process-inline-templates',
+    ),
+
+    rules: {
+      '@angular-eslint/directive-selector': [
+        'error',
+        {
+          type: 'attribute',
+          prefix: 'app',
+          style: 'camelCase',
+        },
+      ],
+
+      '@angular-eslint/component-selector': [
+        'warn',
+        {
+          type: 'element',
+          prefix: 'app',
+          style: 'kebab-case',
+        },
+      ],
+    },
+  },
+  {
+    files: ['**/*.html'],
+
+    extends: compat.extends(
+      'plugin:@angular-eslint/template/recommended',
+      'plugin:@angular-eslint/template/accessibility',
+    ),
+
+    rules: {},
+  },
+  {
+    files: ['scripts/**/*.js'],
+
+    languageOptions: {
+      parser: espree,
+    },
+  },
+]);

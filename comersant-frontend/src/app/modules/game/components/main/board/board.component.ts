@@ -21,7 +21,7 @@ import { CellHeight, CellOffset, CellWidth } from './cell/abstract/base';
 })
 export class BoardComponent implements OnInit {
   public board: Board = new Board();
-  private readonly board2: Board = new Board();
+
   constructor() {}
 
   get viewBox(): string {

@@ -71,7 +71,7 @@ export class LobbyService {
   };
   createdRoom = (roomName: string) => {
     this.roomName = roomName;
-    this.router.navigate([`lobby`, roomName]);
+    this.router.navigate(['lobby', roomName]);
   };
   updateRoomsList = (list: Room[]) => {
     this.roomsSubject.next(list);
@@ -81,7 +81,7 @@ export class LobbyService {
   };
   enteredRoom = (roomName: string) => {
     this.roomName = roomName;
-    this.router.navigate([`lobby`, roomName]);
+    this.router.navigate(['lobby', roomName]);
   };
   roomRemoved = () => {
     this.roomName = null;
@@ -90,7 +90,7 @@ export class LobbyService {
   intoGame = (id: string) => {
     this.socket.off(ServerEvents.Disconnect, this.disconnected);
     this.socket.disconnect();
-    this.router.navigate(['/', `game`, id]);
+    this.router.navigate(['/', 'game', id]);
   };
   roomIsFull = () => {
     alert('Room is full');
