@@ -1,0 +1,17 @@
+<svg:g app-cell-wrapper [orderNumber]="orderNumber">
+  <svg:g>
+    <svg:text
+      class="racitto-text"
+      [attr.x]="x + width / 2"
+      [attr.y]="textTopPadding + fontSize"
+      [attr.font-size]="fontSize"
+      [attr.font-family]="font"
+      [attr.stroke-width]="lineWidth"
+      dominant-baseline="hanging"
+      style="white-space: pre;"
+      text-anchor="middle"
+      >
+      <svg:tspan [attr.x]="x + width / 2" dy="1.2em">{{ 'racitto' | translate }}</svg:tspan>
+    </svg:text>
+  </svg:g>
+</svg:g>

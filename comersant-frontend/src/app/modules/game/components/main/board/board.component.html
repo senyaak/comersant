@@ -38,6 +38,9 @@
           @case ('MoveToCenter') {
             <svg:g app-move-to-center [orderNumber]="$index" />
           }
+          @case ('Racitto') {
+            <svg:g app-racitto [orderNumber]="$index" />
+          }
           @default {
             <!-- <svg:g app-land [orderNumber]="$index" /> -->
           }

@@ -160,7 +160,7 @@ export class Board {
           ]),
         ),
         new CardEventCell(EventCellTypes.card, CardEventCellTypes.surpise),
-        new InteractiveEventCell(EventCellTypes.interactiveEvent, ET.Ricatto),
+        new InteractiveEventCell(EventCellTypes.interactiveEvent, ET.Racitto),
         new PropertyCell(
           'kiosk',
           new PrivateBusiness(BussinessGroups.Farm, 41_000, 35_000, [
@@ -204,7 +204,7 @@ export class Board {
         ),
         new CardEventCell(EventCellTypes.card, CardEventCellTypes.post),
         new PropertyCell('Site', new AreaSite(20_000)),
-        new InteractiveEventCell(EventCellTypes.interactiveEvent, ET.Ricatto),
+        new InteractiveEventCell(EventCellTypes.interactiveEvent, ET.Racitto),
         new PropertyCell(
           'spartak',
           new PrivateBusiness(BussinessGroups.Stadium, 15_000, 15_000, [
@@ -265,7 +265,7 @@ export class Board {
       ] satisfies Cell[],
       [
         new InnerStartCell(),
-        new InteractiveEventCell(EventCellTypes.interactiveEvent, ET.Ricatto),
+        new InteractiveEventCell(EventCellTypes.interactiveEvent, ET.Racitto),
         new CardEventCell(EventCellTypes.card, CardEventCellTypes.surpise),
         new StaticEventCell(
           EventCellTypes.staticEvent,
@@ -321,7 +321,7 @@ export class Board {
           ]),
         ),
         new StaticEventCell(EventCellTypes.staticEvent, ET.MoveToCenter),
-        new InteractiveEventCell(EventCellTypes.interactiveEvent, ET.Ricatto),
+        new InteractiveEventCell(EventCellTypes.interactiveEvent, ET.Racitto),
         new StaticEventCell(
           EventCellTypes.staticEvent,
           ET.BalanceChange,

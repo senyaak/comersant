@@ -3,7 +3,7 @@ export enum EventType {
   GetEvent,
   MoneyTransfer,
   SkipTurn,
-  Ricatto,
+  Racitto,
   Move,
   MoveTo,
   MoveToCenter,
