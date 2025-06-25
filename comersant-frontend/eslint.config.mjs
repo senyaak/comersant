@@ -33,7 +33,7 @@ export default tseslint.config(
       }],
       // 'no-useless-concat': 'error',
       'space-infix-ops': 'error',
-      'indent': ['error', 2],
+      'indent': ['error', 2, {'SwitchCase': 1} ],
       'comma-dangle': ['error', 'always-multiline'],
       'quotes': ['warn', 'single'],
       'semi': ['error', 'always'],
