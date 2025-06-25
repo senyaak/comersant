@@ -1,8 +1,11 @@
 {
 	"tax": "tax",
 	"start": "Старт",
+	"skip-turn": "skip-turn",
 	"racitto": "Рэкет",
 	"centerEntrance": "Вход в центр",
+	"second-circle": "second-circle",
+	"to-start": "to-start",
 	"upgradePrice": "upgradePrice",
 	"income": "income",
 	"areasite": "areasite",

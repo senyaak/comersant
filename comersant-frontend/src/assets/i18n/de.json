@@ -1,8 +1,11 @@
 {
 	"tax": "tax",
 	"start": "Start",
+	"skip-turn": "skip-turn",
 	"racitto": "racitto",
 	"centerEntrance": "Eingang in die Mitte",
+	"second-circle": "second-circle",
+	"to-start": "to-start",
 	"upgradePrice": "upgradePrice",
 	"income": "income",
 	"areasite": "areasite",

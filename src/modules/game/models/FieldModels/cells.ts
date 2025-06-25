@@ -42,6 +42,7 @@ export class StaticEventCell extends EventCell {
     type: EventType.BalanceChange,
     amount: number,
   );
+
   constructor(
     name: EventCellTypes.staticEvent,
     public readonly type: EventType,

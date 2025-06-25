@@ -25,6 +25,7 @@ export class PropertyComponent extends BaseComponent implements OnInit {
   get buys(): number[] {
     return this.cell.object.buys;
   }
+
   get payouts(): number[] {
     return this.cell.object.payouts;
   }
@@ -32,22 +33,27 @@ export class PropertyComponent extends BaseComponent implements OnInit {
   get topSeparatorY(): number {
     return this.textTopPadding + this.fontSize * 4;
   }
+
   get botSeparatorY(): number {
     return (
       this.topSeparatorY + this.textPadding + this.fontSize * 4 + this.lineWidth
     );
   }
+
   get splitterX(): number {
     return this.x + this.width * 0.6;
   }
+
   get prefixes(): string[] {
     return PropertyMods.map(mod =>
       this.translate.instant(mod).substring(0, 1).toUpperCase(),
     );
   }
+
   get extraPadding() {
     return 10;
   }
+
   async ngOnInit() {
     // console.log('this', this);
     this.label = await firstValueFrom(this.translate.get(this.cell.name));

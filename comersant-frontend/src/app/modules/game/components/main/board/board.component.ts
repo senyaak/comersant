@@ -4,6 +4,7 @@ import { Board } from '$server/modules/game/models/FieldModels/board';
 import {
   CardEventCell,
   Cell,
+  InnerStartCell,
   InteractiveEventCell,
   PropertyCell,
   StartCell,
@@ -76,6 +77,10 @@ export class BoardComponent implements OnInit {
       return 'MoveToCenter';
     } else if (item instanceof InteractiveEventCell && item.type === EventType.Racitto) {
       return 'Racitto';
+    } else if (item instanceof StaticEventCell && item.type === EventType.SkipTurn) {
+      return 'SkipTurn';
+    } else if (item instanceof InnerStartCell) {
+      return 'InnerStartCell';
     } else if (item instanceof StaticEventCell) {
       return 'StaticEventCell';
     }
