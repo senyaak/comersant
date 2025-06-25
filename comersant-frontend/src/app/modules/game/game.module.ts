@@ -19,6 +19,8 @@ import { MainComponent } from './components/main/main.component';
 import { GameRoutingModule } from './game-routing.module';
 import { SplitLetters } from './pipes/singleLetterLine';
 import { Split } from './pipes/singleWordLine';
+import { GameLoopService } from './services/game-loop.service';
+import { GameStateService } from './services/game-state.service';
 import { GameService } from './services/game.service';
 
 @NgModule({
@@ -40,6 +42,6 @@ import { GameService } from './services/game.service';
     EnterCenterComponent,
   ],
   imports: [CommonModule, GameRoutingModule, TranslateModule],
-  providers: [GameService],
+  providers: [GameService, GameStateService, GameLoopService],
 })
 export class GameModule {}

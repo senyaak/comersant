@@ -8,7 +8,9 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Namespace, Socket } from 'socket.io';
+import { PlayersSettings } from 'src/modules/game/models/GameModels/game';
 import { GamesService } from 'src/modules/game/services/games/games.service';
+
 import { UserIdentity } from '../types';
 import {
   ClientEvents,
@@ -42,7 +44,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket() socket: Socket,
   ) {
     if (socket.data.name) {
-      throw new Error("Can't set already set name");
+      throw new Error('Can\'t set already set name');
     }
     socket.data.name = newName;
     this.lobby.emit(ServerEvents.UpdateConnectedUsers, await this.usersInlobby);
@@ -122,11 +124,11 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     return { id: roomId, users };
   }
 
-  async getPlayerNames(roomName: string): Promise<string[]> {
+  async getPlayersSettings(roomName: string): Promise<PlayersSettings[]> {
     return await this.server
       .in(roomName)
       .fetchSockets()
-      .then(sockets => sockets.map(({ data: { name } }) => name));
+      .then(sockets => sockets.map(({ data: { name}, id }) => ({ name, id })));
   }
 
   private get lobby() {
@@ -166,7 +168,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage(ClientEvents.StartGame)
   async startGame(@ConnectedSocket() socket: Socket) {
     const gameId = this.gamesService.createGame(
-      await this.getPlayerNames(socket.data.room),
+      await this.getPlayersSettings(socket.data.room),
     );
 
     this.server.in(socket.data.room).emit(ServerEvents.StartGame, gameId);
