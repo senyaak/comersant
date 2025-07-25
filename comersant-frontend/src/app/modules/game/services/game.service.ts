@@ -1,30 +1,48 @@
-import type { IGame } from '$server/modules/game/models/type';
+import type { IRawGame } from '$server/modules/game/models/GameModels/types';
+import type { Observable } from 'rxjs';
+import type { Socket } from 'socket.io-client';
 
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Router } from '@angular/router';
+import {
+  Router,
+} from '@angular/router';
+import { IGame } from '$server/modules/game/models/GameModels/igame';
 import { Routes } from '$server/types/routes';
-import { firstValueFrom } from 'rxjs';
-import { Socket, io } from 'socket.io-client';
-
-@Injectable()
+import { BehaviorSubject, tap } from 'rxjs';
+import { io } from 'socket.io-client';
+import { UserSettingsService } from 'src/app/services/user-settings.service';
+/**
+ * init and stores game data
+ * */
+@Injectable({
+  providedIn: 'root',
+})
 export class GameService {
   private socket!: Socket;
-  private game!: IGame;
+  private game: BehaviorSubject<IGame> = new BehaviorSubject<IGame>(new IGame());
 
   constructor(
     private readonly http: HttpClient,
-    private router: Router,
+    private readonly router: Router,
+    private readonly userSettingsService: UserSettingsService,
   ) {
-    /** just placholder*/
-    // this.socket = io('/game', { query: { gameId } });
   }
 
   get Game() {
-    return this.game;
+    return this.game.getValue();
   }
 
-  async init(gameId: string | null = null) {
+  get Player() {
+    return this.Game.players.find(player => player.Id === this.socket.id)!;
+  }
+
+  get Socket() {
+    return this.socket;
+  }
+
+  init(gameId: string | null = null) {
+    console.log('init game service with gameId:', gameId);
     const id = localStorage.getItem('gameId');
     if (!gameId && id) {
       gameId = id;
@@ -34,33 +52,49 @@ export class GameService {
       throw new Error('gameId is not provided');
     }
 
-    this.socket = io('/game', { query: { gameId } });
-    try {
-      this.game = await this.loadGame(gameId);
+    return this.loadGame(gameId).pipe(tap({next: (game) => {
+      console.log('game', game);
       this.initSocket();
-      return this.game;
-    } catch (_e) {
-      return Promise.reject();
-    }
+    }, error: (err) => {
+      console.error('Error loading game:', err);
+    }})).subscribe(() => {
+      console.log('Game initialized:', this.game.getValue());
+    });
   }
 
-  async loadGame(gameId: string): Promise<IGame> {
-    try {
-      const game = await firstValueFrom(
-        this.http.get<IGame>(`${Routes.games}/${gameId}`),
-      );
-
-      console.log('result', game);
-      this.game = game;
-      return this.game;
-    } catch (e) {
-      console.log('rej', e);
-
-      return Promise.reject();
-    }
+  private loadGame(gameId: string): Observable<IRawGame> {
+    const game$ = this.http.get<IRawGame>(`${Routes.games}/${gameId}`).pipe(
+      tap({ next: game => {
+        this.game.next(new IGame(game));
+        // this.game.complete();
+        console.log('->Game loaded:', this.game.getValue());
+      }, error: (err) => {
+        console.error('Error loading game:', err);
+        this.router.navigate(['/']);
+      }}),
+    );
+    return game$;
   }
 
-  initSocket() {
+  private initSocket() {
+    this.socket = io(
+      '/game',
+      { query: {
+        gameId: this.game.getValue().id,
+        userName: this.userSettingsService.PlayerName,
+      }, forceNew: true },
+    );
+    this.socket.on('connect', (...rest) => {
+      console.log('Connected with query params:', this.socket.io.opts.query);
+      console.log('rest', rest);
+    });
+
+    this.socket.on('user_connected', ({ id , name }) => {
+      console.log('user_connected', id,name);
+      this.Game.updatePlayerIdByName(name, id);
+      // this.socket.id = newId;
+    });
+
     this.socket.on('disconnect', () => {
       console.log('disconnected');
       this.socket.disconnect();
@@ -75,7 +109,14 @@ export class GameService {
     //   this.router.navigate(['/']);
     // });
     this.socket.onAny((...rest) => {
-      console.log('rest', rest);
+      console.log('resttt', rest);
+    });
+  }
+
+  public nextTurn(): void {
+    console.log('nextTurn start');
+    this.socket.emit('nextTurn', (...rest: object[]) => {
+      console.log('nextTurn done', rest);
     });
   }
 }

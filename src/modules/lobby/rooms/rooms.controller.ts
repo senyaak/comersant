@@ -11,6 +11,7 @@ export class RoomsController {
   async getRooms(): Promise<Room[]> {
     return await this.eventsGateway.rooms;
   }
+
   @Get(':id')
   async getRoom(@Param() { id }: { id: string }): Promise<Room> {
     return this.eventsGateway.getRoom(id);

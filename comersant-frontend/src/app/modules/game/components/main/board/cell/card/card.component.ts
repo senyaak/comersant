@@ -22,7 +22,7 @@ export class CardComponent extends BaseComponent implements OnInit {
 
   ngOnInit() {
     if (this.cell instanceof CardEventCell) {
-      console.log('-> ', this, this.cell.name, this.cell.type);
+      // console.log('-> ', this, this.cell.name, this.cell.type);
       this.label = this.cell.type;
     } else {
       console.log(this.cell);

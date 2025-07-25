@@ -1,4 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
+
 import { BaseComponent } from '../abstract/base';
 
 @Component({
@@ -14,7 +15,7 @@ export class TaxComponent extends BaseComponent implements OnInit {
   get color() {
     return 'black';
   }
+
   ngOnInit(): void {
-    console.log('init income');
   }
 }

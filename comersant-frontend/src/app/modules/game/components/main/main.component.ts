@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewEncapsulation } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 
 import { GameService } from '../../services/game.service';
 
@@ -12,20 +12,19 @@ import { GameService } from '../../services/game.service';
 })
 export class MainComponent implements OnInit {
   constructor(
-    private readonly gameService: GameService,
     private readonly route: ActivatedRoute,
-    private readonly router: Router,
+    private readonly gameService: GameService,
   ) {}
 
   ngOnInit() {
-    this.route.paramMap.subscribe(async params => {
-      try {
-        await this.gameService.init(params.get('id'));
-        console.log('Game ID:', params.get('id'));
-      } catch (_e) {
-        console.warn(`not found game id: ${params.get('id')}`);
-        this.router.navigate(['/']);
+    this.route.paramMap.subscribe((params) => {
+      const gameId = params.get('gameId');
+      if (!gameId || gameId === this.gameService.Game.id) {
+        return;
       }
+
+      this.gameService.init(gameId);
     });
+
   }
 }

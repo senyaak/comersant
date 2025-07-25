@@ -22,6 +22,10 @@ import { Split } from './pipes/singleWordLine';
 import { GameLoopService } from './services/game-loop.service';
 import { GameStateService } from './services/game-state.service';
 import { GameService } from './services/game.service';
+import { GameInfoComponent } from './components/main/UI/game-info/game-info.component';
+import { PlayerInfoComponent } from './components/main/UI/game-info/player-info/player-info.component';
+import { TurnControlComponent } from './components/main/UI/game-control/turn-control/turn-control.component';
+import { GameControlComponent } from './components/main/UI/game-control/game-control.component';
 
 @NgModule({
   declarations: [
@@ -40,6 +44,10 @@ import { GameService } from './services/game.service';
     RacittoComponent,
     SkipTurnComponent,
     EnterCenterComponent,
+    GameInfoComponent,
+    PlayerInfoComponent,
+    TurnControlComponent,
+    GameControlComponent,
   ],
   imports: [CommonModule, GameRoutingModule, TranslateModule],
   providers: [GameService, GameStateService, GameLoopService],

@@ -1,0 +1,36 @@
+<div id="game-control">
+  <div class="control-header">
+    <h3 translate>Game Control</h3>
+  </div>
+
+  <div class="turn-info">
+    <div class="current-player">
+      <label translate="">Active Player:</label>
+      <span class="player-name">{{ currentPlayerName }}</span>
+    </div>
+
+    <!-- <div class="turn-state" *ngIf="turnState">
+      <label>State:</label>
+      <span class="state-badge" [class]="'state-' + turnState.toLowerCase()">
+        {{ turnState }}
+      </span>
+    </div> -->
+  </div>
+
+  <div class="control-actions">
+    <button
+      class="next-turn-btn"
+      [disabled]="isProcessingTurn || !isMyTurn"
+      (click)="onNextTurn()"
+      [class.loading]="isProcessingTurn"
+      [class.waiting]="!isMyTurn">
+      <span class="btn-icon" *ngIf="!isProcessingTurn && isMyTurn">▶</span>
+      <span class="btn-text">
+        {{ getButtonText() }}
+      </span>
+      <span class="spinner" *ngIf="isProcessingTurn"></span>
+    </button>
+  </div>
+
+  <app-turn-control />
+</div>

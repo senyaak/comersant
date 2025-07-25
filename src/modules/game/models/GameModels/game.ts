@@ -1,6 +1,6 @@
 import { randomBytes } from 'crypto';
 
-import { IGame } from '../type';
+import { IGame } from './igame';
 import { Player, PlayerColor } from './player';
 
 export interface PlayersSettings {
@@ -8,16 +8,19 @@ export interface PlayersSettings {
   name: string;
 }
 
-export class Game implements IGame {
-  readonly id: string;
-  readonly players: Player[];
+export class Game extends IGame {
+  public override readonly id: string;
+  public override readonly players: Player[];
+
   constructor(players: { id: string, name: string }[]) {
+    super();
+    if (players.length < 2) {
+      throw new Error('At least two players are required to start a game');
+    }
+
     this.id = randomBytes(16).toString('hex');
     this.players = players.map((player, counter) => {
       return new Player(player.id, Object.values(PlayerColor)[counter], player.name);
     });
   }
 }
-
-// const a = { test: 1 } satisfies Record<string, number>;
-// console.log(a.test);

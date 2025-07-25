@@ -1,12 +1,20 @@
 import { Injectable } from '@angular/core';
-import { Player, PlayerColor } from '$server/modules/game/models/GameModels/player';
 
 import { GameService } from './game.service';
 
+/** Access to game data */
 @Injectable()
 export class GameStateService {
-  private players: Player[] = [];
-  private playerCounter: number = 0;
+  constructor(private gameService: GameService) {
+  }
 
-  constructor(private gameService: GameService) { }
+  get Players() {
+    return this.gameService.Game.players;
+  }
+
+  get isTurnActive(): boolean {
+    return this.gameService.Game.CurrentPlayer === this.gameService.Game.players.findIndex(
+      ({ Id }) => Id === this.gameService.Player?.Id,
+    );
+  }
 }

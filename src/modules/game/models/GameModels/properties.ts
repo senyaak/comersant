@@ -35,27 +35,35 @@ export class Business extends Property {
   get areaBuy(): number {
     return this.grades[0][0];
   }
+
   get areaPayout(): number {
     return this.grades[0][1];
   }
+
   get officeBuy(): number {
     return this.grades[1][0];
   }
+
   get officePayout(): number {
     return this.grades[1][1];
   }
+
   get departmentBuy(): number {
     return this.grades[2][0];
   }
+
   get departmentPayout(): number {
     return this.grades[2][1];
   }
+
   get enterpriseBuy(): number {
     return this.grades[3][0];
   }
+
   get enterprisePayout(): number {
     return this.grades[3][1];
   }
+
   get buys(): number[] {
     return [
       this.areaBuy,
@@ -64,6 +72,7 @@ export class Business extends Property {
       this.enterpriseBuy,
     ];
   }
+
   get payouts(): number[] {
     return [
       this.areaPayout,

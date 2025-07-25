@@ -1,7 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { BehaviorSubject } from 'rxjs';
 
-import { Game, PlayersSettings } from '../../models/GameModels/game';
+import type { PlayersSettings } from '../../models/GameModels/game';
+
+import { Game } from '../../models/GameModels/game';
 
 @Injectable()
 export class GamesService {
@@ -17,7 +19,6 @@ export class GamesService {
   createGame(players: PlayersSettings[]): string {
     const game = new Game(players);
     this.games.next([...this.games.getValue(), game]);
-    // this.games.push(game);
     this.onGameAdded(game);
     return game.id;
   }
@@ -33,5 +34,11 @@ export class GamesService {
 
   get Games(): Readonly<BehaviorSubject<Game[]>> {
     return this.games;
+  }
+
+  updatePlayerId(gameId: string, newId: string, playerName: string) {
+    this.getGame(gameId).updatePlayerIdByName(playerName, newId);
+
+    return newId;
   }
 }

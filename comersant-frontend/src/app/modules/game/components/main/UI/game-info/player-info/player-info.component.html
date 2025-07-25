@@ -1,0 +1,6 @@
+<div class="item-container">
+  <div class="color-rectangle" [style.background-color]="player.Color"></div>
+  <div class="item-name"> {{ 'name' | translate}}: {{ player.Name }} </div>
+  <div class="item-money"> {{ 'money' | translate}}: {{ player.Money }} </div>
+  <input type="checkbox" class="item-checkbox" [checked]="isActive" disabled/>
+</div>

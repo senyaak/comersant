@@ -1,4 +1,4 @@
-export enum Trun {
+export enum Turn {
   Trading,
   Moving,
   Event,
@@ -6,8 +6,8 @@ export enum Trun {
 
 export function* turnIterator() {
   while (true) {
-    yield Trun.Trading;
-    yield Trun.Moving;
-    yield Trun.Event;
+    yield Turn.Trading;
+    yield Turn.Moving;
+    yield Turn.Event;
   }
 }

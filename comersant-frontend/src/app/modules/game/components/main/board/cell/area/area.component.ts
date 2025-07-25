@@ -18,6 +18,5 @@ export class AreaComponent extends BaseComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    console.log('init income');
   }
 }
