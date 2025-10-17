@@ -42,6 +42,7 @@ export default tseslint.config(
       'eol-last': ['error', 'always'],
       'no-trailing-spaces': 'error',
       'lines-between-class-members': ['error', 'always', { 'exceptAfterSingleLine': true }],
+      'no-fallthrough': 'off',
     },
   },
 );
