@@ -1,0 +1,13 @@
+{
+  "folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "comersant-frontend"
+		}
+	],
+  "settings": {
+    "editor.tabSize": 2
+  }
+}
