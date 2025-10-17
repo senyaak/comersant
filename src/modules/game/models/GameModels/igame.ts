@@ -11,12 +11,13 @@ export class IGame {
   public readonly id: IRawGame['id'] = '-1';
   public readonly players: Player[] = [
     new Player('0', PlayerColor.red, 'Player 1'),
-    new Player('0', PlayerColor.blue, 'Player 1'),
+    new Player('0', PlayerColor.blue, 'Player 2'),
   ];
 
   protected currentPlayer: IRawGame['currentPlayer'] = 0;
   protected currentTurnState: IRawGame['currentTurnState'] = Turn.Trading;
   protected currentTurnIterator: IRawGame['currentTurnIterator'] = turnIterator();
+  protected isClient: boolean = false;
 
   constructor()
   constructor(game: IRawGame)
@@ -29,8 +30,18 @@ export class IGame {
       this.players = game.players.map(player => new Player(player));
       this.currentPlayer = game.currentPlayer;
       this.currentTurnState = game.currentTurnState;
-      this.currentTurnIterator = game.currentTurnIterator;
+
+      switch (game.currentTurnState) {
+        case Turn.Event:
+          this.currentTurnIterator.next();
+        case Turn.Moving:
+          this.currentTurnIterator.next();
+      }
+      // this.currentTurnIterator =;
+      this.isClient = true;
     }
+    // init the turn iterator to the current state
+    this.currentTurnIterator.next();
   }
 
   get CurrentPlayer() {
@@ -53,7 +64,22 @@ export class IGame {
     player.Id = newId;
   }
 
-  nextTurn(): void {
+  nextTurn(playerId: string) {
+    if(!this.isPlayerActive(playerId)) {
+      throw new Error(`It's not player ${playerId} turn`);
+    }
+    this.currentTurnState = this.currentTurnIterator.next().value;
+    if (this.currentTurnState === Turn.Trading) {
+      this.currentPlayer = (this.currentPlayer + 1) % this.players.length;
+    }
+  }
+
+  /** client side only */
+  forceNextTurn(): void {
+    if (!this.isClient) {
+      throw new Error('forceNextTurn can only be called on the client');
+    }
+    console.log('forceNextTurn called', this);
     this.currentTurnState = this.currentTurnIterator.next().value;
     if (this.currentTurnState === Turn.Trading) {
       this.currentPlayer = (this.currentPlayer + 1) % this.players.length;

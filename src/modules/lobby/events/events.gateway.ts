@@ -9,7 +9,7 @@ import {
 } from '@nestjs/websockets';
 import { Namespace, Socket } from 'socket.io';
 import { PlayersSettings } from 'src/modules/game/models/GameModels/game';
-import { GamesService } from 'src/modules/game/services/games/games.service';
+import { DuplicateNamesError, GamesService } from 'src/modules/game/services/games/games.service';
 
 import { UserIdentity } from '../types';
 import {
@@ -167,11 +167,17 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage(ClientEvents.StartGame)
   async startGame(@ConnectedSocket() socket: Socket) {
-    const gameId = this.gamesService.createGame(
-      await this.getPlayersSettings(socket.data.room),
-    );
+    try {
+      const gameId = this.gamesService.createGame(
+        await this.getPlayersSettings(socket.data.room),
+      );
 
-    this.server.in(socket.data.room).emit(ServerEvents.StartGame, gameId);
-    this.server.emit(ServerEvents.UpdateRoomsList, await this.rooms);
+      this.server.in(socket.data.room).emit(ServerEvents.StartGame, gameId);
+      this.server.emit(ServerEvents.UpdateRoomsList, await this.rooms);
+    } catch (error) {
+      if(error instanceof DuplicateNamesError) {
+        socket.emit(ServerEvents.Error, error.message);
+      }
+    }
   }
 }

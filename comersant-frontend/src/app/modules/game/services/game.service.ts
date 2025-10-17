@@ -1,4 +1,5 @@
 import type { IRawGame } from '$server/modules/game/models/GameModels/types';
+import type { NextTurnResult } from '$server/modules/game/models/types';
 import type { Observable } from 'rxjs';
 import type { Socket } from 'socket.io-client';
 
@@ -34,11 +35,25 @@ export class GameService {
   }
 
   get Player() {
+    // FIXIME: handle undefined player
+    if(!this.socket) {
+      throw new Error('Socket is not initialized');
+    }
     return this.Game.players.find(player => player.Id === this.socket.id)!;
   }
 
-  get Socket() {
-    return this.socket;
+  get Socket(): Promise<Socket> {
+    if(!this.socket) {
+      return new Promise((resolve) => {
+        const interval = setInterval(() => {
+          if(this.socket) {
+            clearInterval(interval);
+            resolve(this.socket);
+          }
+        }, 100);
+      });
+    }
+    return Promise.resolve(this.socket);
   }
 
   init(gameId: string | null = null) {
@@ -111,12 +126,16 @@ export class GameService {
     this.socket.onAny((...rest) => {
       console.log('resttt', rest);
     });
+    this.socket.on('turn_progress', (result: NextTurnResult) => {
+      this.game.getValue().forceNextTurn();
+      console.log('turn_progress', result);
+      // Handle game updates
+    });
   }
 
   public nextTurn(): void {
-    console.log('nextTurn start');
-    this.socket.emit('nextTurn', (...rest: object[]) => {
-      console.log('nextTurn done', rest);
+    this.socket.emit('nextTurn', (playerNumber: number) => {
+      console.log('nextTurn done: curr playerNumber', playerNumber);
     });
   }
 }

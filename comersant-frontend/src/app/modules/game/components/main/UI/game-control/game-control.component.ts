@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { GameStateService } from 'src/app/modules/game/services/game-state.service';
 import { GameService } from 'src/app/modules/game/services/game.service';
 
@@ -8,11 +8,21 @@ import { GameService } from 'src/app/modules/game/services/game.service';
   templateUrl: './game-control.component.html',
   styleUrl: './game-control.component.scss',
 })
-export class GameControlComponent {
+export class GameControlComponent implements OnInit {
   constructor(
     private gameService: GameService,
     private gameStateService: GameStateService,
   ) {}
+
+  async ngOnInit(): Promise<void> {
+    console.log('init turn_progress');
+    (await this.gameService.Socket).on('turn_progress', (...rest) => {
+      this.isProcessingTurn = false;
+      // this.
+      console.log('turn_progress', rest);
+      // Handle game updates
+    });
+  }
 
   // UI state properties
   isProcessingTurn = false;
@@ -35,7 +45,7 @@ export class GameControlComponent {
   /**
    * Handles the next turn button click
    */
-  onNextTurn(): void {
+  onNextTurn() {
     if (!this.gameStateService.isTurnActive || this.isProcessingTurn) {
       return;
     }

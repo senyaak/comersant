@@ -6,7 +6,7 @@ interface NextTurnError {
 }
 interface NextTurnSuccess {
   success: true,
-    data: {
+  data: {
     currentPlayer: IGame['currentPlayer'],
     turn: IGame['currentTurnState'],
   },

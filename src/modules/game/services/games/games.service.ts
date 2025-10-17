@@ -5,6 +5,13 @@ import type { PlayersSettings } from '../../models/GameModels/game';
 
 import { Game } from '../../models/GameModels/game';
 
+export class DuplicateNamesError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'DuplicateNamesError';
+  }
+}
+
 @Injectable()
 export class GamesService {
   private games = new BehaviorSubject<Game[]>([]);
@@ -17,6 +24,10 @@ export class GamesService {
   onGameAdded(game: Game) {}
 
   createGame(players: PlayersSettings[]): string {
+    const nameSet = new Set(players.map(({name}) => name));
+    if(nameSet.size !== players.length) {
+      throw new DuplicateNamesError('Duplicate player names are not allowed');
+    }
     const game = new Game(players);
     this.games.next([...this.games.getValue(), game]);
     this.onGameAdded(game);

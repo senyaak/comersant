@@ -15,6 +15,7 @@ export enum ServerEvents {
   UpdateConnectedUsers = 'update-connected-users',
   UpdateRoomUsers = 'update-room-users',
   UpdateRoomsList = 'update-rooms-list',
+  Error = 'error',
 }
 export enum ClientEvents {
   CreateRoom = 'create-room',

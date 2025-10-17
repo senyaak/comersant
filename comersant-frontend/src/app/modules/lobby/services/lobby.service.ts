@@ -41,7 +41,7 @@ export class LobbyService {
     this.socket.on(ServerEvents.RoomIsFull, this.roomIsFull);
     this.socket.on(ServerEvents.StartGame, this.intoGame);
     this.socket.on(ServerEvents.Disconnect, this.disconnected);
-
+    this.socket.on(ServerEvents.Error, (message: string) => { alert(message); });
     /** connect socket */
     this.socket.connect();
   }

@@ -44,11 +44,20 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @ValidateGameId
   handleNextTurn(
     @ConnectedSocket() client: Socket,
-    @MessageBody() payload: unknown,
-  ): string {
-    console.log('next turn ', client, payload);
-    // gameId is guaranteed to be valid at this point due to @ValidateGameId decorator
-    return 'Hello world!';
+    // @MessageBody() payload: unknown,
+  ): void {
+    const gameId = getValidatedGameId(client);
+
+    this.gamesService.getGame(gameId).nextTurn(client.id);
+    console.log('emit turn_progress');
+    this.server.to(`game-${gameId}`).emit('turn_progress', {
+      message: 'Turn processed successfully',
+      success: true,
+      data: {
+        currentPlayer: this.gamesService.getGame(gameId).CurrentPlayer,
+        turn: this.gamesService.getGame(gameId).CurrentTurnState,
+      },
+    } as NextTurnResult);
   }
 
   handleDisconnect(/*client: any*/) {
@@ -62,14 +71,14 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @MessageBody() payload: unknown,
   ): NextTurnResult {
     try {
-
+      throw new Error('Test error');
       console.log('ad', client, payload);
 
       const gameId = getValidatedGameId(client);
       const game = this.gamesService.getGame(gameId);
       console.log('Game state:', game);
 
-      game.nextTurn();
+      // game.nextTurn();
       return {
         success: true,
         data: {
