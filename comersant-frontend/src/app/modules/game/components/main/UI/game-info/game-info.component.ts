@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { Player } from '$server/modules/game/models/GameModels/player';
-import { GameStateService } from 'src/app/modules/game/services/game-state.service';
+import { GameService } from 'src/app/modules/game/services/game.service';
 
 @Component({
   selector: 'app-game-info',
@@ -9,12 +9,14 @@ import { GameStateService } from 'src/app/modules/game/services/game-state.servi
   styleUrl: './game-info.component.scss',
 })
 export class GameInfoComponent {
-  constructor(private readonly gameStateService: GameStateService) {
+  constructor(
+    private readonly gameService: GameService,
+  ) {
 
   }
 
   get Players() {
-    return this.gameStateService.Players;
+    return this.gameService.Game.players;
   }
 
   playerId(index: number, player: Player) {

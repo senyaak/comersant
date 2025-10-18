@@ -1,3 +1,5 @@
+import { Board } from '../FieldModels/board';
+
 export enum PlayerColor {
   red = 'red',
   green = 'green',
@@ -64,11 +66,20 @@ export class Player {
     return this.money;
   }
 
+  get Position(): number {
+    return this.position;
+  }
+
   get Id(): string {
     return this.id;
   }
 
   set Id(value: string) {
     this.id = value;
+  }
+
+  move(steps: number): void {
+    // Board.cellsCounter;
+    this.position = (this.position + steps) % Board.cellsCounter;
   }
 }

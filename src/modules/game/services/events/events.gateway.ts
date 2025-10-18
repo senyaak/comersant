@@ -25,7 +25,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @ValidateGameId
   handleConnection(
     @ConnectedSocket() client: Socket,
-    @MessageBody() payload: unknown,
+    // @MessageBody() _payload: unknown,
   ) {
     // handle reconnection logic here
     const gameId = getValidatedGameId(client);

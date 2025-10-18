@@ -34,10 +34,7 @@ export class IGame {
       switch (game.currentTurnState) {
         case Turn.Event:
           this.currentTurnIterator.next();
-        case Turn.Moving:
-          this.currentTurnIterator.next();
       }
-      // this.currentTurnIterator =;
       this.isClient = true;
     }
     // init the turn iterator to the current state
@@ -68,12 +65,23 @@ export class IGame {
     if(!this.isPlayerActive(playerId)) {
       throw new Error(`It's not player ${playerId} turn`);
     }
+
+    switch (this.currentTurnState) {
+      case Turn.Trading: {
+        break;
+      }
+      case Turn.Event: {
+        break;
+      }
+    }
     this.currentTurnState = this.currentTurnIterator.next().value;
+    // check if turn is over
     if (this.currentTurnState === Turn.Trading) {
       this.currentPlayer = (this.currentPlayer + 1) % this.players.length;
     }
   }
 
+  // TODO: implement different classes for client and server
   /** client side only */
   forceNextTurn(): void {
     if (!this.isClient) {

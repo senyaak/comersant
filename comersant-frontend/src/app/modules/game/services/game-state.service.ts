@@ -13,9 +13,6 @@ export class GameStateService {
   }
 
   get isTurnActive(): boolean {
-    console.log('isTurnActive');
-    console.log('this.gameService.Player?.Id', this.gameService.Player);
-    console.log('this.gameService.Player?.Id', this.gameService.Game);
     return this.gameService.Game.CurrentPlayer === this.gameService.Game.players.findIndex(
       ({ Id }) => Id === this.gameService.Player?.Id,
     );

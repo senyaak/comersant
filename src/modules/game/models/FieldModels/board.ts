@@ -38,10 +38,8 @@ enum BussinessGroups {
   Storage = 8,
 }
 
-export class Board {
-  cells: Cell[][];
-  constructor() {
-    const Cells = [
+function createCells(): Cell[][] {
+  return [
       [
         new StartCell(),
         new PropertyCell(
@@ -368,8 +366,13 @@ export class Board {
         new PropertyCell('Site', new AreaSite(60_000)),
         new StaticEventCell(EventCellTypes.staticEvent, ET.SkipTurn),
       ] satisfies Cell[],
-    ];
+  ];
+}
 
-    this.cells = Cells;
+export class Board {
+  static cellsCounter: number = createCells().flat().length;
+  cells: Cell[][];
+  constructor() {
+    this.cells = createCells();
   }
 }

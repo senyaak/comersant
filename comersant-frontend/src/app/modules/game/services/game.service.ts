@@ -28,6 +28,9 @@ export class GameService {
     private readonly router: Router,
     private readonly userSettingsService: UserSettingsService,
   ) {
+    this.game.subscribe(() => {
+      this.checkIfReady();
+    });
   }
 
   get Game() {
@@ -35,25 +38,15 @@ export class GameService {
   }
 
   get Player() {
-    // FIXIME: handle undefined player
+    // FIXME: handle undefined player
     if(!this.socket) {
       throw new Error('Socket is not initialized');
     }
     return this.Game.players.find(player => player.Id === this.socket.id)!;
   }
 
-  get Socket(): Promise<Socket> {
-    if(!this.socket) {
-      return new Promise((resolve) => {
-        const interval = setInterval(() => {
-          if(this.socket) {
-            clearInterval(interval);
-            resolve(this.socket);
-          }
-        }, 100);
-      });
-    }
-    return Promise.resolve(this.socket);
+  get Socket(): Socket {
+    return this.socket;
   }
 
   init(gameId: string | null = null) {
@@ -80,9 +73,10 @@ export class GameService {
   private loadGame(gameId: string): Observable<IRawGame> {
     const game$ = this.http.get<IRawGame>(`${Routes.games}/${gameId}`).pipe(
       tap({ next: game => {
+        console.log('set game', game);
         this.game.next(new IGame(game));
         // this.game.complete();
-        console.log('->Game loaded:', this.game.getValue());
+        // console.log('->Game loaded:', this.game.getValue());
       }, error: (err) => {
         console.error('Error loading game:', err);
         this.router.navigate(['/']);
@@ -99,7 +93,9 @@ export class GameService {
         userName: this.userSettingsService.PlayerName,
       }, forceNew: true },
     );
+
     this.socket.on('connect', (...rest) => {
+
       console.log('Connected with query params:', this.socket.io.opts.query);
       console.log('rest', rest);
     });
@@ -107,6 +103,7 @@ export class GameService {
     this.socket.on('user_connected', ({ id , name }) => {
       console.log('user_connected', id,name);
       this.Game.updatePlayerIdByName(name, id);
+      this.checkIfReady();
       // this.socket.id = newId;
     });
 
@@ -124,7 +121,7 @@ export class GameService {
     //   this.router.navigate(['/']);
     // });
     this.socket.onAny((...rest) => {
-      console.log('resttt', rest);
+      console.log('socket on any', rest);
     });
     this.socket.on('turn_progress', (result: NextTurnResult) => {
       this.game.getValue().forceNextTurn();
@@ -137,5 +134,12 @@ export class GameService {
     this.socket.emit('nextTurn', (playerNumber: number) => {
       console.log('nextTurn done: curr playerNumber', playerNumber);
     });
+  }
+
+  public gameReady$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+  private checkIfReady() {
+    if (this.Socket && this.Player?.Id !== undefined) {
+      this.gameReady$.next(true);
+    }
   }
 }

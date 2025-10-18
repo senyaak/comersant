@@ -2,11 +2,11 @@ import eslint from '@eslint/js';
 import perfectionist from 'eslint-plugin-perfectionist';
 import tseslint from 'typescript-eslint';
 
-const noVarsConfig = ['warn', { args: 'none',
-  argsIgnorePattern: '^_',
-  varsIgnorePattern: '^_',
-  caughtErrorsIgnorePattern: '^_',
-}];
+// const noVarsConfig = ['warn', { args: 'none',
+//   argsIgnorePattern: '^_',
+//   varsIgnorePattern: '^_',
+//   caughtErrorsIgnorePattern: '^_',
+// }];
 
 // TODO: npm on install script to create hard links
 export default tseslint.config(
@@ -17,8 +17,10 @@ export default tseslint.config(
       perfectionist,
     },
     rules: {
-      '@typescript-eslint/no-unused-vars': noVarsConfig,
-      'no-unused-vars': noVarsConfig,
+      // '@typescript-eslint/no-unused-vars': noVarsConfig,
+      // 'no-unused-vars': noVarsConfig,
+      "no-unused-vars": "off",
+      "@typescript-eslint/no-unused-vars": ["error"],
       'perfectionist/sort-imports': 'error',
       'max-len': ['error', {
         code: 120,

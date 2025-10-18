@@ -3,7 +3,6 @@ import { NgModule } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 
 import { BoardComponent } from './components/main/board/board.component';
-// TODO: remove abstrect
 import { AreaComponent } from './components/main/board/cell/area/area.component';
 import { CardComponent } from './components/main/board/cell/card/card.component';
 import { IncomeComponent } from './components/main/board/cell/income/income.component';
@@ -15,17 +14,20 @@ import { SkipTurnComponent } from './components/main/board/cell/static/skip-turn
 import { StartComponent } from './components/main/board/cell/static/start/start.component';
 import { TaxComponent } from './components/main/board/cell/tax/tax.component';
 import { CellWrapperComponent } from './components/main/board/cell/wrapper.component';
+import { PawnComponent } from './components/main/board/player-ui/pawn/pawn.component';
+import { PlayerUIComponent } from './components/main/board/player-ui/player-ui.component';
 import { MainComponent } from './components/main/main.component';
+// TODO: remove abstrect
+import { GameControlComponent } from './components/main/UI/game-control/game-control.component';
+import { TurnControlComponent } from './components/main/UI/game-control/turn-control/turn-control.component';
+import { GameInfoComponent } from './components/main/UI/game-info/game-info.component';
+import { PlayerInfoComponent } from './components/main/UI/game-info/player-info/player-info.component';
 import { GameRoutingModule } from './game-routing.module';
 import { SplitLetters } from './pipes/singleLetterLine';
 import { Split } from './pipes/singleWordLine';
 import { GameLoopService } from './services/game-loop.service';
 import { GameStateService } from './services/game-state.service';
 import { GameService } from './services/game.service';
-import { GameInfoComponent } from './components/main/UI/game-info/game-info.component';
-import { PlayerInfoComponent } from './components/main/UI/game-info/player-info/player-info.component';
-import { TurnControlComponent } from './components/main/UI/game-control/turn-control/turn-control.component';
-import { GameControlComponent } from './components/main/UI/game-control/game-control.component';
 
 @NgModule({
   declarations: [
@@ -48,6 +50,8 @@ import { GameControlComponent } from './components/main/UI/game-control/game-con
     PlayerInfoComponent,
     TurnControlComponent,
     GameControlComponent,
+    PawnComponent,
+    PlayerUIComponent,
   ],
   imports: [CommonModule, GameRoutingModule, TranslateModule],
   providers: [GameService, GameStateService, GameLoopService],

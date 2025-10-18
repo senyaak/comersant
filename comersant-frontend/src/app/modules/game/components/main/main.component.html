@@ -1,3 +1,5 @@
-<app-board />
-<app-game-info />
-<app-game-control />
+<div *ngIf="initialized" id="game-main-container">
+  <app-board />
+  <app-game-info />
+  <app-game-control />
+</div>

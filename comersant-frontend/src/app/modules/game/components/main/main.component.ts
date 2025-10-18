@@ -11,6 +11,8 @@ import { GameService } from '../../services/game.service';
   encapsulation: ViewEncapsulation.None,
 })
 export class MainComponent implements OnInit {
+  initialized = false;
+
   constructor(
     private readonly route: ActivatedRoute,
     private readonly gameService: GameService,
@@ -24,6 +26,12 @@ export class MainComponent implements OnInit {
       }
 
       this.gameService.init(gameId);
+    });
+
+    console.log('init subscribe to gameReady$');
+    this.gameService.gameReady$.subscribe((ready) => {
+      this.initialized = ready;
+      console.log('gameReady$', ready);
     });
 
   }

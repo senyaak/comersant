@@ -5,53 +5,56 @@
     transform="scale(2)"
     transform-origin="0 0"
     [attr.width]="boardWidthScale">
-    @for (item of flatCells; track $index) {
-      <svg:g>
-        @switch (getType(item)) {
-          @case ('StartCell') {
-            <svg:g app-start [orderNumber]="$index" />
+    <svg:g>
+      @for (item of flatCells; track $index) {
+        <svg:g>
+          @switch (getType(item)) {
+            @case ('StartCell') {
+              <svg:g app-start [orderNumber]="$index" />
+            }
+            @case ('Property') {
+              <svg:g
+                app-property-cell
+                [cell]="$any(item)"
+                [orderNumber]="$index" />
+            }
+            @case ('AreaSite') {
+              <svg:g app-area-cell [cell]="$any(item)" [orderNumber]="$index" />
+            }
+            @case ('CardEventCell') {
+              <svg:g app-card-cell [cell]="$any(item)" [orderNumber]="$index" />
+            }
+            @case ('IncomeCell') {
+              <svg:g
+                app-income-cell
+                [income]="$any(item).amount"
+                [orderNumber]="$index" />
+            }
+            @case ('TaxCell') {
+              <svg:g
+                app-tax-cell
+                [tax]="$any(item).amount"
+                [orderNumber]="$index" />
+            }
+            @case ('MoveToCenter') {
+              <svg:g app-move-to-center [orderNumber]="$index" />
+            }
+            @case ('Racitto') {
+              <svg:g app-racitto [orderNumber]="$index" />
+            }
+            @case ('SkipTurn') {
+              <svg:g app-skip-turn [orderNumber]="$index" />
+            }
+            @case ('InnerStartCell') {
+              <svg:g app-enter-center [orderNumber]="$index" />
+            }
+            @default {
+              <!-- <svg:g app-land [orderNumber]="$index" /> -->
+            }
           }
-          @case ('Property') {
-            <svg:g
-              app-property-cell
-              [cell]="$any(item)"
-              [orderNumber]="$index" />
-          }
-          @case ('AreaSite') {
-            <svg:g app-area-cell [cell]="$any(item)" [orderNumber]="$index" />
-          }
-          @case ('CardEventCell') {
-            <svg:g app-card-cell [cell]="$any(item)" [orderNumber]="$index" />
-          }
-          @case ('IncomeCell') {
-            <svg:g
-              app-income-cell
-              [income]="$any(item).amount"
-              [orderNumber]="$index" />
-          }
-          @case ('TaxCell') {
-            <svg:g
-              app-tax-cell
-              [tax]="$any(item).amount"
-              [orderNumber]="$index" />
-          }
-          @case ('MoveToCenter') {
-            <svg:g app-move-to-center [orderNumber]="$index" />
-          }
-          @case ('Racitto') {
-            <svg:g app-racitto [orderNumber]="$index" />
-          }
-          @case ('SkipTurn') {
-            <svg:g app-skip-turn [orderNumber]="$index" />
-          }
-          @case ('InnerStartCell') {
-            <svg:g app-enter-center [orderNumber]="$index" />
-          }
-          @default {
-            <!-- <svg:g app-land [orderNumber]="$index" /> -->
-          }
-        }
-      </svg:g>
-    }
+        </svg:g>
+      }
+    </svg:g>
+    <svg:g app-player-ui></svg:g>
   </svg:svg>
 </div>
