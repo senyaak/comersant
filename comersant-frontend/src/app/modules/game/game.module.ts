@@ -25,7 +25,6 @@ import { PlayerInfoComponent } from './components/main/UI/game-info/player-info/
 import { GameRoutingModule } from './game-routing.module';
 import { SplitLetters } from './pipes/singleLetterLine';
 import { Split } from './pipes/singleWordLine';
-import { GameLoopService } from './services/game-loop.service';
 import { GameStateService } from './services/game-state.service';
 import { GameService } from './services/game.service';
 
@@ -54,6 +53,6 @@ import { GameService } from './services/game.service';
     PlayerUIComponent,
   ],
   imports: [CommonModule, GameRoutingModule, TranslateModule],
-  providers: [GameService, GameStateService, GameLoopService],
+  providers: [GameService, GameStateService],
 })
 export class GameModule {}

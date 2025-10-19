@@ -14,9 +14,9 @@ export class GameControlComponent implements OnInit {
     private gameStateService: GameStateService,
   ) {}
 
-  async ngOnInit(): Promise<void> {
+  ngOnInit() {
     console.log('init turn_progress');
-    (await this.gameService.Socket).on('turn_progress', (...rest) => {
+    this.gameService.Socket.on('turn_progress', (...rest) => {
       this.isProcessingTurn = false;
       // this.
       console.log('turn_progress', rest);
@@ -35,10 +35,11 @@ export class GameControlComponent implements OnInit {
       return 'Processing...';
     }
 
-    if (!this.gameStateService.isTurnActive) {
+    if (!this.gameService.isTurnActive) {
       return 'Waiting for your turn';
     }
 
+    // this.
     return 'Next Turn';
   }
 
@@ -46,7 +47,7 @@ export class GameControlComponent implements OnInit {
    * Handles the next turn button click
    */
   onNextTurn() {
-    if (!this.gameStateService.isTurnActive || this.isProcessingTurn) {
+    if (!this.gameService.isTurnActive || this.isProcessingTurn) {
       return;
     }
     this.isProcessingTurn = true;
@@ -62,6 +63,6 @@ export class GameControlComponent implements OnInit {
   }
 
   get isMyTurn(): boolean {
-    return this.gameStateService.isTurnActive;
+    return this.gameService.isTurnActive;
   }
 }

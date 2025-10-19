@@ -1,4 +1,4 @@
-import type { IRawGame } from './types';
+import type { IRawGame, ITurnResult } from './types';
 
 import { Player, PlayerColor } from './player';
 import { Turn, turnIterator } from './turn';
@@ -61,31 +61,50 @@ export class IGame {
     player.Id = newId;
   }
 
-  nextTurn(playerId: string) {
-    if(!this.isPlayerActive(playerId)) {
+  nextTurn(playerId: string, diceCounter?: number) {
+    const result: ITurnResult = {};
+    if (!this.isPlayerActive(playerId)) {
       throw new Error(`It's not player ${playerId} turn`);
     }
 
-    switch (this.currentTurnState) {
-      case Turn.Trading: {
-        break;
+    if (this.currentTurnState === Turn.Trading && diceCounter !== undefined) {
+      let rollResult = 0; // Roll a 6-sided dice
+      result.diceRoll = [];
+
+      for (let i = 0; i < diceCounter; i++) {
+        const rolled = Math.floor(Math.random() * 6) + 1;
+        result.diceRoll.push(rolled);
+        rollResult += rolled;
       }
-      case Turn.Event: {
-        break;
-      }
+
+      console.log(`Player ${playerId} rolled a ${rollResult}`);
+
+      this.players[this.currentPlayer].move(rollResult);
+      result.newPlayerPosition = this.players[this.currentPlayer].Position;
+    } else if (this.currentTurnState === Turn.Event) {
+      // event handling logic
+    } else {
+      throw new Error('Invalid turn state or missing diceCounter');
     }
+
     this.currentTurnState = this.currentTurnIterator.next().value;
     // check if turn is over
     if (this.currentTurnState === Turn.Trading) {
       this.currentPlayer = (this.currentPlayer + 1) % this.players.length;
     }
+
+    return result;
   }
 
   // TODO: implement different classes for client and server
   /** client side only */
-  forceNextTurn(): void {
+  forceNextTurn(turnResult: ITurnResult): void {
     if (!this.isClient) {
       throw new Error('forceNextTurn can only be called on the client');
+    }
+    if(this.currentTurnState === Turn.Trading && turnResult.diceRoll !== undefined) {
+
+      this.players[this.currentPlayer].move(turnResult.diceRoll.reduce((a, b) => a + b, 0));
     }
     console.log('forceNextTurn called', this);
     this.currentTurnState = this.currentTurnIterator.next().value;

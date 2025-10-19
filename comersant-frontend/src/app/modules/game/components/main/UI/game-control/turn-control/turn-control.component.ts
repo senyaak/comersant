@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { GameStateService } from 'src/app/modules/game/services/game-state.service';
 import { GameService } from 'src/app/modules/game/services/game.service';
 
 @Component({
@@ -8,11 +9,34 @@ import { GameService } from 'src/app/modules/game/services/game.service';
   styleUrl: './turn-control.component.scss',
 })
 export class TurnControlComponent {
+  public selectedDice: number = 3;
+
   constructor(
     private gameService: GameService,
+    private gameStateService: GameStateService,
   ) {}
+
+  get DiceCounter(): number {
+    return this.gameStateService.DiceCounter;
+  }
+
+  set DiceCounter(value: number) {
+    this.gameStateService.DiceCounter = value;
+  }
 
   get TurnState() {
     return this.gameService.Game.CurrentTurnState;
+  }
+
+  get isMyTurn(): boolean {
+    return this.gameService.isTurnActive;
+  }
+
+  getDiceDots(diceValue: number): number[] {
+    return Array(diceValue).fill(0);
+  }
+
+  getDotClass(dotIndex: number) {
+    return 'dot dot-' + (dotIndex + 1);
   }
 }

@@ -45,13 +45,22 @@ export class Player {
       this.id = entity;
       this.color = color;
       this.name = name;
-    } else if(typeof entity !== 'string' && 'id' in entity && 'color' in entity && 'name' in entity) {
+    } else if(this.isArgumentPlayer(entity)) {
       this.id = entity.id;
       this.color = entity.color;
       this.name = entity.name;
+      this.position = entity.position;
     } else {
       throw new Error('Invalid Player constructor argument');
     }
+  }
+
+  private isArgumentPlayer(entity: unknown): entity is IRawPlayer {
+    return typeof entity !== 'string' &&
+    'id' in (entity as IRawPlayer) &&
+    'color' in (entity as IRawPlayer) &&
+    'name' in (entity as IRawPlayer) &&
+    'position' in (entity as IRawPlayer);
   }
 
   get Color(): PlayerColor {
@@ -80,6 +89,7 @@ export class Player {
 
   move(steps: number): void {
     // Board.cellsCounter;
+    console.log('move player', this.name, 'by', steps, 'new position:', (this.position + steps) % Board.cellsCounter);
     this.position = (this.position + steps) % Board.cellsCounter;
   }
 }

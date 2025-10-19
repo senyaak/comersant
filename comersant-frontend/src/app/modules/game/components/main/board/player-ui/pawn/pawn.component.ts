@@ -1,8 +1,8 @@
-import { Component, Input } from '@angular/core';
+import { AfterViewInit, Component, DoCheck, ElementRef, Input, ViewChild } from '@angular/core';
 import { Player } from '$server/modules/game/models/GameModels/player';
 import { GameService } from 'src/app/modules/game/services/game.service';
 
-import { CellWidth } from '../../cell/abstract/base';
+import { CellOffset, CellWidth } from '../../cell/abstract/base';
 
 @Component({
   selector: '[app-pawn]',
@@ -10,23 +10,20 @@ import { CellWidth } from '../../cell/abstract/base';
   templateUrl: './pawn.component.html',
   styleUrl: './pawn.component.scss',
 })
-export class PawnComponent {
-  @Input({required: true })
-    player!: Player;
+export class PawnComponent implements AfterViewInit, DoCheck {
+  @Input({required: true }) player!: Player;
+  @ViewChild('cxAnim', { static: true }) cxAnim!: ElementRef<SVGAnimateElement>;
+  lastCx = 0;
 
   constructor(private gameService: GameService) {}
 
   get cx(): number {
-    // Example calculation, replace with actual logic
-    return this.PlayerPosition * CellWidth + 40;
+    return this.PlayerPosition * (CellWidth + CellOffset) + 40;
   }
 
   get cy(): number {
-    this.gameService.Game.players.findIndex(p => p.Id === this.player.Id);
-    // this.player.Color;
-    // Example calculation, replace with actual logic
-    // Fixed y position for simplicity
-    return 50 + this.gameService.Game.players.findIndex(p => p.Id === this.player.Id) * 20;
+    const pIndex = this.gameService.Game.players.findIndex(p => p.Id === this.player.Id);
+    return 50 + pIndex * 20;
   }
 
   get Player(): Player {
@@ -43,5 +40,20 @@ export class PawnComponent {
 
   get PlayerColor(): string {
     return this.player.Color;
+  }
+
+  ngAfterViewInit() {
+    this.lastCx = this.cx;
+  }
+
+  ngDoCheck() {
+    const next = this.cx;
+    if (next !== this.lastCx) {
+      const anim = this.cxAnim.nativeElement;
+      anim.setAttribute('from', this.lastCx.toString());
+      anim.setAttribute('to', next.toString());
+      anim.beginElement();
+      this.lastCx = next;
+    }
   }
 }

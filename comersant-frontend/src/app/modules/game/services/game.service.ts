@@ -13,6 +13,8 @@ import { Routes } from '$server/types/routes';
 import { BehaviorSubject, tap } from 'rxjs';
 import { io } from 'socket.io-client';
 import { UserSettingsService } from 'src/app/services/user-settings.service';
+
+import { GameStateService } from './game-state.service';
 /**
  * init and stores game data
  * */
@@ -27,6 +29,7 @@ export class GameService {
     private readonly http: HttpClient,
     private readonly router: Router,
     private readonly userSettingsService: UserSettingsService,
+    private readonly gameStateService: GameStateService,
   ) {
     this.game.subscribe(() => {
       this.checkIfReady();
@@ -124,14 +127,18 @@ export class GameService {
       console.log('socket on any', rest);
     });
     this.socket.on('turn_progress', (result: NextTurnResult) => {
-      this.game.getValue().forceNextTurn();
+      if(result.success !== true) {
+        throw new Error('Turn processing failed');
+      }
+
+      this.game.getValue().forceNextTurn(result.data.turnResult);
       console.log('turn_progress', result);
       // Handle game updates
     });
   }
 
   public nextTurn(): void {
-    this.socket.emit('nextTurn', (playerNumber: number) => {
+    this.socket.emit('nextTurn', {diceCounter: this.gameStateService.DiceCounter}, (playerNumber: number) => {
       console.log('nextTurn done: curr playerNumber', playerNumber);
     });
   }
@@ -142,4 +149,11 @@ export class GameService {
       this.gameReady$.next(true);
     }
   }
+
+  get isTurnActive(): boolean {
+    return this.Game.CurrentPlayer === this.Game.players.findIndex(
+      ({ Id }) => Id === this.Player?.Id,
+    );
+  }
+
 }

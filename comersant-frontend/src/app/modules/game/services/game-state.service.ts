@@ -1,20 +1,25 @@
 import { Injectable } from '@angular/core';
 
-import { GameService } from './game.service';
-
 /** Access to game data */
 @Injectable()
 export class GameStateService {
-  constructor(private gameService: GameService) {
+  private diceCounter: number = 3;
+
+  constructor() {
   }
 
-  get Players() {
-    return this.gameService.Game.players;
+  get DiceCounter(): number {
+    return this.diceCounter;
   }
 
-  get isTurnActive(): boolean {
-    return this.gameService.Game.CurrentPlayer === this.gameService.Game.players.findIndex(
-      ({ Id }) => Id === this.gameService.Player?.Id,
-    );
+  set DiceCounter(value: number) {
+    if(value < 1 || value > 3) {
+      throw new Error('Invalid dice count');
+    }
+    this.diceCounter = value;
   }
+
+  // get Players() {
+  //   return this.gameService.Game.players;
+  // }
 }

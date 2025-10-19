@@ -44,20 +44,22 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @ValidateGameId
   handleNextTurn(
     @ConnectedSocket() client: Socket,
-    // @MessageBody() payload: unknown,
+    @MessageBody() payload: { diceCounter: number },
   ): void {
+    console.log('nextTurn payload:', payload);
     const gameId = getValidatedGameId(client);
 
-    this.gamesService.getGame(gameId).nextTurn(client.id);
-    console.log('emit turn_progress');
+    const result = this.gamesService.getGame(gameId).nextTurn(client.id, payload.diceCounter);
+    console.log('emit turn_progress', result);
     this.server.to(`game-${gameId}`).emit('turn_progress', {
       message: 'Turn processed successfully',
       success: true,
       data: {
+        turnResult: result,
         currentPlayer: this.gamesService.getGame(gameId).CurrentPlayer,
         turn: this.gamesService.getGame(gameId).CurrentTurnState,
       },
-    } as NextTurnResult);
+    } satisfies NextTurnResult);
   }
 
   handleDisconnect(/*client: any*/) {
@@ -67,26 +69,26 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @ValidateGameId
   @SubscribeMessage('message')
   handleMessage(
-    @ConnectedSocket() client: Socket,
-    @MessageBody() payload: unknown,
+  // @ConnectedSocket() client: Socket,
+  // @MessageBody() payload: unknown,
   ): NextTurnResult {
     try {
       throw new Error('Test error');
-      console.log('ad', client, payload);
+      // console.log('ad', client, payload);
 
-      const gameId = getValidatedGameId(client);
-      const game = this.gamesService.getGame(gameId);
-      console.log('Game state:', game);
+      // const gameId = getValidatedGameId(client);
+      // const game = this.gamesService.getGame(gameId);
+      // console.log('Game state:', game);
 
-      // game.nextTurn();
-      return {
-        success: true,
-        data: {
-          currentPlayer: game.CurrentPlayer,
-          turn: game.CurrentTurnState,
-        },
-        message: 'Turn processed successfully',
-      };
+      // // game.nextTurn();
+      // return {
+      //   success: true,
+      //   data: {
+      //     currentPlayer: game.CurrentPlayer,
+      //     turn: game.CurrentTurnState,
+      //   },
+      //   message: 'Turn processed successfully',
+      // };
     } catch (error) {
       console.error('Error processing message:', error);
       return {
