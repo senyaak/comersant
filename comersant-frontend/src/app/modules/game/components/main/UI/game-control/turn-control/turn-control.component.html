@@ -1,5 +1,4 @@
-<p>{{ TurnState | translate }}</p>
-<div *ngIf="TurnState === 'Trading' && isMyTurn">
+<div>
   <div class="dice-container">
     <button
       *ngFor="let dice of [1, 2, 3]; let i = index"

@@ -15,8 +15,8 @@ import { BaseComponent } from '../abstract/base';
 export class CardComponent extends BaseComponent implements OnInit {
   @Input({ required: true }) cell!: EventCell;
 
-  public label?: string;
   public color: string = 'black';
+  public label?: string;
 
   public positionY: number = this.offset + this.height * 0.75;
 

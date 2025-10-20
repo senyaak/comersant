@@ -1,5 +1,7 @@
 // import { Player } from './player';
 
+import { Player } from './player';
+
 enum BussinessGrade {
   Area = 1,
   Office = 2,
@@ -15,21 +17,31 @@ type Grades = [
 ];
 
 export abstract class Property {
-  constructor(public readonly price: number) {}
-  // owner: Player | null = null;
+  constructor(
+    public readonly price: number,
+    public owner: Player['id'] | null = null,
+  ) {}
+
+  static isProperty(obj: object): obj is Property {
+    return 'price' in obj && 'owner' in obj;
+  }
 }
 
-export class AreaSite extends Property {}
+export class AreaSite extends Property {
+  static isAreaSite(obj: object): obj is AreaSite {
+    return Property.isProperty(obj);
+  }
+}
 
-export class Business extends Property {
-  grade: BussinessGrade = 1;
-
+export abstract class Business extends Property {
   constructor(
     price: number,
     public readonly upgradePrice: number,
     public readonly grades: Grades,
+    owner: Player['id'] | null = null,
+    public grade: BussinessGrade = 1,
   ) {
-    super(price);
+    super(price, owner);
   }
 
   get areaBuy(): number {
@@ -40,12 +52,13 @@ export class Business extends Property {
     return this.grades[0][1];
   }
 
-  get officeBuy(): number {
-    return this.grades[1][0];
-  }
-
-  get officePayout(): number {
-    return this.grades[1][1];
+  get buys(): number[] {
+    return [
+      this.areaBuy,
+      this.officeBuy,
+      this.departmentBuy,
+      this.enterpriseBuy,
+    ];
   }
 
   get departmentBuy(): number {
@@ -64,13 +77,12 @@ export class Business extends Property {
     return this.grades[3][1];
   }
 
-  get buys(): number[] {
-    return [
-      this.areaBuy,
-      this.officeBuy,
-      this.departmentBuy,
-      this.enterpriseBuy,
-    ];
+  get officeBuy(): number {
+    return this.grades[1][0];
+  }
+
+  get officePayout(): number {
+    return this.grades[1][1];
   }
 
   get payouts(): number[] {
@@ -81,16 +93,31 @@ export class Business extends Property {
       this.enterprisePayout,
     ];
   }
+
+  static isBusiness(obj: object): obj is Business {
+    return Property.isProperty(obj) && 'group' in obj && 'upgradePrice' in obj && 'grades' in obj && 'grade' in obj;
+  }
 }
 
-export class GovBusiness extends Business {}
+export class GovBusiness extends Business {
+  static isGovBusiness(obj: object): obj is GovBusiness {
+    return Business.isBusiness(obj);
+  }
+}
+
 export class PrivateBusiness extends Business {
   constructor(
     public readonly group: number,
     price: number,
     upgradePrice: number,
     grades: Grades,
+    owner: Player['id'] | null = null,
+    grade: BussinessGrade = 1,
   ) {
-    super(price, upgradePrice, grades);
+    super(price, upgradePrice, grades, owner, grade);
+  }
+
+  static isPrivateBusiness(obj: object): obj is PrivateBusiness {
+    return Business.isBusiness(obj) && 'group' in obj;
   }
 }

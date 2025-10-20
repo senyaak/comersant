@@ -22,16 +22,9 @@ export class PropertyComponent extends BaseComponent implements OnInit {
     super();
   }
 
-  get buys(): number[] {
-    return this.cell.object.buys;
-  }
-
-  get payouts(): number[] {
-    return this.cell.object.payouts;
-  }
-
-  get topSeparatorY(): number {
-    return this.textTopPadding + this.fontSize * 4;
+  async ngOnInit() {
+    // console.log('this', this);
+    this.label = await firstValueFrom(this.translate.get(this.cell.name));
   }
 
   get botSeparatorY(): number {
@@ -40,8 +33,16 @@ export class PropertyComponent extends BaseComponent implements OnInit {
     );
   }
 
-  get splitterX(): number {
-    return this.x + this.width * 0.6;
+  get buys(): number[] {
+    return this.cell.object.buys;
+  }
+
+  get extraPadding() {
+    return 10;
+  }
+
+  get payouts(): number[] {
+    return this.cell.object.payouts;
   }
 
   get prefixes(): string[] {
@@ -50,12 +51,11 @@ export class PropertyComponent extends BaseComponent implements OnInit {
     );
   }
 
-  get extraPadding() {
-    return 10;
+  get splitterX(): number {
+    return this.x + this.width * 0.6;
   }
 
-  async ngOnInit() {
-    // console.log('this', this);
-    this.label = await firstValueFrom(this.translate.get(this.cell.name));
+  get topSeparatorY(): number {
+    return this.textTopPadding + this.fontSize * 4;
   }
 }

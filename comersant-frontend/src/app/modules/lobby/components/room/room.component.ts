@@ -18,6 +18,10 @@ export class RoomComponent implements OnInit, OnDestroy {
     private readonly router: Router,
   ) {}
 
+  ngOnDestroy() {
+    this.lobbyService.leaveRoom();
+  }
+
   ngOnInit(): void {
     if (!this.lobbyService.RoomName) {
       this.router.navigate(['../']);
@@ -31,19 +35,19 @@ export class RoomComponent implements OnInit, OnDestroy {
     });
   }
 
-  ngOnDestroy() {
-    this.lobbyService.leaveRoom();
-  }
   leaveRoom() {
     this.router.navigate(['/']);
   }
-  get userId() {
-    return this.lobbyService.Id;
+
+  startGame() {
+    this.lobbyService.startGame();
   }
+
   get isGameOwner() {
     return this.users.find(user => user.owner)?.id === this.userId;
   }
-  startGame() {
-    this.lobbyService.startGame();
+
+  get userId() {
+    return this.lobbyService.Id;
   }
 }

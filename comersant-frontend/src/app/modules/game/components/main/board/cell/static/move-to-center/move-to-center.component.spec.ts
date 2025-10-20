@@ -8,9 +8,9 @@ describe('MoveToCenterComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [MoveToCenterComponent]
+      declarations: [MoveToCenterComponent],
     })
-    .compileComponents();
+      .compileComponents();
 
     fixture = TestBed.createComponent(MoveToCenterComponent);
     component = fixture.componentInstance;

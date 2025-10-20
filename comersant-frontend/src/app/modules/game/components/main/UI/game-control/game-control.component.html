@@ -38,6 +38,7 @@
       <span class="spinner" *ngIf="isProcessingTurn"></span>
     </button>
   </div>
-
-  <app-turn-control />
+  <p>{{ TurnState | translate }}</p>
+  <app-buy-property  *ngIf="canBuyProperty" />
+  <app-turn-control  *ngIf="TurnState === 'Trading' && isMyTurn" />
 </div>

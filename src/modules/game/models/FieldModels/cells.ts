@@ -2,13 +2,21 @@ import { EventType } from '../events';
 import { Player } from '../GameModels/player';
 import { Property } from '../GameModels/properties';
 
+function isObject(obj: unknown): obj is Record<string, unknown> {
+  if(typeof obj === 'object' && obj !== null) {
+    return true;
+  } else {
+    throw new Error('Cell cast error! Not an object');
+  }
+}
+
 export abstract class Cell {
   constructor(public readonly name: string) {}
 }
 
 export class StartCell extends Cell {
   constructor() {
-    super('start');
+    super('Start');
   }
 }
 
@@ -19,13 +27,7 @@ export class InnerStartCell extends Cell {
 }
 
 export class PropertyCell<T extends Property = Property> extends Cell {
-  static isPropertyCell<T extends Property>(
-    cell: Cell,
-  ): cell is PropertyCell<T> {
-    return cell instanceof PropertyCell;
-  }
-
-  owner: Player | null;
+  owner: Player['Id'] | null;
 
   constructor(
     name: string,
@@ -33,6 +35,16 @@ export class PropertyCell<T extends Property = Property> extends Cell {
   ) {
     super(name);
     this.owner = null;
+  }
+
+  static isInstancePropertyCell<T extends Property>(
+    cell: Cell,
+  ): cell is PropertyCell<T> {
+    return cell instanceof PropertyCell;
+  }
+
+  static isPropertyCell(obj: unknown): obj is PropertyCell {
+    return isObject(obj) && 'name' in obj && 'owner' in obj && 'object' in obj;
   }
 }
 
@@ -43,6 +55,7 @@ export abstract class EventCell extends Cell {
 }
 export class StaticEventCell extends EventCell {
   constructor(name: EventCellTypes.staticEvent, type: EventType);
+
   constructor(
     name: EventCellTypes.staticEvent,
     type: EventType.BalanceChange,
@@ -55,6 +68,13 @@ export class StaticEventCell extends EventCell {
     public readonly amount?: number,
   ) {
     super(name);
+  }
+
+  isStaticEventCell(obj: unknown): obj is StaticEventCell {
+    if (typeof obj !== 'object' || obj === null) {
+      throw new Error('Invalid StaticEventCell object');
+    }
+    return 'name' in obj && 'type' in obj;
   }
 }
 
@@ -81,8 +101,38 @@ export enum EventCellTypes {
   interactiveEvent = 'interactiveEvent',
   staticEvent = 'staticEvent',
 }
+
+// export function stringToEventCellType(str: string): EventCellTypes {
+//   switch (str) {
+//     case 'card':
+//       return EventCellTypes.card;
+//     case 'interactiveEvent':
+//       return EventCellTypes.interactiveEvent;
+//     case 'staticEvent':
+//       return EventCellTypes.staticEvent;
+//     default:
+//       throw new Error(`Invalid EventCellType string: ${str}`);
+//   }
+// }
+
 export enum CardEventCellTypes {
   post = 'post',
   risk = 'risk',
   surpise = 'surpise',
+}
+
+export function stringToCardEventType(str: unknown): CardEventCellTypes {
+  if (typeof str !== 'string') {
+    throw new Error(`Invalid CardEventCellType string: ${str}`);
+  }
+  switch (str) {
+    case 'post':
+      return CardEventCellTypes.post;
+    case 'risk':
+      return CardEventCellTypes.risk;
+    case 'surpise':
+      return CardEventCellTypes.surpise;
+    default:
+      throw new Error(`Invalid CardEventCellType string: ${str}`);
+  }
 }

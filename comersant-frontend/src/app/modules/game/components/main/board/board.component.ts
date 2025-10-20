@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnChanges, OnInit } from '@angular/core';
 import { EventType } from '$server/modules/game/models/events';
 import { Board } from '$server/modules/game/models/FieldModels/board';
 import {
@@ -21,37 +21,42 @@ import { CellHeight, CellOffset, CellWidth } from './cell/abstract/base';
   styleUrls: ['./board.component.scss'],
   standalone: false,
 })
-export class BoardComponent implements OnInit {
-  // public board: Board = new Board();
-
-  get board() {
-    return Board;
-  }
+export class BoardComponent implements OnInit, OnChanges {
+  public board: Board = new Board();
 
   constructor() {}
 
-  get viewBox(): string {
-    return `0 0 ${this.boardWidthC} ${this.boardHeightC}`;
+  ngOnChanges() {
+    console.log('BoardComponent changes detected');
   }
 
-  get boardWidthScale() {
-    return '350%';
+  ngOnInit() {
+    // TODO: restore board state if needed
+    console.log('2board', this.flatCells);
   }
 
-  get boardWidthC() {
-    return this.flatCells.length * (CellWidth + CellOffset) + CellOffset;
+  get Board() {
+    return this.board;
   }
 
   get boardHeightC() {
     return CellHeight + CellOffset * 2;
   }
 
+  get boardWidthC() {
+    return this.flatCells.length * (CellWidth + CellOffset) + CellOffset;
+  }
+
+  get boardWidthScale() {
+    return '350%';
+  }
+
   get flatCells() {
     return this.board.cells.flat();
   }
 
-  ngOnInit() {
-    console.log('2board', this.flatCells);
+  get viewBox(): string {
+    return `0 0 ${this.boardWidthC} ${this.boardHeightC}`;
   }
 
   getType(item: Cell) {

@@ -23,46 +23,6 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   //   console.log('Game Gateway initialized');
   // }
 
-  @ValidateGameId
-  handleConnection(
-    @ConnectedSocket() client: Socket,
-    // @MessageBody() _payload: unknown,
-  ) {
-    // handle reconnection logic here
-    const gameId = getValidatedGameId(client);
-    const name = getValidatedUserName(client);
-
-    client.data = {name};
-
-    const newId = this.gamesService.updatePlayerId(gameId, client.id, name);
-    client.join(`game-${gameId}`);
-    console.log('connected', this.gamesService.getGame(gameId));
-
-    this.server.to(`game-${gameId}`).emit('user_connected', {name, id: newId});
-  }
-
-  @SubscribeMessage('nextTurn')
-  @ValidateGameId
-  handleNextTurn(
-    @ConnectedSocket() client: Socket,
-    @MessageBody() payload: { diceCounter: number },
-  ): void {
-    console.log('nextTurn payload:', payload);
-    const gameId = getValidatedGameId(client);
-
-    const result = this.gamesService.getGame(gameId).nextTurn(client.id, payload.diceCounter);
-    console.log('emit turn_progress', result);
-    this.server.to(`game-${gameId}`).emit('turn_progress', {
-      message: 'Turn processed successfully',
-      success: true,
-      data: {
-        turnResult: result,
-        currentPlayer: this.gamesService.getGame(gameId).CurrentPlayer,
-        turn: this.gamesService.getGame(gameId).CurrentTurnState,
-      },
-    } satisfies NextTurnResult);
-  }
-
   @SubscribeMessage('buyProperty')
   @ValidateGameId
   handleBuyProperty(
@@ -79,6 +39,24 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       console.error('Error buying property:', error);
       client.emit('propertyBought', { success: false, message: 'Error buying property' });
     }
+  }
+
+  @ValidateGameId
+  handleConnection(
+    @ConnectedSocket() client: Socket,
+    // @MessageBody() _payload: unknown,
+  ) {
+    // handle reconnection logic here
+    const gameId = getValidatedGameId(client);
+    const name = getValidatedUserName(client);
+
+    client.data = {name};
+
+    const newId = this.gamesService.updatePlayerId(gameId, client.id, name);
+    client.join(`game-${gameId}`);
+    console.log('connected', this.gamesService.getGame(gameId));
+
+    this.server.to(`game-${gameId}`).emit('user_connected', {name, id: newId});
   }
 
   handleDisconnect(/*client: any*/) {
@@ -115,6 +93,28 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
         message: 'Game not found',
       };
     }
+  }
+
+  @SubscribeMessage('nextTurn')
+  @ValidateGameId
+  handleNextTurn(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() payload: { diceCounter: number },
+  ): void {
+    console.log('nextTurn payload:', payload);
+    const gameId = getValidatedGameId(client);
+
+    const result = this.gamesService.getGame(gameId).nextTurn(client.id, payload.diceCounter);
+    console.log('emit turn_progress', result);
+    this.server.to(`game-${gameId}`).emit('turn_progress', {
+      message: 'Turn processed successfully',
+      success: true,
+      data: {
+        turnResult: result,
+        currentPlayer: this.gamesService.getGame(gameId).CurrentPlayer,
+        turn: this.gamesService.getGame(gameId).CurrentTurnState,
+      },
+    } satisfies NextTurnResult);
   }
 
   // @SubscribeMessage(ClientEvents.CreateRoom)

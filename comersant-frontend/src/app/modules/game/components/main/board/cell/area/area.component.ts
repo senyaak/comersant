@@ -13,10 +13,10 @@ import { BaseComponent } from '../abstract/base';
 export class AreaComponent extends BaseComponent implements OnInit {
   @Input({ required: true }) cell!: PropertyCell<AreaSite>;
 
-  get color() {
-    return 'red';
+  ngOnInit(): void {
   }
 
-  ngOnInit(): void {
+  get color() {
+    return 'red';
   }
 }

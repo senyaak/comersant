@@ -17,51 +17,47 @@ type Die = {
   styleUrls: ['./dice-roll.component.scss'],
 })
 export class DiceRollComponent implements OnInit, OnDestroy {
-  /** Выпавшие значения 1..6, длина 1–3 */
-  @Input() set values(v: number[]) {
-    const n = Math.min(3, Math.max(1, v?.length ?? 1));
-    const trimmed = (v ?? []).slice(0, n).map(x => this.clampFace(x));
-    this._dice.set(trimmed.map(f => ({ final: f, current: this.randFaceNot(f), rolling: false })));
-    this._visible.set(true);
-  }
+  // внутреннее состояние (signals)
+  private _dice = signal<Die[]>([]);
 
-  /** Размер одного кубика (px) */
-  @Input() size = 80;
-  /** Отступ между кубиками (px) */
-  @Input() gap = 16;
-  /** Длительность активного ролла (мс) */
-  @Input() rollMs = 1200;
-  /** Частота смены грани во время ролла (мс) */
-  @Input() tickMs = 80;
-  /** Длительность фейда после остановки (мс) */
-  @Input() fadeMs = 500;
+  private _fading = signal<boolean>(false);
+  private _visible = signal<boolean>(false);
+  private destroy$ = new Subject<void>();
+  private rolling$ = new Subject<void>();
   /** Автостарт при установке values */
   @Input() autoStart = true;
+  c = 0;
+
+  dice = this._dice.asReadonly();
 
   /** Событие полного окончания (после фейда) */
   @Output() done = new EventEmitter<void>();
+  /** Длительность фейда после остановки (мс) */
+  @Input() fadeMs = 500; fading = this._fading.asReadonly(); /** Отступ между кубиками (px) */
+  @Input() gap = 16;
+
+  q1 = 0;
+  q3 = 0;
 
   // координаты точек относительно size
   r = 6; // радиус точки (скорректируется в ngOnInit под size)
-  c = 0; q1 = 0; q3 = 0;
-
-  // внутреннее состояние (signals)
-  private _dice = signal<Die[]>([]);
-  dice = this._dice.asReadonly();
-
-  private _visible = signal<boolean>(false);
-  visible = this._visible.asReadonly();
-
-  private _fading = signal<boolean>(false);
-  fading = this._fading.asReadonly();
-
-  svgWidth = computed(() => this._dice().length * this.size + Math.max(0, this._dice().length - 1) * this.gap);
+  /** Длительность активного ролла (мс) */
+  @Input() rollMs = 1200;
 
   // вспомогательные
   rollStepMs = 260; // длительность одного “шага” CSS-анимации
+  /** Размер одного кубика (px) */
+  @Input() size = 80;
 
-  private destroy$ = new Subject<void>();
-  private rolling$ = new Subject<void>();
+  svgWidth = computed(() => this._dice().length * this.size + Math.max(0, this._dice().length - 1) * this.gap);
+
+  /** Частота смены грани во время ролла (мс) */
+  @Input() tickMs = 80;
+
+  visible = this._visible.asReadonly();
+  ngOnDestroy() {
+    this.destroy$.next(); this.destroy$.complete();
+  }
 
   ngOnInit() {
     // масштаб пипсов под size
@@ -74,8 +70,18 @@ export class DiceRollComponent implements OnInit, OnDestroy {
     if (this.autoStart && this._dice().length) this.start();
   }
 
-  ngOnDestroy() {
-    this.destroy$.next(); this.destroy$.complete();
+  /** Спрятать немедленно */
+  hide() {
+    this._visible.set(false);
+  }
+
+  /** no-op хук, иногда полезен для Safari с SVG анимациями */
+  noop() {}
+
+  /** Сменить данные и перезапустить */
+  rollTo(values: number[]) {
+    this.values = values;
+    this.start();
   }
 
   /** Запустить анимацию броска */
@@ -108,19 +114,13 @@ export class DiceRollComponent implements OnInit, OnDestroy {
     });
   }
 
-  /** Спрятать немедленно */
-  hide() {
-    this._visible.set(false);
+  /** Выпавшие значения 1..6, длина 1–3 */
+  @Input() set values(v: number[]) {
+    const n = Math.min(3, Math.max(1, v?.length ?? 1));
+    const trimmed = (v ?? []).slice(0, n).map(x => this.clampFace(x));
+    this._dice.set(trimmed.map(f => ({ final: f, current: this.randFaceNot(f), rolling: false })));
+    this._visible.set(true);
   }
-
-  /** Сменить данные и перезапустить */
-  rollTo(values: number[]) {
-    this.values = values;
-    this.start();
-  }
-
-  /** no-op хук, иногда полезен для Safari с SVG анимациями */
-  noop() {}
 
   private clampFace(n: number) {
     return Math.min(6, Math.max(1, Math.floor(n || 1)));

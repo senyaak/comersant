@@ -19,23 +19,23 @@ export class SetNameComponent implements AfterViewInit {
     }
   }
 
-  openDialog() {
-    this.name = '';
-    this.dialog.nativeElement.showModal();
-  }
-
   closeDialog() {
     this.dialog.nativeElement.close();
-  }
-
-  setName() {
-    this.lobbyService.setName(this.name);
-    this.closeDialog();
   }
 
   disableEscKey(event: KeyboardEvent): void {
     if (event.key === 'Escape') {
       event.preventDefault(); // Prevent the default behavior of the Esc key
     }
+  }
+
+  openDialog() {
+    this.name = '';
+    this.dialog.nativeElement.showModal();
+  }
+
+  setName() {
+    this.lobbyService.setName(this.name);
+    this.closeDialog();
   }
 }

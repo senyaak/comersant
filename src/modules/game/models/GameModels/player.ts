@@ -18,11 +18,11 @@ export interface IRawPlayer {
 }
 
 export class Player {
-  private id: IRawPlayer['id'];
   private readonly color: IRawPlayer['color'];
-  private readonly name: IRawPlayer['name'];
-
+  private id: IRawPlayer['id'];
   private money: IRawPlayer['money'] = 150_000;
+
+  private readonly name: IRawPlayer['name'];
   private position: IRawPlayer['position'] = 0;
   /**
    *  items: Item[];
@@ -54,28 +54,8 @@ export class Player {
     }
   }
 
-  private isArgumentPlayer(entity: unknown): entity is IRawPlayer {
-    return typeof entity !== 'string' &&
-    'id' in (entity as IRawPlayer) &&
-    'color' in (entity as IRawPlayer) &&
-    'name' in (entity as IRawPlayer) &&
-    'position' in (entity as IRawPlayer);
-  }
-
   get Color(): PlayerColor {
     return this.color;
-  }
-
-  get Name(): string {
-    return this.name;
-  }
-
-  get Money(): number {
-    return this.money;
-  }
-
-  get Position(): number {
-    return this.position;
   }
 
   get Id(): string {
@@ -86,13 +66,33 @@ export class Player {
     this.id = value;
   }
 
-  move(steps: number): void {
-    // Board.cellsCounter;
-    console.log('move player', this.name, 'by', steps, 'new position:', (this.position + steps) % Board.cellsCounter);
-    this.position = (this.position + steps) % Board.cellsCounter;
+  get Money(): number {
+    return this.money;
+  }
+
+  get Name(): string {
+    return this.name;
+  }
+
+  get Position(): number {
+    return this.position;
+  }
+
+  private isArgumentPlayer(entity: unknown): entity is IRawPlayer {
+    return typeof entity !== 'string' &&
+    'id' in (entity as IRawPlayer) &&
+    'color' in (entity as IRawPlayer) &&
+    'name' in (entity as IRawPlayer) &&
+    'position' in (entity as IRawPlayer);
   }
 
   changeMoney(amount: number): void {
     this.money += amount;
+  }
+
+  move(steps: number): void {
+    // Board.cellsCounter;
+    console.log('move player', this.name, 'by', steps, 'new position:', (this.position + steps) % Board.CellsCounter);
+    this.position = (this.position + steps) % Board.CellsCounter;
   }
 }

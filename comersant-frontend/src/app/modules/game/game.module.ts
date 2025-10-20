@@ -17,6 +17,7 @@ import { CellWrapperComponent } from './components/main/board/cell/wrapper.compo
 import { PawnComponent } from './components/main/board/player-ui/pawn/pawn.component';
 import { PlayerUIComponent } from './components/main/board/player-ui/player-ui.component';
 import { MainComponent } from './components/main/main.component';
+import { BuyPropertyComponent } from './components/main/UI/game-control/buy-property/buy-property.component';
 // TODO: remove abstrect
 import { GameControlComponent } from './components/main/UI/game-control/game-control.component';
 import { TurnControlComponent } from './components/main/UI/game-control/turn-control/turn-control.component';
@@ -51,6 +52,7 @@ import { GameService } from './services/game.service';
     GameControlComponent,
     PawnComponent,
     PlayerUIComponent,
+    BuyPropertyComponent,
   ],
   imports: [CommonModule, GameRoutingModule, TranslateModule],
   providers: [GameService, GameStateService],

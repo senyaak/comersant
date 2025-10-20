@@ -16,6 +16,14 @@ export class TurnControlComponent {
     private gameStateService: GameStateService,
   ) {}
 
+  getDiceDots(diceValue: number): number[] {
+    return Array(diceValue).fill(0);
+  }
+
+  getDotClass(dotIndex: number) {
+    return 'dot dot-' + (dotIndex + 1);
+  }
+
   get DiceCounter(): number {
     return this.gameStateService.DiceCounter;
   }
@@ -24,19 +32,7 @@ export class TurnControlComponent {
     this.gameStateService.DiceCounter = value;
   }
 
-  get TurnState() {
-    return this.gameService.Game.CurrentTurnState;
-  }
-
   get isMyTurn(): boolean {
     return this.gameService.isTurnActive;
-  }
-
-  getDiceDots(diceValue: number): number[] {
-    return Array(diceValue).fill(0);
-  }
-
-  getDotClass(dotIndex: number) {
-    return 'dot dot-' + (dotIndex + 1);
   }
 }

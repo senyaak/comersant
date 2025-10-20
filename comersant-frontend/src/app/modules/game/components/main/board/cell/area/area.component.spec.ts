@@ -8,9 +8,9 @@ describe('AreaComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [AreaComponent]
+      declarations: [AreaComponent],
     })
-    .compileComponents();
+      .compileComponents();
 
     fixture = TestBed.createComponent(AreaComponent);
     component = fixture.componentInstance;

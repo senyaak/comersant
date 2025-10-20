@@ -8,9 +8,9 @@ describe('TurnControlComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [TurnControlComponent]
+      declarations: [TurnControlComponent],
     })
-    .compileComponents();
+      .compileComponents();
 
     fixture = TestBed.createComponent(TurnControlComponent);
     component = fixture.componentInstance;

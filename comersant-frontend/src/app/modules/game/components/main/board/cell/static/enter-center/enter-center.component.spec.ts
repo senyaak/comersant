@@ -8,9 +8,9 @@ describe('EnterCenterComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [EnterCenterComponent]
+      declarations: [EnterCenterComponent],
     })
-    .compileComponents();
+      .compileComponents();
 
     fixture = TestBed.createComponent(EnterCenterComponent);
     component = fixture.componentInstance;

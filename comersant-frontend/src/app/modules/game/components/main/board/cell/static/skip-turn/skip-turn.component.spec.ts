@@ -8,9 +8,9 @@ describe('SkipTurnComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [SkipTurnComponent]
+      declarations: [SkipTurnComponent],
     })
-    .compileComponents();
+      .compileComponents();
 
     fixture = TestBed.createComponent(SkipTurnComponent);
     component = fixture.componentInstance;

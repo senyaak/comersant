@@ -1,5 +1,5 @@
 import type { IRawGame } from '$server/modules/game/models/GameModels/types';
-import type { NextTurnResult } from '$server/modules/game/models/types';
+import type { NextTurnResult, PropertyBoughtResult } from '$server/modules/game/models/types';
 import type { ClientToServerEvents, ServerToClientEvents } from '$server/modules/game/services/events/types';
 import type { Observable } from 'rxjs';
 import type { Socket } from 'socket.io-client';
@@ -9,6 +9,8 @@ import { Injectable } from '@angular/core';
 import {
   Router,
 } from '@angular/router';
+import { PropertyCell } from '$server/modules/game/models/FieldModels/cells';
+import { Player } from '$server/modules/game/models/GameModels/player';
 import { Routes } from '$server/types/routes';
 import { BehaviorSubject, tap } from 'rxjs';
 import { io } from 'socket.io-client';
@@ -23,9 +25,11 @@ import { GameStateService } from './game-state.service';
   providedIn: 'root',
 })
 export class GameService {
-  private socket!: Socket<ServerToClientEvents, ClientToServerEvents>;
   private game: BehaviorSubject<ICGame> = new BehaviorSubject<ICGame>(new ICGame());
-  public turnProgress$ = new BehaviorSubject<NextTurnResult>({message: 'Game not found', success: false});
+  private socket!: Socket<ServerToClientEvents, ClientToServerEvents>;
+  public gameReady$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+  public propertyBought$ = new BehaviorSubject<PropertyBoughtResult>({ success: false, test: 1 });
+  public turnProgress$ = new BehaviorSubject<NextTurnResult>({ message: 'Game not found', success: false });
 
   constructor(
     private readonly http: HttpClient,
@@ -40,6 +44,26 @@ export class GameService {
 
   get Game() {
     return this.game.getValue();
+  }
+
+  get isTurnActive(): boolean {
+    return this.Game.CurrentPlayer === this.Game.players.findIndex(
+      ({ Id }) => Id === this.Player?.Id,
+    );
+  }
+
+  get ownedProperties(): Record<Player['id'], PropertyCell[]> {
+    return this.Game.board.flatCells.reduce((acc, cell) => {
+      if (cell instanceof PropertyCell && cell.owner) {
+        const ownerId = cell.owner;
+
+        if (!acc[ownerId]) {
+          acc[ownerId] = [];
+        }
+        acc[ownerId].push(cell);
+      }
+      return acc;
+    }, {} as Record<Player['id'], PropertyCell[]>);
   }
 
   get Player() {
@@ -75,19 +99,14 @@ export class GameService {
     });
   }
 
-  private loadGame(gameId: string): Observable<IRawGame> {
-    const game$ = this.http.get<IRawGame>(`${Routes.games}/${gameId}`).pipe(
-      tap({ next: game => {
-        console.log('set game', game);
-        this.game.next(new ICGame(game));
-        // this.game.complete();
-        // console.log('->Game loaded:', this.game.getValue());
-      }, error: (err) => {
-        console.error('Error loading game:', err);
-        this.router.navigate(['/']);
-      }}),
-    );
-    return game$;
+  public nextTurn(): void {
+    this.socket.emit('nextTurn', {diceCounter: this.gameStateService.DiceCounter});
+  }
+
+  private checkIfReady() {
+    if (this.Socket && this.Player?.Id !== undefined) {
+      this.gameReady$.next(true);
+    }
   }
 
   private initSocket() {
@@ -138,21 +157,19 @@ export class GameService {
     });
   }
 
-  public nextTurn(): void {
-    this.socket.emit('nextTurn', {diceCounter: this.gameStateService.DiceCounter});
-  }
-
-  public gameReady$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
-  private checkIfReady() {
-    if (this.Socket && this.Player?.Id !== undefined) {
-      this.gameReady$.next(true);
-    }
-  }
-
-  get isTurnActive(): boolean {
-    return this.Game.CurrentPlayer === this.Game.players.findIndex(
-      ({ Id }) => Id === this.Player?.Id,
+  private loadGame(gameId: string): Observable<IRawGame> {
+    const game$ = this.http.get<IRawGame>(`${Routes.games}/${gameId}`).pipe(
+      tap({ next: game => {
+        console.log('set game', game);
+        this.game.next(new ICGame(game));
+        // this.game.complete();
+        // console.log('->Game loaded:', this.game.getValue());
+      }, error: (err) => {
+        console.error('Error loading game:', err);
+        this.router.navigate(['/']);
+      }}),
     );
+    return game$;
   }
 
 }

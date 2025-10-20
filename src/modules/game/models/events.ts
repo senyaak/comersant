@@ -11,6 +11,13 @@ export enum EventType {
   PropertyLoss,
 }
 
+export function convertToEventType(value: unknown): EventType {
+  if (typeof value === 'number' && Object.values(EventType).includes(value)) {
+    return value as EventType;
+  }
+  throw new Error(`Invalid EventType value: ${value}`);
+}
+
 export enum EventItem {
   Mail,
   Risk,

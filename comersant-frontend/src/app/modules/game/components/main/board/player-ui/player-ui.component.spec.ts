@@ -8,9 +8,9 @@ describe('PlayerUIComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [PlayerUIComponent]
+      declarations: [PlayerUIComponent],
     })
-    .compileComponents();
+      .compileComponents();
 
     fixture = TestBed.createComponent(PlayerUIComponent);
     component = fixture.componentInstance;

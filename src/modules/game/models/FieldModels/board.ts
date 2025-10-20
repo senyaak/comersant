@@ -1,15 +1,4 @@
-// import {
-//   Backer,
-//   Big,
-//   Children,
-//   Conditerie,
-//   Gastronomie,
-//   Mercery,
-//   Site,
-//   Toys,
-// } from '$i18n/mapping';
-
-import { EventType as ET } from '../events';
+import { convertToEventType, EventType as ET } from '../events';
 import {
   AreaSite,
   GovBusiness,
@@ -25,6 +14,7 @@ import {
   PropertyCell,
   StartCell,
   StaticEventCell,
+  stringToCardEventType,
 } from './cells';
 
 enum BussinessGroups {
@@ -369,10 +359,105 @@ function createCells(): Cell[][] {
   ];
 }
 
+function isValidCell(cell: object): cell is Cell {
+  return cell && 'name' in cell && typeof cell.name === 'string';
+};
+
+const restoreCells = (cells: object[][]): Cell[][] => {
+  return cells.map(row =>
+    row.map(cell => {
+      if (!isValidCell(cell)) {
+        throw new Error(`Invalid cell object: ${JSON.stringify(cell)}`);
+      }
+
+      if (cell.name === 'Start') {
+        return new StartCell();
+      } else if (cell.name === 'InnerStart') {
+        return new InnerStartCell();
+      } else if (PropertyCell.isPropertyCell(cell)) {
+        if (PrivateBusiness.isPrivateBusiness(cell.object)) {
+          return new PropertyCell(
+            cell.name,
+            new PrivateBusiness(
+              cell.object.group,
+              cell.object.price,
+              cell.object.upgradePrice,
+              cell.object.grades,
+              cell.object.owner,
+              cell.object.grade,
+            ),
+          );
+        } else if (GovBusiness.isGovBusiness(cell.object)) {
+          return new PropertyCell(
+            cell.name,
+            new GovBusiness(
+              cell.object.price,
+              cell.object.upgradePrice,
+              cell.object.grades,
+              cell.object.owner,
+              cell.object.grade,
+            ),
+          );
+        } else if (AreaSite.isAreaSite(cell.object)) {
+          return new PropertyCell(
+            cell.name,
+            new AreaSite(cell.object.price, cell.object.owner),
+          );
+        } else {
+          throw new Error(`Unknown property type in cell: ${cell.name}`);
+        }
+      } else if (cell.name === EventCellTypes.card && 'type' in cell) {
+        return new CardEventCell(EventCellTypes.card, stringToCardEventType(cell.type));
+      } else if (cell.name === EventCellTypes.staticEvent && 'type' in cell) {
+        const eventType = convertToEventType(cell.type);
+        if(eventType === ET.BalanceChange) {
+          if('amount' in cell && typeof cell.amount === 'number') {
+            return new StaticEventCell(
+              EventCellTypes.staticEvent,
+              ET.BalanceChange,
+              cell.amount,
+            );
+          } else {
+            throw new Error(`Invalid amount for BalanceChange in cell: ${cell.name}`);
+          }
+        } else {
+          return new StaticEventCell(
+            EventCellTypes.staticEvent,
+            eventType,
+          );
+        }
+      } else if (cell.name === EventCellTypes.interactiveEvent && 'type' in cell) {
+        return new InteractiveEventCell(
+          EventCellTypes.interactiveEvent,
+          convertToEventType(cell.type),
+        );
+      } else {
+        throw new Error(`Unknown cell type: ${cell.name}`);
+      }
+    }),
+  );
+};
+
 export class Board {
-  static cellsCounter: number = createCells().flat().length;
-  static cells: Cell[][];
-  private constructor() {
-    // this.cells = createCells();
+  /** use as default board to calculate something, DO NOT MODIFY */
+  private static readonly _cells: Readonly<Cell>[][] = createCells();
+  cells: Cell[][] = createCells();
+  constructor();
+
+  constructor(board: Board);
+  constructor(board?: Board) {
+    if(board) {
+      this.cells = restoreCells(board.cells);
+    } else {
+      this.cells = createCells();
+    }
   }
+
+  static get Cells() { return Board._cells; }
+  static get CellsCounter(){
+    return Board._cells.flat().length;
+  }
+
+  get flatCells() { return this.cells.flat(); }
+
 }

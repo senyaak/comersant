@@ -12,10 +12,10 @@ import { BaseComponent } from '../abstract/base';
 export class TaxComponent extends BaseComponent implements OnInit {
   @Input({ required: true }) tax!: number;
 
-  get color() {
-    return 'black';
+  ngOnInit(): void {
   }
 
-  ngOnInit(): void {
+  get color() {
+    return 'black';
   }
 }

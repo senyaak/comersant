@@ -9,11 +9,11 @@ import { BaseComponent } from '../../abstract/base';
   styleUrl: './enter-center.component.scss',
 })
 export class EnterCenterComponent extends BaseComponent {
-  get splitterX(): number {
-    return this.x + this.width / 2;
-  }
-
   get lettersHeight(): string {
     return '0.8em';
+  }
+
+  get splitterX(): number {
+    return this.x + this.width / 2;
   }
 }

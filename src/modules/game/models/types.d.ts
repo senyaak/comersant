@@ -20,3 +20,13 @@ export interface NextTurnSuccess {
   message: 'Turn processed successfully'
 
 }
+
+export type PropertyBoughtResult = PropertyBoughtResultSuccess | PropertyBoughtResultError;
+export interface PropertyBoughtResultSuccess {
+  success: true;
+  newOwnerId: Player['id'];
+  propertyIndex: string;
+}
+export interface PropertyBoughtResultSuccess {
+  success: false;
+}

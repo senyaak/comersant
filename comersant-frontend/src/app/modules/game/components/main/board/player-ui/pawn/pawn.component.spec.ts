@@ -8,9 +8,9 @@ describe('PawnComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [PawnComponent]
+      declarations: [PawnComponent],
     })
-    .compileComponents();
+      .compileComponents();
 
     fixture = TestBed.createComponent(PawnComponent);
     component = fixture.componentInstance;

@@ -21,6 +21,10 @@ export class GamesService {
     // this.games.subscribe(this.onGameAdded);
   }
 
+  get Games(): Readonly<BehaviorSubject<Game[]>> {
+    return this.games;
+  }
+
   createGame(players: PlayersSettings[]): string {
     const nameSet = new Set(players.map(({name}) => name));
     if(nameSet.size !== players.length) {
@@ -38,10 +42,6 @@ export class GamesService {
       throw new Error('Game not found - SHOULD NOT HAPPEN!');
     }
     return game;
-  }
-
-  get Games(): Readonly<BehaviorSubject<Game[]>> {
-    return this.games;
   }
 
   updatePlayerId(gameId: string, newId: string, playerName: string) {

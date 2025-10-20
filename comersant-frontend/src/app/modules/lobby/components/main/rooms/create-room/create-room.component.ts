@@ -16,10 +16,11 @@ export class CreateRoomComponent {
     this.lobbyService.createRoom(this.name);
   }
 
-  show() {
-    this.dialog.nativeElement.showModal();
-  }
   hide() {
     this.dialog.nativeElement.close();
+  }
+
+  show() {
+    this.dialog.nativeElement.showModal();
   }
 }

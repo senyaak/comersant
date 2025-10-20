@@ -19,9 +19,31 @@ export default tseslint.config(
     rules: {
       // '@typescript-eslint/no-unused-vars': noVarsConfig,
       // 'no-unused-vars': noVarsConfig,
-      "no-unused-vars": "off",
-      "@typescript-eslint/no-unused-vars": ["error"],
+      'no-unused-vars': 'off',
+      '@typescript-eslint/no-unused-vars': ['error'],
       'perfectionist/sort-imports': 'error',
+      'perfectionist/sort-classes': ['error', {
+        type: 'natural',
+        order: 'asc',
+        groups: [
+          'static-method',
+          'static-property',
+          'private-property',
+          'property',
+          'constructor',
+          'angular-lifecycle',
+          ['get-method', 'set-method'],
+          'method',
+          'private-method',
+        ],
+        customGroups: [
+          {
+            groupName: 'angular-lifecycle',
+            selector: 'method',
+            elementNamePattern: '^ng(OnInit|OnDestroy|OnChanges|DoCheck|AfterContentInit|AfterContentChecked|AfterViewInit|AfterViewChecked)$',
+          },
+        ],
+      }],
       'max-len': ['error', {
         code: 120,
         tabWidth: 2,

@@ -11,36 +11,11 @@ import { CellOffset, CellWidth } from '../../cell/abstract/base';
   styleUrl: './pawn.component.scss',
 })
 export class PawnComponent implements AfterViewInit, DoCheck {
-  @Input({required: true }) player!: Player;
   @ViewChild('cxAnim', { static: true }) cxAnim!: ElementRef<SVGAnimateElement>;
   lastCx = 0;
+  @Input({required: true }) player!: Player;
 
   constructor(private gameService: GameService) {}
-
-  get cx(): number {
-    return this.PlayerPosition * (CellWidth + CellOffset) + 40;
-  }
-
-  get cy(): number {
-    const pIndex = this.gameService.Game.players.findIndex(p => p.Id === this.player.Id);
-    return 50 + pIndex * 20;
-  }
-
-  get Player(): Player {
-    return this.player;
-  }
-
-  get Radius(): number {
-    return 15;
-  }
-
-  get PlayerPosition(): number {
-    return this.player.Position;
-  }
-
-  get PlayerColor(): string {
-    return this.player.Color;
-  }
 
   ngAfterViewInit() {
     this.lastCx = this.cx;
@@ -55,5 +30,30 @@ export class PawnComponent implements AfterViewInit, DoCheck {
       anim.beginElement();
       this.lastCx = next;
     }
+  }
+
+  get cx(): number {
+    return this.PlayerPosition * (CellWidth + CellOffset) + 40;
+  }
+
+  get cy(): number {
+    const pIndex = this.gameService.Game.players.findIndex(p => p.Id === this.player.Id);
+    return 50 + pIndex * 20;
+  }
+
+  get Player(): Player {
+    return this.player;
+  }
+
+  get PlayerColor(): string {
+    return this.player.Color;
+  }
+
+  get PlayerPosition(): number {
+    return this.player.Position;
+  }
+
+  get Radius(): number {
+    return 15;
   }
 }

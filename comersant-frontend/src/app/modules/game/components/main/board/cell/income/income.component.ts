@@ -11,11 +11,11 @@ import { BaseComponent } from '../abstract/base';
 export class IncomeComponent extends BaseComponent implements OnInit {
   @Input({ required: true }) income!: number;
 
-  get color() {
-    return 'red';
-  }
-
   ngOnInit(): void {
     // console.log('init income');
+  }
+
+  get color() {
+    return 'red';
   }
 }

@@ -8,9 +8,9 @@ describe('RacittoComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [RacittoComponent]
+      declarations: [RacittoComponent],
     })
-    .compileComponents();
+      .compileComponents();
 
     fixture = TestBed.createComponent(RacittoComponent);
     component = fixture.componentInstance;

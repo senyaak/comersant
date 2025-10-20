@@ -10,12 +10,58 @@ import { UserSettingsService } from 'src/app/services/user-settings.service';
 
 @Injectable()
 export class LobbyService {
-  private socket: Socket;
-  private roomName: string | null = null;
-  public name = '';
   private lobbySubject = new Subject<UserIdentity[]>();
+  private roomName: string | null = null;
   private roomsSubject = new Subject<Room[]>();
   private selectedRoom = new Subject<Room>();
+  private socket: Socket;
+  createdRoom = (roomName: string) => {
+    this.roomName = roomName;
+    this.router.navigate(['lobby', roomName]);
+  };
+
+  disconnected = async () => {
+    await this.router.navigate(['/']);
+    window.location.reload();
+  };
+
+  enteredRoom = (roomName: string) => {
+    this.roomName = roomName;
+    this.router.navigate(['lobby', roomName]);
+  };
+
+  intoGame = (id: string) => {
+    this.socket.off(ServerEvents.Disconnect, this.disconnected);
+    this.socket.disconnect();
+    this.router.navigate(['/', 'game', id]);
+  };
+
+  join = () => {
+    this.socket.emit(ClientEvents.Join);
+  };
+
+  public name = '';
+
+  roomIsFull = () => {
+    alert('Room is full');
+  };
+
+  roomRemoved = () => {
+    this.roomName = null;
+    this.router.navigate(['/']);
+  };
+
+  updatePlayersList = (list: UserIdentity[]) => {
+    this.lobbySubject.next(list);
+  };
+
+  updateRoomsList = (list: Room[]) => {
+    this.roomsSubject.next(list);
+  };
+
+  updateSelectedRoom = (room: Room) => {
+    this.selectedRoom.next(room);
+  };
 
   constructor(
     private readonly router: Router,
@@ -46,81 +92,10 @@ export class LobbyService {
     this.socket.connect();
   }
 
-  get LobbyList(): Observable<UserIdentity[]> {
-    return this.lobbySubject.asObservable();
-  }
-
-  get RoomsList() {
-    return this.roomsSubject.asObservable();
-  }
-
-  get SelectedRoom() {
-    return this.selectedRoom.asObservable();
-  }
-
-  get Id() {
-    return this.socket.id;
-  }
-
-  get Name() {
-    return this.name;
-  }
-
-  get RoomName() {
-    return this.roomName;
-  }
-
-  join = () => {
-    this.socket.emit(ClientEvents.Join);
-  };
-
-  updatePlayersList = (list: UserIdentity[]) => {
-    this.lobbySubject.next(list);
-  };
-
-  createdRoom = (roomName: string) => {
-    this.roomName = roomName;
-    this.router.navigate(['lobby', roomName]);
-  };
-
-  updateRoomsList = (list: Room[]) => {
-    this.roomsSubject.next(list);
-  };
-
-  updateSelectedRoom = (room: Room) => {
-    this.selectedRoom.next(room);
-  };
-
-  enteredRoom = (roomName: string) => {
-    this.roomName = roomName;
-    this.router.navigate(['lobby', roomName]);
-  };
-
-  roomRemoved = () => {
-    this.roomName = null;
-    this.router.navigate(['/']);
-  };
-
-  intoGame = (id: string) => {
-    this.socket.off(ServerEvents.Disconnect, this.disconnected);
-    this.socket.disconnect();
-    this.router.navigate(['/', 'game', id]);
-  };
-
-  roomIsFull = () => {
-    alert('Room is full');
-  };
-
-  disconnected = async () => {
-    await this.router.navigate(['/']);
-    window.location.reload();
-  };
-
-  // event emitters
-  setName(name: string) {
-    this.socket.emit(ClientEvents.SetName, name);
-    this.name = name;
-    this.userSettingsService.PlayerName = name;
+  ngOnDestroy() {
+    if(this.socket && this.socket.connected) {
+      this.socket.disconnect();
+    }
   }
 
   createRoom(roomName: string) {
@@ -132,16 +107,6 @@ export class LobbyService {
     this.socket.emit(ClientEvents.EnterRoom, name);
   }
 
-  leaveRoom() {
-    this.socket.emit(ClientEvents.LeaveRoom);
-    this.roomName = null;
-  }
-
-  startGame() {
-    console.log('click');
-    this.socket.emit(ClientEvents.StartGame);
-  }
-
   // helpers
   getRooms() {
     return this.http.get<Room[]>(Routes.lobby);
@@ -151,9 +116,44 @@ export class LobbyService {
     return this.http.get<Room>(`${Routes.lobby}/${this.roomName}`);
   }
 
-  ngOnDestroy() {
-    if(this.socket && this.socket.connected) {
-      this.socket.disconnect();
-    }
+  leaveRoom() {
+    this.socket.emit(ClientEvents.LeaveRoom);
+    this.roomName = null;
+  }
+
+  // event emitters
+  setName(name: string) {
+    this.socket.emit(ClientEvents.SetName, name);
+    this.name = name;
+    this.userSettingsService.PlayerName = name;
+  }
+
+  startGame() {
+    console.log('click');
+    this.socket.emit(ClientEvents.StartGame);
+  }
+
+  get Id() {
+    return this.socket.id;
+  }
+
+  get LobbyList(): Observable<UserIdentity[]> {
+    return this.lobbySubject.asObservable();
+  }
+
+  get Name() {
+    return this.name;
+  }
+
+  get RoomName() {
+    return this.roomName;
+  }
+
+  get RoomsList() {
+    return this.roomsSubject.asObservable();
+  }
+
+  get SelectedRoom() {
+    return this.selectedRoom.asObservable();
   }
 }
