@@ -22,7 +22,11 @@ import { CellHeight, CellOffset, CellWidth } from './cell/abstract/base';
   standalone: false,
 })
 export class BoardComponent implements OnInit {
-  public board: Board = new Board();
+  // public board: Board = new Board();
+
+  get board() {
+    return Board;
+  }
 
   constructor() {}
 

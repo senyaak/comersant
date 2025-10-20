@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { GameStateService } from 'src/app/modules/game/services/game-state.service';
 import { GameService } from 'src/app/modules/game/services/game.service';
 
 @Component({
@@ -11,16 +10,18 @@ import { GameService } from 'src/app/modules/game/services/game.service';
 export class GameControlComponent implements OnInit {
   constructor(
     private gameService: GameService,
-    private gameStateService: GameStateService,
+    // private gameStateService: GameStateService,
   ) {}
 
   ngOnInit() {
-    console.log('init turn_progress');
-    this.gameService.Socket.on('turn_progress', (...rest) => {
+    this.gameService.turnProgress$.subscribe((result) => {
+      if(result.success && result.data.turnResult.diceRoll) {
+        const rolls = result.data.turnResult.diceRoll?.join(', ');
+        const total = result.data.turnResult.diceRoll?.reduce((a, b) => a + b, 0);
+        // TODO: use material snackbar
+        alert(`rolled: ${rolls} = ${total}`);
+      }
       this.isProcessingTurn = false;
-      // this.
-      console.log('turn_progress', rest);
-      // Handle game updates
     });
   }
 

@@ -19,6 +19,12 @@ export class InnerStartCell extends Cell {
 }
 
 export class PropertyCell<T extends Property = Property> extends Cell {
+  static isPropertyCell<T extends Property>(
+    cell: Cell,
+  ): cell is PropertyCell<T> {
+    return cell instanceof PropertyCell;
+  }
+
   owner: Player | null;
 
   constructor(

@@ -1,10 +1,16 @@
 export type NextTurnResult = NextTurnSuccess | NextTurnError;
 
-interface NextTurnError {
+export interface ITurnResult {
+  diceRoll?: number[];
+  newPlayerPosition?: number;
+}
+
+export interface NextTurnError {
   success: false,
   message: 'Game not found',
 }
-interface NextTurnSuccess {
+
+export interface NextTurnSuccess {
   success: true,
   data: {
     turnResult: ITurnResult,

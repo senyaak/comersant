@@ -12,10 +12,11 @@ import type { NextTurnResult } from '../../models/types';
 
 import { getValidatedGameId, getValidatedUserName, ValidateGameId } from '../../utils/game.util';
 import { GamesService } from '../games/games.service';
+import { ClientToServerEvents, ServerToClientEvents } from './types';
 
 @WebSocketGateway({ namespace: 'game' })
 export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
-  @WebSocketServer() private server!: Namespace;
+  @WebSocketServer() private server!: Namespace<ClientToServerEvents, ServerToClientEvents>;
   constructor(private gamesService: GamesService) {}
 
   // afterInit(server: Server) {
@@ -60,6 +61,24 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
         turn: this.gamesService.getGame(gameId).CurrentTurnState,
       },
     } satisfies NextTurnResult);
+  }
+
+  @SubscribeMessage('buyProperty')
+  @ValidateGameId
+  handleBuyProperty(
+    @ConnectedSocket() client: Socket,
+    // @MessageBody() payload: { diceCounter: number },
+  ): void {
+    const gameId = getValidatedGameId(client);
+
+    try {
+
+      this.gamesService.getGame(gameId).buyProperty();
+      this.server.to(`game-${gameId}`).emit('propertyBought', { success: true, message: 'Property bought' });
+    } catch (error) {
+      console.error('Error buying property:', error);
+      client.emit('propertyBought', { success: false, message: 'Error buying property' });
+    }
   }
 
   handleDisconnect(/*client: any*/) {

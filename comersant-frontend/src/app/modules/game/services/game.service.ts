@@ -1,5 +1,6 @@
 import type { IRawGame } from '$server/modules/game/models/GameModels/types';
 import type { NextTurnResult } from '$server/modules/game/models/types';
+import type { ClientToServerEvents, ServerToClientEvents } from '$server/modules/game/services/events/types';
 import type { Observable } from 'rxjs';
 import type { Socket } from 'socket.io-client';
 
@@ -8,12 +9,12 @@ import { Injectable } from '@angular/core';
 import {
   Router,
 } from '@angular/router';
-import { IGame } from '$server/modules/game/models/GameModels/igame';
 import { Routes } from '$server/types/routes';
 import { BehaviorSubject, tap } from 'rxjs';
 import { io } from 'socket.io-client';
 import { UserSettingsService } from 'src/app/services/user-settings.service';
 
+import { ICGame } from '../model/ICGame';
 import { GameStateService } from './game-state.service';
 /**
  * init and stores game data
@@ -22,8 +23,9 @@ import { GameStateService } from './game-state.service';
   providedIn: 'root',
 })
 export class GameService {
-  private socket!: Socket;
-  private game: BehaviorSubject<IGame> = new BehaviorSubject<IGame>(new IGame());
+  private socket!: Socket<ServerToClientEvents, ClientToServerEvents>;
+  private game: BehaviorSubject<ICGame> = new BehaviorSubject<ICGame>(new ICGame());
+  public turnProgress$ = new BehaviorSubject<NextTurnResult>({message: 'Game not found', success: false});
 
   constructor(
     private readonly http: HttpClient,
@@ -48,7 +50,7 @@ export class GameService {
     return this.Game.players.find(player => player.Id === this.socket.id)!;
   }
 
-  get Socket(): Socket {
+  private get Socket(): Socket {
     return this.socket;
   }
 
@@ -77,7 +79,7 @@ export class GameService {
     const game$ = this.http.get<IRawGame>(`${Routes.games}/${gameId}`).pipe(
       tap({ next: game => {
         console.log('set game', game);
-        this.game.next(new IGame(game));
+        this.game.next(new ICGame(game));
         // this.game.complete();
         // console.log('->Game loaded:', this.game.getValue());
       }, error: (err) => {
@@ -124,23 +126,20 @@ export class GameService {
     //   this.router.navigate(['/']);
     // });
     this.socket.onAny((...rest) => {
-      console.log('socket on any', rest);
+      console.log('@#socket on any', rest);
     });
     this.socket.on('turn_progress', (result: NextTurnResult) => {
       if(result.success !== true) {
         throw new Error('Turn processing failed');
       }
 
-      this.game.getValue().forceNextTurn(result.data.turnResult);
-      console.log('turn_progress', result);
-      // Handle game updates
+      this.game.getValue().nextTurn(result.data.turnResult);
+      this.turnProgress$.next(result);
     });
   }
 
   public nextTurn(): void {
-    this.socket.emit('nextTurn', {diceCounter: this.gameStateService.DiceCounter}, (playerNumber: number) => {
-      console.log('nextTurn done: curr playerNumber', playerNumber);
-    });
+    this.socket.emit('nextTurn', {diceCounter: this.gameStateService.DiceCounter});
   }
 
   public gameReady$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);

@@ -6,7 +6,14 @@
   <div class="turn-info">
     <div class="current-player">
       <label translate="">Active Player:</label>
-      <span class="player-name">{{ currentPlayerName }}</span>
+      <span class="player-name">
+        <span>
+          {{ currentPlayerName }}
+        </span>
+        <span *ngIf="isMyTurn">
+          ({{ 'You' | translate }})
+        </span>
+      </span>
     </div>
 
     <!-- <div class="turn-state" *ngIf="turnState">

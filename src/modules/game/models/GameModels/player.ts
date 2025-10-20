@@ -25,7 +25,6 @@ export class Player {
   private money: IRawPlayer['money'] = 150_000;
   private position: IRawPlayer['position'] = 0;
   /**
-   *  properties: Property[];
    *  items: Item[];
    */
 
@@ -91,5 +90,9 @@ export class Player {
     // Board.cellsCounter;
     console.log('move player', this.name, 'by', steps, 'new position:', (this.position + steps) % Board.cellsCounter);
     this.position = (this.position + steps) % Board.cellsCounter;
+  }
+
+  changeMoney(amount: number): void {
+    this.money += amount;
   }
 }

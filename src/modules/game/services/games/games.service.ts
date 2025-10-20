@@ -21,8 +21,6 @@ export class GamesService {
     // this.games.subscribe(this.onGameAdded);
   }
 
-  onGameAdded(game: Game) {}
-
   createGame(players: PlayersSettings[]): string {
     const nameSet = new Set(players.map(({name}) => name));
     if(nameSet.size !== players.length) {
@@ -30,7 +28,6 @@ export class GamesService {
     }
     const game = new Game(players);
     this.games.next([...this.games.getValue(), game]);
-    this.onGameAdded(game);
     return game.id;
   }
 

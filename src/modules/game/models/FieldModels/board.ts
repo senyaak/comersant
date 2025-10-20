@@ -371,8 +371,8 @@ function createCells(): Cell[][] {
 
 export class Board {
   static cellsCounter: number = createCells().flat().length;
-  cells: Cell[][];
-  constructor() {
-    this.cells = createCells();
+  static cells: Cell[][];
+  private constructor() {
+    // this.cells = createCells();
   }
 }

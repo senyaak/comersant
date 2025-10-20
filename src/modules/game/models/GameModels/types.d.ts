@@ -10,13 +10,6 @@ export interface IRawGame {
   currentTurnIterator: Generator<Turn>;
 }
 
-// export interface ITurnResult {}
-
-export interface ITurnResult {
-  diceRoll?: number[];
-  newPlayerPosition?: number;
-}
-
 /** nice hack to strip methods and assertions from class type :) */
 // type IsFunction<T> = T extends (...args: any[]) => any ? true : false;
 
