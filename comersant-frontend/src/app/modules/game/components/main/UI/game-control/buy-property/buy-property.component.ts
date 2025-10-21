@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { GameEventsService } from 'src/app/modules/game/services/game-events.service';
 import { GameService } from 'src/app/modules/game/services/game.service';
 
 @Component({
@@ -10,11 +11,12 @@ import { GameService } from 'src/app/modules/game/services/game.service';
 export class BuyPropertyComponent {
   isLoading: boolean = false;
 
-  constructor(private gameService: GameService) {}
+  constructor(private gameEventsService: GameEventsService) {}
 
   onBuyProperty() {
+    console.log('Buy property clicked');
     // TODO:
-    // this.gameService.buyProperty();
+    this.gameEventsService.buyProperty();
     this.isLoading = true;
   }
 }

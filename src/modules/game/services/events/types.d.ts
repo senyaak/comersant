@@ -1,5 +1,7 @@
+import { PropertyBoughtResult } from "../../models/types";
+
 export interface ServerToClientEvents {
-  propertyBought: (data: { success: boolean; message: string; propertyId?: string }) => void;
+  propertyBought: (data: PropertyBoughtResult) => void;
   turn_progress: (data: NextTurnResult) => void;
   user_connected: (data: { name: string; id: string }) => void;
 
@@ -9,5 +11,6 @@ export interface ServerToClientEvents {
 export interface ClientToServerEvents {
   nextTurn: (payload: { diceCounter: number }) => void;
   buyProperty: () => void;
+  // buyProperty: (props) => void;
   message: () => void;
 }

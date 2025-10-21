@@ -28,7 +28,7 @@ export class GameService {
   private game: BehaviorSubject<ICGame> = new BehaviorSubject<ICGame>(new ICGame());
   private socket!: Socket<ServerToClientEvents, ClientToServerEvents>;
   public gameReady$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
-  public propertyBought$ = new BehaviorSubject<PropertyBoughtResult>({ success: false, test: 1 });
+  public propertyBought$ = new BehaviorSubject<PropertyBoughtResult>({ success: false });
   public turnProgress$ = new BehaviorSubject<NextTurnResult>({ message: 'Game not found', success: false });
 
   constructor(
@@ -54,8 +54,8 @@ export class GameService {
 
   get ownedProperties(): Record<Player['id'], PropertyCell[]> {
     return this.Game.board.flatCells.reduce((acc, cell) => {
-      if (cell instanceof PropertyCell && cell.owner) {
-        const ownerId = cell.owner;
+      if (cell instanceof PropertyCell && cell.object.owner) {
+        const ownerId = cell.object.owner;
 
         if (!acc[ownerId]) {
           acc[ownerId] = [];
@@ -67,40 +67,11 @@ export class GameService {
   }
 
   get Player() {
-    // FIXME: handle undefined player
-    if(!this.socket) {
-      throw new Error('Socket is not initialized');
-    }
     return this.Game.players.find(player => player.Id === this.socket.id)!;
   }
 
-  private get Socket(): Socket {
+  get Socket() {
     return this.socket;
-  }
-
-  init(gameId: string | null = null) {
-    console.log('init game service with gameId:', gameId);
-    const id = localStorage.getItem('gameId');
-    if (!gameId && id) {
-      gameId = id;
-    } else if (gameId) {
-      localStorage.setItem('gameId', gameId);
-    } else {
-      throw new Error('gameId is not provided');
-    }
-
-    return this.loadGame(gameId).pipe(tap({next: (game) => {
-      console.log('game', game);
-      this.initSocket();
-    }, error: (err) => {
-      console.error('Error loading game:', err);
-    }})).subscribe(() => {
-      console.log('Game initialized:', this.game.getValue());
-    });
-  }
-
-  public nextTurn(): void {
-    this.socket.emit('nextTurn', {diceCounter: this.gameStateService.DiceCounter});
   }
 
   private checkIfReady() {
@@ -172,4 +143,24 @@ export class GameService {
     return game$;
   }
 
+  public init(gameId: string | null = null) {
+    console.log('init game service with gameId:', gameId);
+    const id = localStorage.getItem('gameId');
+    if (!gameId && id) {
+      gameId = id;
+    } else if (gameId) {
+      localStorage.setItem('gameId', gameId);
+    } else {
+      throw new Error('gameId is not provided');
+    }
+
+    return this.loadGame(gameId).pipe(tap({next: (game) => {
+      console.log('game', game);
+      this.initSocket();
+    }, error: (err) => {
+      console.error('Error loading game:', err);
+    }})).subscribe(() => {
+      console.log('Game initialized:', this.Game);
+    });
+  }
 }

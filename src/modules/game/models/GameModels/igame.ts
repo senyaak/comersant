@@ -3,6 +3,7 @@ import type { IRawGame } from './types';
 import { Board } from '../FieldModels/board';
 import { Player, PlayerColor } from './player';
 import { Turn, turnIterator } from './turn';
+import { PropertyCell } from '../FieldModels/cells';
 
 /**
  * Used for typescript as abstract class to prevent compile error coused by cripto
@@ -55,6 +56,12 @@ export class IGame {
 
   updatePlayerIdByName(name: string, newId: string): void {
     const player = this.players.find(player => player.Name === name);
+    for(const cell of this.board.flatCells) {
+      if(cell instanceof PropertyCell && cell.object.owner === player?.Id) {
+        cell.object.owner = newId;
+      }
+    }
+
     if (!player) {
       throw new Error(`Player with name ${name} not found`);
     }

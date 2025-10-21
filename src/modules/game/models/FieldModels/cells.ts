@@ -1,5 +1,4 @@
 import { EventType } from '../events';
-import { Player } from '../GameModels/player';
 import { Property } from '../GameModels/properties';
 
 function isObject(obj: unknown): obj is Record<string, unknown> {
@@ -27,16 +26,6 @@ export class InnerStartCell extends Cell {
 }
 
 export class PropertyCell<T extends Property = Property> extends Cell {
-  owner: Player['Id'] | null;
-
-  constructor(
-    name: string,
-    public readonly object: T,
-  ) {
-    super(name);
-    this.owner = null;
-  }
-
   static isInstancePropertyCell<T extends Property>(
     cell: Cell,
   ): cell is PropertyCell<T> {
@@ -44,7 +33,14 @@ export class PropertyCell<T extends Property = Property> extends Cell {
   }
 
   static isPropertyCell(obj: unknown): obj is PropertyCell {
-    return isObject(obj) && 'name' in obj && 'owner' in obj && 'object' in obj;
+    return isObject(obj) && 'name' in obj && 'object' in obj;
+  }
+
+  constructor(
+    name: string,
+    public readonly object: T,
+  ) {
+    super(name);
   }
 }
 

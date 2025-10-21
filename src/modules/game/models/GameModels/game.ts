@@ -1,7 +1,7 @@
 import { randomBytes } from 'crypto';
 
 import { PropertyCell } from '../FieldModels/cells';
-import { ITurnResult } from '../types';
+import { ITurnResult, PropertyBoughtResult, PropertyBoughtResultSuccess } from '../types';
 import { IGame } from './igame';
 import { Player, PlayerColor } from './player';
 import { Turn } from './turn';
@@ -28,10 +28,10 @@ export class Game extends IGame {
   }
 
   /** current player wants to buy property */
-  buyProperty(): void;
+  buyProperty(): PropertyBoughtResultSuccess;
   /** players trade */
-  buyProperty(playerId: string, propertyIndex: number, price: number): void;
-  buyProperty(playerId?: string, propertyIndex?: number, price?: number): void {
+  buyProperty(playerId: string, propertyIndex: number, price: number): PropertyBoughtResultSuccess;
+  buyProperty(playerId?: string, propertyIndex?: number, price?: number): PropertyBoughtResultSuccess {
     if(!propertyIndex || !playerId) {
       playerId = this.players[this.currentPlayer].Id;
       propertyIndex = this.players[this.currentPlayer].Position;
@@ -46,26 +46,28 @@ export class Game extends IGame {
       price = property.object.price;
     }
 
-    if (property.owner === playerId) {
+    if (property.object.owner === playerId) {
       throw new Error('Property is already owned by the player');
     }
     if(newOwner.Money < price) {
       throw new Error('Insufficient funds');
     }
 
-    if (property.owner !== playerId) {
+    if (property.object.owner && property.object.owner !== playerId) {
       // we have to sell property from previous owner
-      const prevOwner = this.players.find(player => player.Id === property.owner)!;
+      const prevOwner = this.players.find(player => player.Id === property.object.owner)!;
       if(!prevOwner) {
         throw new Error('Previous owner not found! CRITICAL ERROR');
       }
       prevOwner.changeMoney(price);
       // player?.move
-      property.owner = null;
+      property.object.owner = null;
     }
 
-    property.owner = newOwner.Id;
+    property.object.owner = newOwner.Id;
+    console.log('Property bought:', { propertyIndex, newOwnerId: newOwner.Id });
     newOwner.changeMoney(-price);
+    return {propertyIndex, newOwnerId: newOwner.Id, success: true};
   }
 
   handlePlayerMoved(): void {

@@ -1,14 +1,12 @@
-import { OnGatewayConnection, OnGatewayDisconnect } from '@nestjs/websockets';
 import {
   ConnectedSocket,
-  MessageBody,
-  SubscribeMessage,
+  MessageBody, OnGatewayConnection, OnGatewayDisconnect, SubscribeMessage,
   WebSocketGateway,
-  WebSocketServer,
+  WebSocketServer
 } from '@nestjs/websockets';
 import { Namespace, Socket } from 'socket.io';
 
-import type { NextTurnResult } from '../../models/types';
+import type { NextTurnResult, PropertyBoughtResultError } from '../../models/types';
 
 import { getValidatedGameId, getValidatedUserName, ValidateGameId } from '../../utils/game.util';
 import { GamesService } from '../games/games.service';
@@ -33,11 +31,11 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     try {
 
-      this.gamesService.getGame(gameId).buyProperty();
-      this.server.to(`game-${gameId}`).emit('propertyBought', { success: true, message: 'Property bought' });
+      const result = this.gamesService.getGame(gameId).buyProperty();
+      this.server.to(`game-${gameId}`).emit('propertyBought', result);
     } catch (error) {
       console.error('Error buying property:', error);
-      client.emit('propertyBought', { success: false, message: 'Error buying property' });
+      client.emit('propertyBought', {success: false} as PropertyBoughtResultError);
     }
   }
 

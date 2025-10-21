@@ -39,6 +39,7 @@
     </button>
   </div>
   <p>{{ TurnState | translate }}</p>
+  <!-- TODO: use directives? -->
   <app-buy-property  *ngIf="canBuyProperty" />
   <app-turn-control  *ngIf="TurnState === 'Trading' && isMyTurn" />
 </div>

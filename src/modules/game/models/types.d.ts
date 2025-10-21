@@ -25,8 +25,8 @@ export type PropertyBoughtResult = PropertyBoughtResultSuccess | PropertyBoughtR
 export interface PropertyBoughtResultSuccess {
   success: true;
   newOwnerId: Player['id'];
-  propertyIndex: string;
+  propertyIndex: number;
 }
-export interface PropertyBoughtResultSuccess {
+export interface PropertyBoughtResultError {
   success: false;
 }

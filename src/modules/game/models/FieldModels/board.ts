@@ -363,9 +363,14 @@ function isValidCell(cell: object): cell is Cell {
   return cell && 'name' in cell && typeof cell.name === 'string';
 };
 
-const restoreCells = (cells: object[][]): Cell[][] => {
-  return cells.map(row =>
-    row.map(cell => {
+const restoreCells = (_cells: object[][]): Cell[][] => {
+  const cells = JSON.parse(JSON.stringify(_cells)) as Cell[][];
+  console.log('Restoring cells...', JSON.parse(JSON.stringify(cells)));
+  console.log('Restoring cells...', (_cells[0][1] as PropertyCell).object.owner);
+  console.log('Restoring cells...', (_cells[0][2] as PropertyCell).object.owner);
+  console.log('Restoring cells...', (_cells[0][3] as PropertyCell).object.owner);
+  const result = cells.map(row =>
+    row.map((cell) => {
       if (!isValidCell(cell)) {
         throw new Error(`Invalid cell object: ${JSON.stringify(cell)}`);
       }
@@ -432,10 +437,12 @@ const restoreCells = (cells: object[][]): Cell[][] => {
           convertToEventType(cell.type),
         );
       } else {
-        throw new Error(`Unknown cell type: ${cell.name}`);
+        throw new Error(`Unknown cell type: ${cell}`);
       }
     }),
   );
+  console.log('const result:', result);
+  return result;
 };
 
 export class Board {

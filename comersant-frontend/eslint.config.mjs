@@ -33,8 +33,8 @@ export default tseslint.config(
           'constructor',
           'angular-lifecycle',
           ['get-method', 'set-method'],
-          'method',
           'private-method',
+          'method',
         ],
         customGroups: [
           {
