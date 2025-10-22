@@ -1,9 +1,9 @@
 import type { IRawGame } from './types';
 
 import { Board } from '../FieldModels/board';
+import { PropertyCell } from '../FieldModels/cells';
 import { Player, PlayerColor } from './player';
 import { Turn, turnIterator } from './turn';
-import { PropertyCell } from '../FieldModels/cells';
 
 /**
  * Used for typescript as abstract class to prevent compile error coused by cripto

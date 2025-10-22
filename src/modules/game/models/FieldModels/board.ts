@@ -365,10 +365,7 @@ function isValidCell(cell: object): cell is Cell {
 
 const restoreCells = (_cells: object[][]): Cell[][] => {
   const cells = JSON.parse(JSON.stringify(_cells)) as Cell[][];
-  console.log('Restoring cells...', JSON.parse(JSON.stringify(cells)));
-  console.log('Restoring cells...', (_cells[0][1] as PropertyCell).object.owner);
-  console.log('Restoring cells...', (_cells[0][2] as PropertyCell).object.owner);
-  console.log('Restoring cells...', (_cells[0][3] as PropertyCell).object.owner);
+
   const result = cells.map(row =>
     row.map((cell) => {
       if (!isValidCell(cell)) {
@@ -441,7 +438,7 @@ const restoreCells = (_cells: object[][]): Cell[][] => {
       }
     }),
   );
-  console.log('const result:', result);
+
   return result;
 };
 

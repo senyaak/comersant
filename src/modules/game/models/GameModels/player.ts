@@ -49,6 +49,7 @@ export class Player {
       this.color = entity.color;
       this.name = entity.name;
       this.position = entity.position;
+      this.money = entity.money;
     } else {
       throw new Error('Invalid Player constructor argument');
     }

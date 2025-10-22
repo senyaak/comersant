@@ -90,7 +90,6 @@ export class GameService {
     );
 
     this.socket.on('connect', (...rest) => {
-
       console.log('Connected with query params:', this.socket.io.opts.query);
       console.log('rest', rest);
     });
@@ -125,6 +124,19 @@ export class GameService {
 
       this.game.getValue().nextTurn(result.data.turnResult);
       this.turnProgress$.next(result);
+    });
+    this.socket.on('propertyBought', (result: PropertyBoughtResult) => {
+      if(result.success !== true) {
+        throw new Error('Property purchase failed');
+      }
+      if(result.oldOwnerId) {
+        this.Game.players.find(player => player.Id === result.oldOwnerId)?.changeMoney(result.price);
+      }
+
+      const propertyCell = this.Game.board.flatCells[result.propertyIndex] as PropertyCell;
+      this.Game.players[this.Game.CurrentPlayer].changeMoney(-result.price);
+      propertyCell.object.owner = result.newOwnerId;
+      this.propertyBought$.next(result);
     });
   }
 

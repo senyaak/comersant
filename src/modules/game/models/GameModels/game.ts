@@ -1,7 +1,7 @@
 import { randomBytes } from 'crypto';
 
 import { PropertyCell } from '../FieldModels/cells';
-import { ITurnResult, PropertyBoughtResult, PropertyBoughtResultSuccess } from '../types';
+import { ITurnResult, PropertyBoughtResultSuccess } from '../types';
 import { IGame } from './igame';
 import { Player, PlayerColor } from './player';
 import { Turn } from './turn';
@@ -32,18 +32,27 @@ export class Game extends IGame {
   /** players trade */
   buyProperty(playerId: string, propertyIndex: number, price: number): PropertyBoughtResultSuccess;
   buyProperty(playerId?: string, propertyIndex?: number, price?: number): PropertyBoughtResultSuccess {
+    let oldOwnerId: string | null | undefined = undefined;
     if(!propertyIndex || !playerId) {
       playerId = this.players[this.currentPlayer].Id;
       propertyIndex = this.players[this.currentPlayer].Position;
+      oldOwnerId = null;
     }
     const newOwner = this.players.find(player => player.Id === playerId)!;
     const property = this.board.cells.flat()[propertyIndex];
+
     if (PropertyCell.isPropertyCell(property) === false) {
       throw new Error('Current cell is not a property');
     }
 
+    if(!price && oldOwnerId !== null) {
+      throw new Error('Price must be specified when buying from another player');
+    }
     if(!price) {
       price = property.object.price;
+    }
+    if(oldOwnerId !== null) {
+      oldOwnerId = property.object.owner;
     }
 
     if (property.object.owner === playerId) {
@@ -67,7 +76,7 @@ export class Game extends IGame {
     property.object.owner = newOwner.Id;
     console.log('Property bought:', { propertyIndex, newOwnerId: newOwner.Id });
     newOwner.changeMoney(-price);
-    return {propertyIndex, newOwnerId: newOwner.Id, success: true};
+    return {propertyIndex, newOwnerId: newOwner.Id, success: true, price, oldOwnerId};
   }
 
   handlePlayerMoved(): void {
@@ -100,6 +109,9 @@ export class Game extends IGame {
 
       console.log(`Player ${playerId} rolled a ${rollResult}`);
 
+      // DEBUG:
+      result.diceRoll = [1];
+      rollResult = 1;
       this.players[this.currentPlayer].move(rollResult);
       result.newPlayerPosition = this.players[this.currentPlayer].Position;
     } else if (this.currentTurnState === Turn.Event) {

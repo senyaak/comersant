@@ -2,7 +2,7 @@ import {
   ConnectedSocket,
   MessageBody, OnGatewayConnection, OnGatewayDisconnect, SubscribeMessage,
   WebSocketGateway,
-  WebSocketServer
+  WebSocketServer,
 } from '@nestjs/websockets';
 import { Namespace, Socket } from 'socket.io';
 
@@ -30,7 +30,6 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const gameId = getValidatedGameId(client);
 
     try {
-
       const result = this.gamesService.getGame(gameId).buyProperty();
       this.server.to(`game-${gameId}`).emit('propertyBought', result);
     } catch (error) {

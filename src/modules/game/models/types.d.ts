@@ -24,8 +24,10 @@ export interface NextTurnSuccess {
 export type PropertyBoughtResult = PropertyBoughtResultSuccess | PropertyBoughtResultError;
 export interface PropertyBoughtResultSuccess {
   success: true;
+  oldOwnerId: Player['id'] | null;
   newOwnerId: Player['id'];
   propertyIndex: number;
+  price: number;
 }
 export interface PropertyBoughtResultError {
   success: false;
