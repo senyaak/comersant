@@ -17,16 +17,28 @@ import {
   stringToCardEventType,
 } from './cells';
 
-enum BussinessGroups {
-  Eat = 1,
-  Market = 2,
-  Food = 3,
-  Farm = 4,
-  Stadium = 5,
-  Arena = 6,
-  Theater = 7,
-  Storage = 8,
+export enum BussinessGroups {
+  Eat = 0,
+  Market = 1,
+  Food = 2,
+  Farm = 3,
+  Stadium = 4,
+  Arena = 5,
+  Theater = 6,
+  Storage = 7,
 }
+
+export const PropertyGroupsColors: `#${string}`[] = [
+  '#00ca39ff',
+  '#ff2727ff',
+  '#e4f616ff',
+  '#09bc7aff',
+  '#ff0080ff',
+  '#f69c2fff',
+  '#4649ffff',
+  '#2e19bdff',
+];
+export const GovPropertyColor: `#${string}` = '#ff83a6ff';
 
 function createCells(): Cell[][] {
   return [
@@ -42,7 +54,7 @@ function createCells(): Cell[][] {
           ]),
         ),
         new PropertyCell(
-          'conditerie',
+          'conditerie_shop',
           new PrivateBusiness(BussinessGroups.Eat, 32_000, 28_000, [
             [900, 800],
             [15_000, 1_500],
@@ -279,7 +291,7 @@ function createCells(): Cell[][] {
           ]),
         ),
         new PropertyCell(
-          'children',
+          'children_theater',
           new PrivateBusiness(BussinessGroups.Theater, 19_000, 16_000, [
             [2_400, 300],
             [10_000, 1_000],

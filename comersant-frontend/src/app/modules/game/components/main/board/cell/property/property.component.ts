@@ -1,9 +1,11 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { PropertyMods } from '$i18n/mapping';
+import { GovPropertyColor, PropertyGroupsColors } from '$server/modules/game/models/FieldModels/board';
 import { PropertyCell } from '$server/modules/game/models/FieldModels/cells';
-import { Business } from '$server/modules/game/models/GameModels/properties';
+import { Business, PrivateBusiness } from '$server/modules/game/models/GameModels/properties';
 import { firstValueFrom } from 'rxjs';
+import { GameService } from 'src/app/modules/game/services/game.service';
 
 import { BaseComponent } from '../abstract/base';
 
@@ -18,7 +20,7 @@ export class PropertyComponent extends BaseComponent implements OnInit {
 
   public label?: string;
 
-  constructor(private translate: TranslateService) {
+  constructor(private translate: TranslateService, private gameService: GameService) {
     super();
   }
 
@@ -37,8 +39,37 @@ export class PropertyComponent extends BaseComponent implements OnInit {
     return this.cell.object.buys;
   }
 
+  get cellColor() {
+    if(PrivateBusiness.isPrivateBusiness(this.cell.object)) {
+      return PropertyGroupsColors[this.cell.object.group];
+    } else {
+      return GovPropertyColor;
+    }
+  }
+
+  get cellOwned(): boolean {
+    console.log('owner check:', this.cell, this.cell.name, this.cell.object.owner);
+    return this.cell.object.owner !== null;
+  }
+
   get extraPadding() {
     return 10;
+  }
+
+  get ownerColor(): string {
+    return this.gameService.Game.players.find(p => p.Id === this.cell.object.owner)!.Color;
+  }
+
+  get ownerMarkRadius(): number {
+    return 10;
+  }
+
+  get ownerX(): number {
+    return this.x + this.width - this.ownerMarkRadius - this.extraPadding;
+  }
+
+  get ownerY(): number {
+    return this.height - this.ownerMarkRadius;
   }
 
   get payouts(): number[] {

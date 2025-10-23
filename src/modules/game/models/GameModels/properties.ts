@@ -1,12 +1,13 @@
 // import { Player } from './player';
 
+import { BussinessGroups } from '../FieldModels/board';
 import { Player } from './player';
 
 enum BussinessGrade {
-  Area = 1,
-  Office = 2,
-  Department = 3,
-  Enterprise = 4,
+  Area = 0,
+  Office = 1,
+  Department = 2,
+  Enterprise = 3,
 }
 
 type Grades = [
@@ -111,12 +112,12 @@ export class PrivateBusiness extends Business {
   }
 
   constructor(
-    public readonly group: number,
+    public readonly group: BussinessGroups,
     price: number,
     upgradePrice: number,
     grades: Grades,
     owner: Player['id'] | null = null,
-    grade: BussinessGrade = 1,
+    grade: BussinessGrade = 0,
   ) {
     super(price, upgradePrice, grades, owner, grade);
   }

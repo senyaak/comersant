@@ -12,6 +12,7 @@ import {
 } from '$server/modules/game/models/FieldModels/cells';
 import { AreaSite } from '$server/modules/game/models/GameModels/properties';
 
+import { GameService } from '../../../services/game.service';
 import { CellHeight, CellOffset, CellWidth } from './cell/abstract/base';
 
 // import { SVG } from '@svgdotjs/svg.js';
@@ -22,15 +23,16 @@ import { CellHeight, CellOffset, CellWidth } from './cell/abstract/base';
   standalone: false,
 })
 export class BoardComponent implements OnInit, OnChanges {
-  public board: Board = new Board();
+  public board!: Board;
 
-  constructor() {}
+  constructor(private gameService: GameService) {}
 
   ngOnChanges() {
     console.log('BoardComponent changes detected');
   }
 
   ngOnInit() {
+    this.board = this.gameService.Game.board;
     // TODO: restore board state if needed
     console.log('2board', this.flatCells);
   }

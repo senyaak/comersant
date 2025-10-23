@@ -23,6 +23,7 @@ import { GameControlComponent } from './components/main/UI/game-control/game-con
 import { TurnControlComponent } from './components/main/UI/game-control/turn-control/turn-control.component';
 import { GameInfoComponent } from './components/main/UI/game-info/game-info.component';
 import { PlayerInfoComponent } from './components/main/UI/game-info/player-info/player-info.component';
+import { PlayerPropertyComponent } from './components/main/UI/player-property/player-property.component';
 import { GameRoutingModule } from './game-routing.module';
 import { SplitLetters } from './pipes/singleLetterLine';
 import { Split } from './pipes/singleWordLine';
@@ -54,6 +55,7 @@ import { GameService } from './services/game.service';
     PawnComponent,
     PlayerUIComponent,
     BuyPropertyComponent,
+    PlayerPropertyComponent,
   ],
   imports: [CommonModule, GameRoutingModule, TranslateModule],
   providers: [GameService, GameStateService, GameEventsService],

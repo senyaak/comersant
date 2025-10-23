@@ -1,4 +1,4 @@
-<svg:g app-cell-wrapper [orderNumber]="orderNumber">
+<svg:g app-cell-wrapper [orderNumber]="orderNumber" [fill]="cellColor">
   <svg:g>
     <!-- label -->
     <svg:text
@@ -23,16 +23,6 @@
       text-anchor="middle">
       {{ cell.object.price }}
     </svg:text>
-    <!-- <svg:text
-      [attr.x]="x + width / 2"
-      [attr.y]="textTopPadding + extraPadding + fontSize * 2"
-      [attr.font-size]="fontSize"
-      [attr.font-family]="font"
-      [attr.stroke-width]="lineWidth"
-      dominant-baseline="hanging"
-      text-anchor="middle">
-      {{ cell.object.price }}
-    </svg:text> -->
     <!-- top separator -->
     <svg:line
       [attr.x1]="x"
@@ -109,6 +99,17 @@
         text-anchor="middle">
         {{ cell.object.upgradePrice }}
       </svg:text>
+    </svg:g>
+    <svg:g class="owner-mark">
+      <svg:circle
+        *ngIf="cellOwned"
+        [attr.cx]="ownerX"
+        [attr.cy]="ownerY"
+        [attr.r]="ownerMarkRadius"
+        [attr.fill]="ownerColor"
+        stroke="black"
+        [attr.stroke-width]="1">
+      </svg:circle>
     </svg:g>
   </svg:g>
 </svg:g>
