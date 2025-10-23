@@ -1,14 +1,15 @@
 <svg:g class="app-card-cell" app-cell-wrapper [orderNumber]="orderNumber">
   <svg:g>
-    <svg:text
-      [attr.x]="x + width / 2"
-      [attr.y]="height / 3"
-      [attr.font-family]="font"
-      [attr.font-size]="fontSize"
+    <svg:text [attr.x]="x + width / 2" [attr.y]="height / 3" [attr.font-family]="font" [attr.font-size]="fontSize"
       text-anchor="middle">
       <!-- [attr.fill]="color" -->
       <svg:tspan [attr.x]="x + width / 2" dy="1.2em">{{ 'areasite' | translate }}</svg:tspan>
       <svg:tspan [attr.x]="x + width / 2" dy="1.2em">{{ cell.object.price }}</svg:tspan>
     </svg:text>
+    <svg:g class="owner-mark">
+      <svg:circle *ngIf="cellOwned" [attr.cx]="ownerX" [attr.cy]="ownerY" [attr.r]="ownerMarkRadius"
+        [attr.fill]="ownerColor" stroke="black" [attr.stroke-width]="1">
+      </svg:circle>
+    </svg:g>
   </svg:g>
 </svg:g>

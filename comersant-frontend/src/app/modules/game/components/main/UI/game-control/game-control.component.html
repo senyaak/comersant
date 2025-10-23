@@ -1,6 +1,7 @@
 <div id="game-control">
-  <div class="control-header">
+  <div class="control-header" style="display: flex; justify-content: space-between;">
     <h3 translate>Game Control</h3>
+    <h5>{{ TurnState | translate }}</h5>
   </div>
 
   <div class="turn-info">
@@ -24,22 +25,8 @@
     </div> -->
   </div>
 
-  <div class="control-actions">
-    <button
-      class="next-turn-btn"
-      [disabled]="isProcessingTurn || !isMyTurn"
-      (click)="onNextTurn()"
-      [class.loading]="isProcessingTurn"
-      [class.waiting]="!isMyTurn">
-      <span class="btn-icon" *ngIf="!isProcessingTurn && isMyTurn">▶</span>
-      <span class="btn-text">
-        {{ getButtonText() }}
-      </span>
-      <span class="spinner" *ngIf="isProcessingTurn"></span>
-    </button>
-  </div>
-  <p>{{ TurnState | translate }}</p>
+  <app-control-actions />
   <!-- TODO: use directives? -->
-  <app-buy-property  *ngIf="canBuyProperty" />
-  <app-turn-control  *ngIf="TurnState === 'Trading' && isMyTurn" />
+  <app-buy-property *ngIf="canBuyProperty" />
+  <app-turn-control *ngIf="TurnState === 'Trading' && isMyTurn" />
 </div>

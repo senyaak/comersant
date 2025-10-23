@@ -1,8 +1,9 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { PropertyCell } from '$server/modules/game/models/FieldModels/cells';
 import { AreaSite } from '$server/modules/game/models/GameModels/properties';
+import { GameService } from 'src/app/modules/game/services/game.service';
 
-import { BaseComponent } from '../abstract/base';
+import { Asset } from '../abstract/asset';
 
 @Component({
   selector: '[app-area-cell]',
@@ -10,8 +11,12 @@ import { BaseComponent } from '../abstract/base';
   styleUrl: './area.component.scss',
   standalone: false,
 })
-export class AreaComponent extends BaseComponent implements OnInit {
+export class AreaComponent extends Asset implements OnInit {
   @Input({ required: true }) cell!: PropertyCell<AreaSite>;
+
+  constructor(protected gameService: GameService) {
+    super();
+  }
 
   ngOnInit(): void {
   }

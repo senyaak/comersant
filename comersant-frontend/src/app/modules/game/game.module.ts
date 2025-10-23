@@ -18,6 +18,7 @@ import { PawnComponent } from './components/main/board/player-ui/pawn/pawn.compo
 import { PlayerUIComponent } from './components/main/board/player-ui/player-ui.component';
 import { MainComponent } from './components/main/main.component';
 import { BuyPropertyComponent } from './components/main/UI/game-control/buy-property/buy-property.component';
+import { ControlActionsComponent } from './components/main/UI/game-control/control-actions/control-actions.component';
 // TODO: remove abstrect
 import { GameControlComponent } from './components/main/UI/game-control/game-control.component';
 import { TurnControlComponent } from './components/main/UI/game-control/turn-control/turn-control.component';
@@ -56,6 +57,7 @@ import { GameService } from './services/game.service';
     PlayerUIComponent,
     BuyPropertyComponent,
     PlayerPropertyComponent,
+    ControlActionsComponent,
   ],
   imports: [CommonModule, GameRoutingModule, TranslateModule],
   providers: [GameService, GameStateService, GameEventsService],

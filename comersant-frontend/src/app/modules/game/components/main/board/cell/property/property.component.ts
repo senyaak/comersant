@@ -7,7 +7,7 @@ import { Business, PrivateBusiness } from '$server/modules/game/models/GameModel
 import { firstValueFrom } from 'rxjs';
 import { GameService } from 'src/app/modules/game/services/game.service';
 
-import { BaseComponent } from '../abstract/base';
+import { Asset } from '../abstract/asset';
 
 @Component({
   selector: '[app-property-cell]',
@@ -15,12 +15,12 @@ import { BaseComponent } from '../abstract/base';
   styleUrl: './property.component.scss',
   standalone: false,
 })
-export class PropertyComponent extends BaseComponent implements OnInit {
+export class PropertyComponent extends Asset implements OnInit {
   @Input({ required: true }) cell!: PropertyCell<Business>;
 
   public label?: string;
 
-  constructor(private translate: TranslateService, private gameService: GameService) {
+  constructor(private translate: TranslateService, protected gameService: GameService) {
     super();
   }
 
@@ -45,31 +45,6 @@ export class PropertyComponent extends BaseComponent implements OnInit {
     } else {
       return GovPropertyColor;
     }
-  }
-
-  get cellOwned(): boolean {
-    console.log('owner check:', this.cell, this.cell.name, this.cell.object.owner);
-    return this.cell.object.owner !== null;
-  }
-
-  get extraPadding() {
-    return 10;
-  }
-
-  get ownerColor(): string {
-    return this.gameService.Game.players.find(p => p.Id === this.cell.object.owner)!.Color;
-  }
-
-  get ownerMarkRadius(): number {
-    return 10;
-  }
-
-  get ownerX(): number {
-    return this.x + this.width - this.ownerMarkRadius - this.extraPadding;
-  }
-
-  get ownerY(): number {
-    return this.height - this.ownerMarkRadius;
   }
 
   get payouts(): number[] {
