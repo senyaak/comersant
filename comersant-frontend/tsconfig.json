@@ -2,7 +2,7 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
-    "skipLibCheck": true,
+    "skipLibCheck": false,
     "baseUrl": "./",
     "paths": {
       "$server/*": ["./../src/*"],

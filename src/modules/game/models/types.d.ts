@@ -1,26 +1,36 @@
+import { ServerToClientEvents } from '../services/events/types';
+import { IGame } from './GameModels/igame';
+import { Player } from './GameModels/player';
+
+//#region turn events results
+export type ITurnResult = {
+  [K in keyof ServerToClientEvents]?: Parameters<ServerToClientEvents[K]>;
+};
+
 export type NextTurnResult = NextTurnSuccess | NextTurnError;
-
-export interface ITurnResult {
-  diceRoll?: number[];
-  newPlayerPosition?: number;
-}
-
 export interface NextTurnError {
   success: false,
   message: 'Game not found',
 }
-
 export interface NextTurnSuccess {
   success: true,
   data: {
-    turnResult: ITurnResult,
+    diceResult: IDiceResult,
     currentPlayer: IGame['currentPlayer'],
     turn: IGame['currentTurnState'],
   },
   message: 'Turn processed successfully'
-
+}
+export interface IDiceResult {
+  diceRoll?: number[];
+  newPlayerPosition?: number;
 }
 
+export interface IEventResult {
+  taxPaid?: { amount: number, toPlayerId: Player['id'] };
+}
+//#endregion turn events results
+//#region c2s events results
 export type PropertyBoughtResult = PropertyBoughtResultSuccess | PropertyBoughtResultError;
 export interface PropertyBoughtResultSuccess {
   success: true;
@@ -32,3 +42,4 @@ export interface PropertyBoughtResultSuccess {
 export interface PropertyBoughtResultError {
   success: false;
 }
+//#endregion c2s events results

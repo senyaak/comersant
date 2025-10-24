@@ -122,7 +122,7 @@ export class GameService {
         throw new Error('Turn processing failed');
       }
 
-      this.game.getValue().nextTurn(result.data.turnResult);
+      this.game.getValue().nextTurn(result.data.diceResult);
       this.turnProgress$.next(result);
     });
     this.socket.on('propertyBought', (result: PropertyBoughtResult) => {

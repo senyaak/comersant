@@ -26,11 +26,17 @@ export abstract class Property {
     public readonly price: number,
     public owner: Player['id'] | null = null,
   ) {}
+
+  abstract get tax(): number;
 }
 
 export class AreaSite extends Property {
   static isAreaSite(obj: object): obj is AreaSite {
     return Property.isProperty(obj);
+  }
+
+  get tax(): number {
+    return this.price * 0.1;
   }
 }
 
@@ -97,6 +103,10 @@ export abstract class Business extends Property {
       this.departmentPayout,
       this.enterprisePayout,
     ];
+  }
+
+  get tax(): number {
+    return this.payouts[this.grade];
   }
 }
 

@@ -18,9 +18,9 @@ export class ControlActionsComponent implements OnInit {
 
   ngOnInit() {
     this.gameService.turnProgress$.subscribe((result) => {
-      if (result.success && result.data.turnResult.diceRoll) {
-        const rolls = result.data.turnResult.diceRoll?.join(', ');
-        const total = result.data.turnResult.diceRoll?.reduce((a, b) => a + b, 0);
+      if (result.success && result.data.diceResult.diceRoll) {
+        const rolls = result.data.diceResult.diceRoll?.join(', ');
+        const total = result.data.diceResult.diceRoll?.reduce((a, b) => a + b, 0);
 
         this.gameEventsService.toast(`rolled: ${rolls} = ${total}`);
       }
