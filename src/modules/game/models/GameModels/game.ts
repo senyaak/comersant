@@ -1,7 +1,7 @@
 import { randomBytes } from 'crypto';
 
 import { CardEventCell, EventCell, InteractiveEventCell, PropertyCell, StaticEventCell } from '../FieldModels/cells';
-import { IDiceResult, ITurnResult, NextTurnResult, PropertyBoughtResultSuccess } from '../types';
+import { IDiceResult, IEventResult, ITurnResult, RollTurnResult, PropertyBoughtResultSuccess } from '../types';
 import { IGame } from './igame';
 import { Player, PlayerColor } from './player';
 import { Turn } from './turn';
@@ -101,8 +101,8 @@ export class Game extends IGame {
   }
 
   @ValidateActivePlayer
-  handlePlayerMoved(playerId: string): ITurnResult['event_result'] {
-    const results: ITurnResult['event_result'] = [{}];
+  handlePlayerMoved(playerId: string): [IEventResult] {
+    const results: [IEventResult] = [{}];
     const position = this.players[this.CurrentPlayer].Position;
     const cell = this.board.flatCells[position];
     if (PropertyCell.isPropertyCell(cell) && cell.object.owner && cell.object.owner !== playerId) {
@@ -162,7 +162,7 @@ export class Game extends IGame {
       this.players[this.currentPlayer].move(rollResult);
       diceResult.newPlayerPosition = this.players[this.currentPlayer].Position;
 
-      const turnProgressData: NextTurnResult = {
+      const turnProgressData: RollTurnResult = {
         success: true,
         data: {
           diceResult,
@@ -172,10 +172,15 @@ export class Game extends IGame {
         message: 'Turn processed successfully',
       };
       result.turn_progress = [turnProgressData];
-      this.handlePlayerMoved(playerId);
+      const eventResults = this.handlePlayerMoved(playerId);
+      result.event_result = eventResults;
     } else if (this.currentTurnState === Turn.Event) {
       // event handling logic
-      // actually nothing to do here for now
+      // actually nothing to do here for now-
+      result.turn_finished = [{
+        success: true,
+        message: 'Turn finished successfully',
+      }];
     } else {
       throw new Error('Invalid turn state or missing diceCounter');
     }

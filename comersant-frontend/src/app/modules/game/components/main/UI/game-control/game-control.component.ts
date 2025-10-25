@@ -25,7 +25,6 @@ export class GameControlComponent implements OnInit {
       return false;
     }
 
-    console.log('canBuyCell:', cell);
     const canBuyCell = cell.object.owner === null;
     return this.TurnState === Turn.Event && this.isMyTurn && canBuyCell;
   }

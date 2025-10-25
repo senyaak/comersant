@@ -26,6 +26,13 @@ export class ControlActionsComponent implements OnInit {
       }
       this.isProcessingTurn = false;
     });
+    this.gameService.turnFinished$.subscribe((result) => {
+      if (result.success) {
+        this.gameEventsService.toast('Turn finished successfully');
+      }
+      console.log('turnFinished subscription', result);
+      this.isProcessingTurn = false;
+    });
   }
 
   get isMyTurn(): boolean {

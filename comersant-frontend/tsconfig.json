@@ -2,7 +2,7 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
-    "skipLibCheck": false,
+    "skipLibCheck": true,
     "baseUrl": "./",
     "paths": {
       "$server/*": ["./../src/*"],
@@ -27,6 +27,7 @@
     "strictPropertyInitialization": true,
     "lib": ["ES2022", "dom"]
   },
+  "exclude": ["node_modules", "**/node_modules", "dist", "**/*.spec.ts"],
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,
     "strictInjectionParameters": true,

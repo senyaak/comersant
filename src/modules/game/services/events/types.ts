@@ -1,8 +1,9 @@
-import { IEventResult, NextTurnResult, PropertyBoughtResult } from '../../models/types';
+import { IEventResult, RollTurnResult, PropertyBoughtResult, TurnFinishedResult } from '../../models/types';
 
 export interface ServerToClientEvents {
   propertyBought: (data: PropertyBoughtResult) => void;
-  turn_progress: (data: NextTurnResult) => void;
+  turn_progress: (data: RollTurnResult) => void;
+  turn_finished: (data: TurnFinishedResult) => void;
   event_result: (data: IEventResult) => void;
   user_connected: (data: { name: string; id: string }) => void;
 }

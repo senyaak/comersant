@@ -7,12 +7,22 @@ export type ITurnResult = {
   [K in keyof ServerToClientEvents]?: Parameters<ServerToClientEvents[K]>;
 };
 
-export type NextTurnResult = NextTurnSuccess | NextTurnError;
-export interface NextTurnError {
+export type TurnFinishedResult = TurnFinishedSuccess | TurnFinishedError;
+export interface TurnFinishedSuccess {
+  success: true,
+  message: 'Turn finished successfully',
+}
+export interface TurnFinishedError {
+  success: false,
+  message: 'Unknown error finishing turn',
+}
+
+export type RollTurnResult = RollTurnSuccess | RollTurnError;
+export interface RollTurnError {
   success: false,
   message: 'Game not found',
 }
-export interface NextTurnSuccess {
+export interface RollTurnSuccess {
   success: true,
   data: {
     diceResult: IDiceResult,

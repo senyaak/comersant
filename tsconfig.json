@@ -11,7 +11,7 @@
     "outDir": "./dist",
     "baseUrl": "./",
     "incremental": true,
-    "skipLibCheck": false,
+    "skipLibCheck": true,
     "strictNullChecks": true,
     "noImplicitOverride": true,
     "noImplicitAny": true,
@@ -24,6 +24,6 @@
       "$i18n/*": ["./comersant-frontend/src/app/i18n/*"]
     }
   },
-  "exclude": ["comersant-frontend"],
+  "exclude": ["comersant-frontend", "node_modules", "**/node_modules", "dist"],
   "include": ["src", "test"]
 }

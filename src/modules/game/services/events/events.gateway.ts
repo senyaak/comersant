@@ -106,6 +106,9 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     if(result.turn_progress) {
       this.server.to(`game-${gameId}`).emit('turn_progress', ...result.turn_progress);
     }
+    if(result.turn_finished) {
+      this.server.to(`game-${gameId}`).emit('turn_finished', ...result.turn_finished);
+    }
     if(result.event_result) {
       this.server.to(`game-${gameId}`).emit('event_result', ...result.event_result);
     }

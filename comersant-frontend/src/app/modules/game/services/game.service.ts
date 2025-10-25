@@ -1,5 +1,5 @@
 import type { IRawGame } from '$server/modules/game/models/GameModels/types';
-import type { NextTurnResult, PropertyBoughtResult } from '$server/modules/game/models/types';
+import type { RollTurnResult, PropertyBoughtResult, TurnFinishedResult } from '$server/modules/game/models/types';
 import type { ClientToServerEvents, ServerToClientEvents } from '$server/modules/game/services/events/types';
 import type { Observable } from 'rxjs';
 import type { Socket } from 'socket.io-client';
@@ -29,7 +29,11 @@ export class GameService {
   private socket!: Socket<ServerToClientEvents, ClientToServerEvents>;
   public gameReady$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   public propertyBought$ = new BehaviorSubject<PropertyBoughtResult>({ success: false });
-  public turnProgress$ = new BehaviorSubject<NextTurnResult>({ message: 'Game not found', success: false });
+  public turnFinished$ = new BehaviorSubject<TurnFinishedResult>(
+    { message: 'Unknown error finishing turn', success: false },
+  );
+
+  public turnProgress$ = new BehaviorSubject<RollTurnResult>({ message: 'Game not found', success: false });
 
   constructor(
     private readonly http: HttpClient,
@@ -117,13 +121,26 @@ export class GameService {
     this.socket.onAny((...rest) => {
       console.log('@#socket on any', rest);
     });
-    this.socket.on('turn_progress', (result: NextTurnResult) => {
+    this.socket.on('turn_progress', (result: RollTurnResult) => {
       if(result.success !== true) {
         throw new Error('Turn processing failed');
       }
 
       this.game.getValue().nextTurn(result.data.diceResult);
       this.turnProgress$.next(result);
+    });
+    this.socket.on('turn_finished', (result: TurnFinishedResult) => {
+      this.game.getValue().nextTurn();
+      this.turnFinished$.next(result);
+    });
+    this.socket.on('event_result', (result) => {
+      if(result.taxPaid) {
+        // result.taxPaid.toPlayerId;
+        this.Game.players.find(player => player.Id === result.taxPaid?.toPlayerId)
+          ?.changeMoney(result.taxPaid.amount);
+        this.Game.players[this.Game.CurrentPlayer].changeMoney(-result.taxPaid.amount);
+      }
+      // this.gameStateService.handleEventResult(result);
     });
     this.socket.on('propertyBought', (result: PropertyBoughtResult) => {
       if(result.success !== true) {

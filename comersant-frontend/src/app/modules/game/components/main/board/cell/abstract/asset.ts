@@ -14,7 +14,6 @@ export abstract class Asset extends BaseComponent {
   protected abstract gameService: GameService
 
   get cellOwned(): boolean {
-    console.log('owner check:', this.cell, this.cell.name, this.cell.object.owner);
     return this.cell.object.owner !== null;
   }
 

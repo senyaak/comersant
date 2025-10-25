@@ -15,12 +15,11 @@ export class GameInfoComponent {
 
   }
 
-  playerId(index: number, player: Player) {
-    return player.Id;
-  }
-
   get Players() {
     return this.gameService.Game.players;
   }
 
+  playerId(index: number, player: Player) {
+    return player.Id;
+  }
 }
