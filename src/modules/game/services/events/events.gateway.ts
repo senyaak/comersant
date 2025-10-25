@@ -27,6 +27,8 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket() client: Socket,
     // @MessageBody() payload: { diceCounter: number },
   ): void {
+    // add refuse logic here, add ways for other to buy property
+    // CONSIDER: the best approach....
     const gameId = getValidatedGameId(client);
 
     try {

@@ -6,12 +6,12 @@ import {
 } from '../GameModels/properties';
 import {
   CardEventCell,
-  CardEventCellTypes,
   Cell,
   EventCellTypes,
   InnerStartCell,
   InteractiveEventCell,
   PropertyCell,
+  PropertyCellName,
   StartCell,
   StaticEventCell,
   stringToCardEventType,
@@ -27,6 +27,64 @@ export enum BussinessGroups {
   Theater = 6,
   Storage = 7,
 }
+
+// Cell names organized by business groups for PrivateBusiness
+export type EatBusinessCells =
+  | 'gastronomie'
+  | 'conditerie_shop'
+  | 'backer';
+
+export type MarketBusinessCells =
+  | 'mercery'
+  | 'children'
+  | 'big';
+
+export type FoodBusinessCells =
+  | 'diner'
+  | 'cafe'
+  | 'restorant';
+
+export type FarmBusinessCells =
+  | 'kiosk'
+  | 'wegetables'
+  | 'market';
+
+export type StadiumBusinessCells =
+  | 'spartak'
+  | 'torpedo'
+  | 'luzhniki';
+
+export type ArenaBusinessCells =
+  | 'concerthall'
+  | 'palaceofsport'
+  | 'olympicstadium';
+
+export type TheaterBusinessCells =
+  | 'dolls'
+  | 'children_theater'
+  | 'ballet';
+
+export type StorageBusinessCells =
+  | 'vegetables'
+  | 'production'
+  | 'food';
+
+// Government business cells
+export type GovBusinessCells =
+  | 'toys'
+  | 'сanning'
+  | 'statefarm'
+  | 'conditerie'
+  | 'culture'
+  | 'shoes';
+
+// Area site cells
+export type AreaSiteCells = 'Site';
+
+// Special cells
+export type SpecialCells =
+  | 'Start'
+  | 'InnerStart';
 
 export const PropertyGroupsColors: `#${string}`[] = [
   '#00ca39ff',
@@ -71,14 +129,14 @@ function createCells(): Cell[][] {
             [130_000, 14_000],
           ]),
         ),
-        new CardEventCell(EventCellTypes.card, CardEventCellTypes.post),
+        new CardEventCell(EventCellTypes.card, 'post'),
         new StaticEventCell(
           EventCellTypes.staticEvent,
           ET.BalanceChange,
           -25000,
         ),
         new PropertyCell('Site', new AreaSite(15000)),
-        new CardEventCell(EventCellTypes.card, CardEventCellTypes.surpise),
+        new CardEventCell(EventCellTypes.card, 'surpise'),
         new PropertyCell(
           'toys',
           new GovBusiness(40_000, 32_000, [
@@ -120,7 +178,7 @@ function createCells(): Cell[][] {
             [110_000, 10_000],
           ]),
         ),
-        new CardEventCell(EventCellTypes.card, CardEventCellTypes.post),
+        new CardEventCell(EventCellTypes.card, 'post'),
         new StaticEventCell(EventCellTypes.staticEvent, ET.MoveToCenter),
         new PropertyCell('Site', new AreaSite(25000)),
         new PropertyCell(
@@ -159,7 +217,7 @@ function createCells(): Cell[][] {
             [230_000, 21_000],
           ]),
         ),
-        new CardEventCell(EventCellTypes.card, CardEventCellTypes.surpise),
+        new CardEventCell(EventCellTypes.card, 'surpise'),
         new InteractiveEventCell(EventCellTypes.interactiveEvent, ET.Racitto),
         new PropertyCell(
           'kiosk',
@@ -202,7 +260,7 @@ function createCells(): Cell[][] {
             [310_000, 30_000],
           ]),
         ),
-        new CardEventCell(EventCellTypes.card, CardEventCellTypes.post),
+        new CardEventCell(EventCellTypes.card, 'post'),
         new PropertyCell('Site', new AreaSite(20_000)),
         new InteractiveEventCell(EventCellTypes.interactiveEvent, ET.Racitto),
         new PropertyCell(
@@ -233,7 +291,7 @@ function createCells(): Cell[][] {
           ]),
         ),
         new StaticEventCell(EventCellTypes.staticEvent, ET.SkipTurn),
-        new CardEventCell(EventCellTypes.card, CardEventCellTypes.risk),
+        new CardEventCell(EventCellTypes.card, 'risk'),
         new StaticEventCell(EventCellTypes.staticEvent, ET.MoveToCenter),
         new PropertyCell(
           'concerthall',
@@ -266,7 +324,7 @@ function createCells(): Cell[][] {
       [
         new InnerStartCell(),
         new InteractiveEventCell(EventCellTypes.interactiveEvent, ET.Racitto),
-        new CardEventCell(EventCellTypes.card, CardEventCellTypes.surpise),
+        new CardEventCell(EventCellTypes.card, 'surpise'),
         new StaticEventCell(
           EventCellTypes.staticEvent,
           ET.BalanceChange,
@@ -309,7 +367,7 @@ function createCells(): Cell[][] {
           ]),
         ),
         new PropertyCell('Site', new AreaSite(12_000)),
-        new CardEventCell(EventCellTypes.card, CardEventCellTypes.post),
+        new CardEventCell(EventCellTypes.card, 'post'),
         new StaticEventCell(EventCellTypes.staticEvent, ET.SkipTurn),
         new PropertyCell(
           'culture',
@@ -354,7 +412,7 @@ function createCells(): Cell[][] {
             [208_000, 21_000],
           ]),
         ),
-        new CardEventCell(EventCellTypes.card, CardEventCellTypes.risk),
+        new CardEventCell(EventCellTypes.card, 'risk'),
         new PropertyCell(
           'shoes',
           new GovBusiness(49_000, 45_000, [
@@ -364,7 +422,7 @@ function createCells(): Cell[][] {
             [190_000, 19_500],
           ]),
         ),
-        new CardEventCell(EventCellTypes.card, CardEventCellTypes.post),
+        new CardEventCell(EventCellTypes.card, 'post'),
         new PropertyCell('Site', new AreaSite(60_000)),
         new StaticEventCell(EventCellTypes.staticEvent, ET.SkipTurn),
       ] satisfies Cell[],
@@ -373,7 +431,33 @@ function createCells(): Cell[][] {
 
 function isValidCell(cell: object): cell is Cell {
   return cell && 'name' in cell && typeof cell.name === 'string';
-};
+}
+
+function isPropertyCellName(name: string): name is PropertyCellName {
+  const allPropertyCells: PropertyCellName[] = [
+    // EatBusinessCells
+    'gastronomie', 'conditerie_shop', 'backer',
+    // MarketBusinessCells
+    'mercery', 'children', 'big',
+    // FoodBusinessCells
+    'diner', 'cafe', 'restorant',
+    // FarmBusinessCells
+    'kiosk', 'wegetables', 'market',
+    // StadiumBusinessCells
+    'spartak', 'torpedo', 'luzhniki',
+    // ArenaBusinessCells
+    'concerthall', 'palaceofsport', 'olympicstadium',
+    // TheaterBusinessCells
+    'dolls', 'children_theater', 'ballet',
+    // StorageBusinessCells
+    'vegetables', 'production', 'food',
+    // GovBusinessCells
+    'toys', 'сanning', 'statefarm', 'conditerie', 'culture', 'shoes',
+    // AreaSiteCells
+    'Site',
+  ];
+  return allPropertyCells.includes(name as PropertyCellName);
+}
 
 const restoreCells = (_cells: object[][]): Cell[][] => {
   const cells = JSON.parse(JSON.stringify(_cells)) as Cell[][];
@@ -389,6 +473,9 @@ const restoreCells = (_cells: object[][]): Cell[][] => {
       } else if (cell.name === 'InnerStart') {
         return new InnerStartCell();
       } else if (PropertyCell.isPropertyCell(cell)) {
+        if (!isPropertyCellName(cell.name)) {
+          throw new Error(`Invalid property cell name: ${cell.name}`);
+        }
         if (PrivateBusiness.isPrivateBusiness(cell.object)) {
           return new PropertyCell(
             cell.name,

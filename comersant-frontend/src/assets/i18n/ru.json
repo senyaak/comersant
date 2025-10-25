@@ -45,10 +45,11 @@
 	"production": "production",
 	"food": "food",
 	"shoes": "shoes",
+	"сanning": "сanning",
 	"surpise": "surpise",
 	"post": "post",
 	"risk": "risk",
-	"site": "Участок",
+	"Site": "Site",
 	"office": "Офис",
 	"department": "Отдел",
 	"enterprise": "Предприятие"

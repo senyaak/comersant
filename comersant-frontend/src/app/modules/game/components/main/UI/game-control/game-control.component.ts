@@ -25,8 +25,9 @@ export class GameControlComponent implements OnInit {
       return false;
     }
 
+    const hasMoney = cell.object.price < this.Player.Money;
     const canBuyCell = cell.object.owner === null;
-    return this.TurnState === Turn.Event && this.isMyTurn && canBuyCell;
+    return this.TurnState === Turn.Event && this.isMyTurn && canBuyCell && hasMoney;
   }
 
   get currentPlayerName(): string {

@@ -1,7 +1,4 @@
 <div id="game-info" *ngIf="Players && Players.length > 0">
   <div>game-info works!</div>
-  <app-player-info
-    *ngFor="let player of Players"
-    [player]="player"
-  />
+  <app-player-info *ngFor="let player of Players" [playerId]="player.Id" />
 </div>

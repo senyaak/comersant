@@ -19,9 +19,9 @@ export interface IRawPlayer {
 
 export class Player {
   private readonly color: IRawPlayer['color'];
+  private freezeTurns: number = 0;
   private id: IRawPlayer['id'];
   private money: IRawPlayer['money'] = 150_000;
-
   private readonly name: IRawPlayer['name'];
   private position: IRawPlayer['position'] = 0;
   /**
@@ -93,7 +93,16 @@ export class Player {
 
   move(steps: number): void {
     // Board.cellsCounter;
+    if(this.freezeTurns > 0) {
+      this.freezeTurns -= 1;
+      console.log('player', this.name, 'is frozen for', this.freezeTurns, 'more turns');
+      return;
+    }
     console.log('move player', this.name, 'by', steps, 'new position:', (this.position + steps) % Board.CellsCounter);
     this.position = (this.position + steps) % Board.CellsCounter;
+  }
+
+  skipTurn(): void {
+    this.freezeTurns += 1;
   }
 }

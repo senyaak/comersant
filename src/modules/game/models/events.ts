@@ -4,6 +4,7 @@ export enum EventType {
   MoneyTransfer,
   SkipTurn,
   Racitto,
+  // TODO: consider implement random amount?
   Move,
   MoveTo,
   MoveToCenter,

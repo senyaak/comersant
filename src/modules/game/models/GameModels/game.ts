@@ -1,9 +1,14 @@
 import { randomBytes } from 'crypto';
 
-import { CardEventCell, EventCell, InteractiveEventCell, PropertyCell, StaticEventCell } from '../FieldModels/cells';
-import { IDiceResult, IEventResult, ITurnResult, RollTurnResult, PropertyBoughtResultSuccess } from '../types';
+import { EventType } from '../events';
+import { Cards, Post, Risk, Surprise } from '../FieldModels/cards';
+import {
+  CardEventCell, EventCell, InteractiveEventCell, PropertyCell, StaticEventCell,
+} from '../FieldModels/cells';
+import { IDiceResult, IEventResult, ITurnResult, PropertyBoughtResultSuccess, RollTurnResult } from '../types';
 import { IGame } from './igame';
 import { Player, PlayerColor } from './player';
+import { GovBusiness } from './properties';
 import { Turn } from './turn';
 
 // Type constraint to ensure the method has playerId as first parameter
@@ -111,10 +116,57 @@ export class Game extends IGame {
       this.players[this.CurrentPlayer].changeMoney(-tax);
       this.players.find(p => p.Id === cell.object.owner)!.changeMoney(tax);
       results[0].taxPaid = { amount: tax, toPlayerId: cell.object.owner };
+    } else if (PropertyCell.isPropertyCell(cell) &&
+      GovBusiness.isGovBusiness(cell.object) &&
+      cell.object.owner === null) {
+      // Gov business - give 'G' to player
     } else if(cell instanceof EventCell) {
       console.log('event cell');
       if(cell instanceof CardEventCell) {
-        console.log('card event cell');
+        let deck: Cards;
+        switch(cell.type) {
+          case 'post':
+            console.log('card event cell');
+            deck = Post;
+            break;
+          case 'risk':
+            console.log('risk event cell');
+            deck = Risk;
+            break;
+          case 'surpise':
+            console.log('surprise event cell');
+            deck = Surprise;
+            break;
+          default:
+            throw new Error('Unknown card event cell type');
+        }
+        const cardKeys: (keyof Cards)[] = Object.keys(deck);
+        const randomKey: keyof Cards = cardKeys[Math.floor(Math.random() * cardKeys.length)];
+        const card = deck[randomKey as keyof typeof deck];
+        switch(card.type) {
+          case EventType.BalanceChange:
+            this.players[this.CurrentPlayer].changeMoney(card.amount);
+            break;
+          case EventType.SkipTurn:
+            this.players[this.CurrentPlayer].skipTurn();
+            break;
+          case EventType.Move:
+            this.players[this.CurrentPlayer].move(card.amount);
+            break;
+          case EventType.MovePlayer:
+            // TODO: set game to waiting for action to select player to move
+            break;
+          case EventType.MoveTo:
+          case EventType.MoveToCenter:
+          case EventType.GetEvent:
+          case EventType.MoneyTransfer:
+          default:
+            throw new Error('Unknown event type!');
+        }
+        results[0].cardDrawn = {cardKey: randomKey, card};
+
+        console.log(card.type);
+        console.log('Drew card:', card);
       } else if(cell instanceof StaticEventCell) {
         console.log('static event cell');
       } else if(cell instanceof InteractiveEventCell) {
@@ -132,10 +184,10 @@ export class Game extends IGame {
     /**
      * Possible cells:
      * - properties
-     * -- owned
-     * -- unowned
-     * -- opponent owned
-     * - events
+     * -- owned -> nothing
+     * -- unowned -> if Gov - give 'G'
+     * -- opponent owned -> pay tax/racet
+     * - events -> doing...
      */
   }
 
@@ -175,8 +227,6 @@ export class Game extends IGame {
       const eventResults = this.handlePlayerMoved(playerId);
       result.event_result = eventResults;
     } else if (this.currentTurnState === Turn.Event) {
-      // event handling logic
-      // actually nothing to do here for now-
       result.turn_finished = [{
         success: true,
         message: 'Turn finished successfully',

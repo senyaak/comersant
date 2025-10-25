@@ -13,7 +13,7 @@
     "compodoc:build-and-serve": "compodoc -p tsconfig.doc.json -s",
     "compodoc:serve": "compodoc -s",
     "i18n:init": "ngx-translate-extract --input ./src --output ./src/assets/i18n/template.json --key-as-default-value --replace --format json",
-    "i18n:extract": "ngx-translate-extract --input ./src --output ./src/assets/i18n/{en,de,ru}.json --clean --format json --key-as-default-value"
+    "i18n:extract": "ngx-translate-extract --input ./src --output ./src/assets/i18n/{en,de,ru}.json --clean --format json --key-as-default-value --marker _"
   },
   "private": true,
   "dependencies": {
@@ -37,7 +37,6 @@
     "@angular-eslint/schematics": "^20.1.1",
     "@angular/cli": "^19.2.7",
     "@angular/compiler-cli": "^19.2.6",
-    "@colsen1991/ngx-translate-extract-marker": "^3.0.1",
     "@eslint/js": "^9.24.0",
     "@types/jasmine": "~5.1.7",
     "@vendure/ngx-translate-extract": "^9.4.0",

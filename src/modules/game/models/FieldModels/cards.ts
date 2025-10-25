@@ -1,5 +1,6 @@
 import { Event, EventItem, EventType } from './../events';
-interface Cards {
+
+export interface Cards {
   [key: string]: Event;
 }
 

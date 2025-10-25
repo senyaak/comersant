@@ -1,4 +1,39 @@
-import { marker as _ } from '@colsen1991/ngx-translate-extract-marker';
+import {
+  AreaSiteCells,
+  ArenaBusinessCells,
+  EatBusinessCells,
+  FarmBusinessCells,
+  FoodBusinessCells,
+  GovBusinessCells,
+  MarketBusinessCells,
+  StadiumBusinessCells,
+  StorageBusinessCells,
+  TheaterBusinessCells,
+} from '$server/modules/game/models/FieldModels/board';
+import { CardEventCellTypes } from '$server/modules/game/models/FieldModels/cells';
+
+// Property asset grades/levels
+export type PropertyGrades = 'areasite' | 'office' | 'department' | 'enterprise';
+
+// Union type for all valid cell names that can be translated
+export type TranslatableCellName =
+  | EatBusinessCells
+  | MarketBusinessCells
+  | FoodBusinessCells
+  | FarmBusinessCells
+  | StadiumBusinessCells
+  | ArenaBusinessCells
+  | TheaterBusinessCells
+  | StorageBusinessCells
+  | GovBusinessCells
+  | AreaSiteCells
+  | CardEventCellTypes
+  | PropertyGrades;
+
+// Type-safe translation marker function
+export function _(key: TranslatableCellName): string {
+  return key;
+}
 
 /** bussinesses */
 export const gastronomie = _('gastronomie');
@@ -31,6 +66,7 @@ export const vegetables = _('vegetables');
 export const production = _('production');
 export const food = _('food');
 export const shoes = _('shoes');
+export const canning = _('сanning'); // Note: Cyrillic 'с'
 /**============================*/
 
 export const surpise = _('surpise');
@@ -38,7 +74,7 @@ export const post = _('post');
 export const risk = _('risk');
 
 /**============================*/
-export const Site = _('site');
+export const Site = _('Site');
 
 export const Area = _('areasite');
 export const Office = _('office');

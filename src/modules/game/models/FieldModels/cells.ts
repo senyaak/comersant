@@ -1,5 +1,45 @@
 import { EventType } from '../events';
 import { Property } from '../GameModels/properties';
+import {
+  EatBusinessCells,
+  MarketBusinessCells,
+  FoodBusinessCells,
+  FarmBusinessCells,
+  StadiumBusinessCells,
+  ArenaBusinessCells,
+  TheaterBusinessCells,
+  StorageBusinessCells,
+  GovBusinessCells,
+  AreaSiteCells,
+  SpecialCells,
+} from './board';
+
+// Union type for all valid property cell names
+export type PropertyCellName =
+  | EatBusinessCells
+  | MarketBusinessCells
+  | FoodBusinessCells
+  | FarmBusinessCells
+  | StadiumBusinessCells
+  | ArenaBusinessCells
+  | TheaterBusinessCells
+  | StorageBusinessCells
+  | GovBusinessCells
+  | AreaSiteCells;
+
+// Union type for all valid cell names
+export type CellName = PropertyCellName | SpecialCells | EventCellTypes;
+
+// Helper types for specific business groups
+export type PrivateBusinessCellName =
+  | EatBusinessCells
+  | MarketBusinessCells
+  | FoodBusinessCells
+  | FarmBusinessCells
+  | StadiumBusinessCells
+  | ArenaBusinessCells
+  | TheaterBusinessCells
+  | StorageBusinessCells;
 
 function isObject(obj: unknown): obj is Record<string, unknown> {
   if(typeof obj === 'object' && obj !== null) {
@@ -10,7 +50,7 @@ function isObject(obj: unknown): obj is Record<string, unknown> {
 }
 
 export abstract class Cell {
-  constructor(public readonly name: string) {}
+  constructor(public readonly name: CellName) {}
 }
 
 export class StartCell extends Cell {
@@ -37,7 +77,7 @@ export class PropertyCell<T extends Property = Property> extends Cell {
   }
 
   constructor(
-    name: string,
+    name: PropertyCellName,
     public readonly object: T,
   ) {
     super(name);
@@ -111,11 +151,10 @@ export enum EventCellTypes {
 //   }
 // }
 
-export enum CardEventCellTypes {
-  post = 'post',
-  risk = 'risk',
-  surpise = 'surpise',
-}
+export type CardEventCellTypes =
+  | 'post'
+  | 'risk'
+  | 'surpise';
 
 export function stringToCardEventType(str: unknown): CardEventCellTypes {
   if (typeof str !== 'string') {
@@ -123,11 +162,11 @@ export function stringToCardEventType(str: unknown): CardEventCellTypes {
   }
   switch (str) {
     case 'post':
-      return CardEventCellTypes.post;
+      return 'post';
     case 'risk':
-      return CardEventCellTypes.risk;
+      return 'risk';
     case 'surpise':
-      return CardEventCellTypes.surpise;
+      return 'surpise';
     default:
       throw new Error(`Invalid CardEventCellType string: ${str}`);
   }

@@ -1,4 +1,5 @@
 import { ServerToClientEvents } from '../services/events/types';
+import { Cards } from './FieldModels/cards';
 import { IGame } from './GameModels/igame';
 import { Player } from './GameModels/player';
 
@@ -38,6 +39,7 @@ export interface IDiceResult {
 
 export interface IEventResult {
   taxPaid?: { amount: number, toPlayerId: Player['id'] };
+  cardDrawn?: { cardKey: keyof Cards, card: Cards[keyof Cards] };
 }
 //#endregion turn events results
 //#region c2s events results
