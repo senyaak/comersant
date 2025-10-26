@@ -11,7 +11,7 @@ import { LobbyModule } from './modules/lobby/lobby.module';
   imports: [
     // Документация с наивысшим приоритетом
     ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', 'documentation', 'backend'),
+      rootPath: join(__dirname, '..', 'documentation'),
       serveRoot: '/docs/backend',
     }),
     ServeStaticModule.forRoot({
