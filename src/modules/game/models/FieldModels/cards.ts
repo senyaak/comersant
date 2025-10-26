@@ -142,17 +142,17 @@ export const Post: Cards = {
   moveToTaxOffice: {
     msg: 'Вас вызывают в налоговую службу',
     type: EventType.MoveTo,
-    to: 8, // TODO: use field/fieldname/enum
+    to: 'interactiveEvent',
   },
   moveToTaxOffice2: {
     msg: 'Вас вызывают в налоговую службу',
     type: EventType.MoveTo,
-    to: 8, // TODO: use field/fieldname/enum
+    to: 'interactiveEvent',
   },
   moveToRestoran: {
     msg: 'Посетите банкет в ресторане',
     type: EventType.MoveTo,
-    to: 12, // TODO: use field/fieldname/enum
+    to: 'restorant',
   },
   /* get events */
   getG: {
@@ -299,32 +299,32 @@ export const Surprise: Cards = {
   moveToConcert: {
     msg: 'Вам подарили билет в концертный зал',
     type: EventType.MoveTo,
-    to: 11, // TODO: use field/fieldname/enum
+    to: 'concerthall',
   },
   moveToTaxOffice: {
     msg: 'Вас вызывают в налоговую службу',
     type: EventType.MoveTo,
-    to: 8, // TODO: use field/fieldname/enum
+    to: 'interactiveEvent',
   },
   moveToTaxOffice2: {
     msg: 'Вас вызывают в налоговую службу',
     type: EventType.MoveTo,
-    to: 8, // TODO: use field/fieldname/enum
+    to: 'interactiveEvent',
   },
   moveToLuzhniki: {
     msg: 'Вы приглашены на концерт в Лужниках',
     type: EventType.MoveTo,
-    to: 11, // TODO: use field/fieldname/enum
+    to: 'luzhniki',
   },
   moveToCafe: {
     msg: 'Партнёры предложили вам встречу в кафе',
     type: EventType.MoveTo,
-    to: 12, // TODO: use field/fieldname/enum
+    to: 'cafe',
   },
   moveToCulturInst: {
     msg: 'Посетите семинар в институте культуры',
     type: EventType.MoveTo,
-    to: 13, // TODO: use field/fieldname/enum
+    to: 'culture',
   },
   /* move events */
   back5: {
@@ -478,17 +478,17 @@ export const Risk: Cards = {
   moveTo: {
     msg: 'Идите на старт',
     type: EventType.MoveTo,
-    to: 0, // TODO: use field/fieldname/enum
+    to: 'Start',
   },
   moveToSovkhoz: {
     msg: 'На утро после юбилея вы очнулись в совхозе',
     type: EventType.MoveTo,
-    to: 2, // TODO: use field/fieldname/enum
+    to: 'statefarm',
   },
   moveToMarkt: {
     msg: 'Посетите рынок',
     type: EventType.MoveTo,
-    to: 3, // TODO: use field/fieldname/enum
+    to: 'market',
   },
   /* property loss */
   lostProp: {

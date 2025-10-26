@@ -90,20 +90,22 @@ export abstract class EventCell extends Cell {
   }
 }
 export class StaticEventCell extends EventCell {
-  constructor(name: EventCellTypes.staticEvent, type: EventType);
+  static isStaticEventCell(cell: Cell): cell is StaticEventCell {
+    return cell.name === 'staticEvent';
+  }
+
+  constructor(type: EventType);
 
   constructor(
-    name: EventCellTypes.staticEvent,
     type: EventType.BalanceChange,
     amount: number,
   );
 
   constructor(
-    name: EventCellTypes.staticEvent,
     public readonly type: EventType,
     public readonly amount?: number,
   ) {
-    super(name);
+    super('staticEvent' as EventCellTypes);
   }
 
   isStaticEventCell(obj: unknown): obj is StaticEventCell {
@@ -115,28 +117,30 @@ export class StaticEventCell extends EventCell {
 }
 
 export class InteractiveEventCell extends EventCell {
+  static isInteractiveEventCell(cell: Cell): cell is InteractiveEventCell {
+    return cell.name === 'interactiveEvent';
+  }
+
   constructor(
-    name: EventCellTypes.interactiveEvent,
     public readonly type: EventType,
   ) {
-    super(name);
+    super('interactiveEvent' as EventCellTypes);
   }
 }
 
 export class CardEventCell extends EventCell {
+  private static isCardEventCell(cell: Cell): cell is CardEventCell {
+    return cell.name === 'card';
+  }
+
   constructor(
-    name: EventCellTypes.card,
     public readonly type: CardEventCellTypes,
   ) {
-    super(name);
+    super('card' as EventCellTypes);
   }
 }
 
-export enum EventCellTypes {
-  card = 'card',
-  interactiveEvent = 'interactiveEvent',
-  staticEvent = 'staticEvent',
-}
+export type EventCellTypes = 'card' | 'interactiveEvent' | 'staticEvent';
 
 // export function stringToEventCellType(str: string): EventCellTypes {
 //   switch (str) {

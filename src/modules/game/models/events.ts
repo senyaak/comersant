@@ -1,8 +1,11 @@
+import { Cell } from './FieldModels/cells';
+
 export enum EventType {
   BalanceChange,
   GetEvent,
   MoneyTransfer,
   SkipTurn,
+  TaxService,
   Racitto,
   // TODO: consider implement random amount?
   Move,
@@ -50,7 +53,8 @@ export interface MoveToCenterEvent extends MoveTo {
 }
 
 export interface MoveToEvent extends MoveTo {
-  to: number;
+  // TODO: probably would be better to use unique names for events like tax service etc..
+  to: Cell['name'];
 }
 
 export interface GetEvent extends BaseEvent {

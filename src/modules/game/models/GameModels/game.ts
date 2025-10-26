@@ -3,7 +3,8 @@ import { randomBytes } from 'crypto';
 import { EventType } from '../events';
 import { Cards, Post, Risk, Surprise } from '../FieldModels/cards';
 import {
-  CardEventCell, EventCell, InteractiveEventCell, PropertyCell, StaticEventCell,
+  CardEventCell,
+  EventCell, InteractiveEventCell, PropertyCell, StaticEventCell,
 } from '../FieldModels/cells';
 import { IDiceResult, IEventResult, ITurnResult, PropertyBoughtResultSuccess, RollTurnResult } from '../types';
 import { IGame } from './igame';
@@ -156,13 +157,38 @@ export class Game extends IGame {
           case EventType.MovePlayer:
             // TODO: set game to waiting for action to select player to move
             break;
-          case EventType.MoveTo:
+          case EventType.MoveTo: {
+            // card.to
+            const currentPosition = this.players[this.CurrentPlayer].Position;
+            const targetPosition = this.board.flatCells.findIndex((cell) => {
+              if(card.to === 'interactiveEvent') {
+                return InteractiveEventCell.isInteractiveEventCell(cell) && cell.type === EventType.TaxService;
+              } else {
+                return cell.name === card.to;
+              }
+            });
+            const movesCounter = currentPosition < targetPosition ?
+              targetPosition - currentPosition :
+              this.board.flatCells.length - currentPosition + targetPosition;
+            this.players[this.CurrentPlayer].move(movesCounter);
+            // trigger cells event after moving
+            // this.handlePlayerMoved(playerId);
+            break;
+          }
           case EventType.MoveToCenter:
+            // TODO: set game to waiting for action to move to center or not
+            break;
           case EventType.GetEvent:
+            switch(card.item) {
+              // Handle different items if needed
+            }
+            break;
+
           case EventType.MoneyTransfer:
           default:
             throw new Error('Unknown event type!');
         }
+        // REMOVE: reminder - handle moveto events!
         results[0].cardDrawn = {cardKey: randomKey, card};
 
         console.log(card.type);

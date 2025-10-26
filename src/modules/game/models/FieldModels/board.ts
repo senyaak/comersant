@@ -7,7 +7,6 @@ import {
 import {
   CardEventCell,
   Cell,
-  EventCellTypes,
   InnerStartCell,
   InteractiveEventCell,
   PropertyCell,
@@ -129,14 +128,13 @@ function createCells(): Cell[][] {
             [130_000, 14_000],
           ]),
         ),
-        new CardEventCell(EventCellTypes.card, 'post'),
+        new CardEventCell('post'),
         new StaticEventCell(
-          EventCellTypes.staticEvent,
           ET.BalanceChange,
           -25000,
         ),
         new PropertyCell('Site', new AreaSite(15000)),
-        new CardEventCell(EventCellTypes.card, 'surpise'),
+        new CardEventCell('surpise'),
         new PropertyCell(
           'toys',
           new GovBusiness(40_000, 32_000, [
@@ -147,7 +145,6 @@ function createCells(): Cell[][] {
           ]),
         ),
         new StaticEventCell(
-          EventCellTypes.staticEvent,
           ET.BalanceChange,
           15000,
         ),
@@ -178,8 +175,8 @@ function createCells(): Cell[][] {
             [110_000, 10_000],
           ]),
         ),
-        new CardEventCell(EventCellTypes.card, 'post'),
-        new StaticEventCell(EventCellTypes.staticEvent, ET.MoveToCenter),
+        new CardEventCell('post'),
+        new InteractiveEventCell(ET.MoveToCenter),
         new PropertyCell('Site', new AreaSite(25000)),
         new PropertyCell(
           'diner',
@@ -217,8 +214,8 @@ function createCells(): Cell[][] {
             [230_000, 21_000],
           ]),
         ),
-        new CardEventCell(EventCellTypes.card, 'surpise'),
-        new InteractiveEventCell(EventCellTypes.interactiveEvent, ET.Racitto),
+        new CardEventCell('surpise'),
+        new InteractiveEventCell(ET.Racitto),
         new PropertyCell(
           'kiosk',
           new PrivateBusiness(BussinessGroups.Farm, 41_000, 35_000, [
@@ -247,7 +244,6 @@ function createCells(): Cell[][] {
           ]),
         ),
         new StaticEventCell(
-          EventCellTypes.staticEvent,
           ET.BalanceChange,
           40_000,
         ),
@@ -260,9 +256,9 @@ function createCells(): Cell[][] {
             [310_000, 30_000],
           ]),
         ),
-        new CardEventCell(EventCellTypes.card, 'post'),
+        new CardEventCell('post'),
         new PropertyCell('Site', new AreaSite(20_000)),
-        new InteractiveEventCell(EventCellTypes.interactiveEvent, ET.Racitto),
+        new InteractiveEventCell(ET.Racitto),
         new PropertyCell(
           'spartak',
           new PrivateBusiness(BussinessGroups.Stadium, 15_000, 15_000, [
@@ -290,9 +286,9 @@ function createCells(): Cell[][] {
             [78_000, 7_800],
           ]),
         ),
-        new StaticEventCell(EventCellTypes.staticEvent, ET.SkipTurn),
-        new CardEventCell(EventCellTypes.card, 'risk'),
-        new StaticEventCell(EventCellTypes.staticEvent, ET.MoveToCenter),
+        new StaticEventCell(ET.SkipTurn),
+        new CardEventCell('risk'),
+        new StaticEventCell(ET.MoveToCenter),
         new PropertyCell(
           'concerthall',
           new PrivateBusiness(BussinessGroups.Arena, 31_000, 26_000, [
@@ -323,10 +319,9 @@ function createCells(): Cell[][] {
       ] satisfies Cell[],
       [
         new InnerStartCell(),
-        new InteractiveEventCell(EventCellTypes.interactiveEvent, ET.Racitto),
-        new CardEventCell(EventCellTypes.card, 'surpise'),
+        new InteractiveEventCell(ET.Racitto),
+        new CardEventCell('surpise'),
         new StaticEventCell(
-          EventCellTypes.staticEvent,
           ET.BalanceChange,
           11_000,
         ),
@@ -367,8 +362,8 @@ function createCells(): Cell[][] {
           ]),
         ),
         new PropertyCell('Site', new AreaSite(12_000)),
-        new CardEventCell(EventCellTypes.card, 'post'),
-        new StaticEventCell(EventCellTypes.staticEvent, ET.SkipTurn),
+        new CardEventCell('post'),
+        new InteractiveEventCell(ET.TaxService),
         new PropertyCell(
           'culture',
           new GovBusiness(40_000, 35_000, [
@@ -378,10 +373,9 @@ function createCells(): Cell[][] {
             [150_000, 16_000],
           ]),
         ),
-        new StaticEventCell(EventCellTypes.staticEvent, ET.MoveToCenter),
-        new InteractiveEventCell(EventCellTypes.interactiveEvent, ET.Racitto),
+        new StaticEventCell(ET.MoveToCenter),
+        new InteractiveEventCell(ET.Racitto),
         new StaticEventCell(
-          EventCellTypes.staticEvent,
           ET.BalanceChange,
           14_000,
         ),
@@ -412,7 +406,7 @@ function createCells(): Cell[][] {
             [208_000, 21_000],
           ]),
         ),
-        new CardEventCell(EventCellTypes.card, 'risk'),
+        new CardEventCell('risk'),
         new PropertyCell(
           'shoes',
           new GovBusiness(49_000, 45_000, [
@@ -422,9 +416,9 @@ function createCells(): Cell[][] {
             [190_000, 19_500],
           ]),
         ),
-        new CardEventCell(EventCellTypes.card, 'post'),
+        new CardEventCell('post'),
         new PropertyCell('Site', new AreaSite(60_000)),
-        new StaticEventCell(EventCellTypes.staticEvent, ET.SkipTurn),
+        new StaticEventCell(ET.SkipTurn),
       ] satisfies Cell[],
   ];
 }
@@ -507,14 +501,13 @@ const restoreCells = (_cells: object[][]): Cell[][] => {
         } else {
           throw new Error(`Unknown property type in cell: ${cell.name}`);
         }
-      } else if (cell.name === EventCellTypes.card && 'type' in cell) {
-        return new CardEventCell(EventCellTypes.card, stringToCardEventType(cell.type));
-      } else if (cell.name === EventCellTypes.staticEvent && 'type' in cell) {
+      } else if (cell.name === 'card' && 'type' in cell) {
+        return new CardEventCell(stringToCardEventType(cell.type));
+      } else if (cell.name === 'staticEvent' && 'type' in cell) {
         const eventType = convertToEventType(cell.type);
         if(eventType === ET.BalanceChange) {
           if('amount' in cell && typeof cell.amount === 'number') {
             return new StaticEventCell(
-              EventCellTypes.staticEvent,
               ET.BalanceChange,
               cell.amount,
             );
@@ -522,16 +515,10 @@ const restoreCells = (_cells: object[][]): Cell[][] => {
             throw new Error(`Invalid amount for BalanceChange in cell: ${cell.name}`);
           }
         } else {
-          return new StaticEventCell(
-            EventCellTypes.staticEvent,
-            eventType,
-          );
+          return new StaticEventCell(eventType);
         }
-      } else if (cell.name === EventCellTypes.interactiveEvent && 'type' in cell) {
-        return new InteractiveEventCell(
-          EventCellTypes.interactiveEvent,
-          convertToEventType(cell.type),
-        );
+      } else if (cell.name === 'interactiveEvent' && 'type' in cell) {
+        return new InteractiveEventCell(convertToEventType(cell.type));
       } else {
         throw new Error(`Unknown cell type: ${cell}`);
       }
