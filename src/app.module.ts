@@ -9,18 +9,24 @@ import { LobbyModule } from './modules/lobby/lobby.module';
 
 @Module({
   imports: [
+    // Документация с наивысшим приоритетом
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'documentation', 'backend'),
+      serveRoot: '/docs/backend',
+    }),
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'comersant-frontend', 'documentation'),
       serveRoot: '/docs/frontend',
     }),
     ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', 'documentation'),
-      serveRoot: '/docs/backend',
+      rootPath: join(__dirname, '..', 'documentation', 'architecture'),
+      serveRoot: '/docs/architecture',
     }),
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'src', 'static'),
-      serveRoot: '/docs/',
+      serveRoot: '/docs',
     }),
+    // Angular приложение на корневом пути (но ПОСЛЕ документации)
     ServeStaticModule.forRoot({
       rootPath: join(
         __dirname,

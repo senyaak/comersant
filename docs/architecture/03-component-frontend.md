@@ -1,4 +1,6 @@
-# C4 Component Diagram - Frontend Architecture
+# Level 3 - C4 Component Diagram - Frontend Architecture
+
+**Description:** Detailed view of the Angular frontend internal structure showing modules, components, services, and routing.
 
 ```mermaid
 graph TB

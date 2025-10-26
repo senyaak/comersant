@@ -1,4 +1,6 @@
-# C4 Container Diagram - System Architecture
+# Level 2 - C4 Container Diagram - System Architecture
+
+**Description:** Shows the main technological components of the system and their interactions. The architecture separates frontend (Angular SPA), backend (NestJS API), and real-time communication (WebSocket).
 
 ```mermaid
 graph TB

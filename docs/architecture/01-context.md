@@ -1,4 +1,6 @@
-# C4 Context Diagram - System Context
+# Level 1 - C4 Context Diagram - System Context
+
+**Description:** Shows Comersant Game Platform in the context of players and administrators. The system provides a web interface for multiplayer board game sessions in real-time.
 
 ```mermaid
 graph TB
@@ -7,7 +9,7 @@ graph TB
     Admin["👨‍💼 System Administrator<br/>Manages the game platform<br/>and monitors system health"]
     
     %% Main System
-    Comersant["🎮 Comersant Game Platform<br/>Allows players to create game rooms,<br/>join multiplayer Comersant games,<br/>and play in real-time"]
+    Comersant["🎮 Comersant Game Platform<br/>Monopoly-style multiplayer board game.<br/>Allows players to create game rooms,<br/>join multiplayer Comersant games,<br/>and play in real-time"]
     
     %% External Systems
     Browser["🌐 Web Browser<br/>Player's web browser<br/>for accessing the game"]
@@ -32,7 +34,8 @@ graph TB
 
 **Key Features:**
 - **Real-time multiplayer** game platform
-- **Room management** system
+- **Room management** system  
 - **Turn-based gameplay** mechanics
 - **Property trading** functionality
 - **Real-time synchronization** between players
+- **WebSocket communication** for instant updates

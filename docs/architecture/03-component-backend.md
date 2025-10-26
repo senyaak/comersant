@@ -1,4 +1,6 @@
-# C4 Component Diagram - Backend Architecture
+# Level 3 - C4 Component Diagram - Backend Architecture
+
+**Description:** Detailed view of the NestJS backend internal structure showing modules, controllers, services, and the game engine.
 
 ```mermaid
 graph TB

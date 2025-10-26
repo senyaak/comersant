@@ -1,4 +1,6 @@
-# Game Turn Flow - Sequence Diagram
+# Level 4 - C4 - Game Turn Flow - Sequence Diagram
+
+**Description:** Shows the sequence of interactions during a game turn, demonstrating real-time synchronization between players.
 
 ```mermaid
 sequenceDiagram

@@ -1,23 +1,174 @@
-<html>
-  <head>
-    <style>
-      @media (prefers-color-scheme: dark) {
-        body {
-          background-color: #212121;
-          color: white;
-        }
-        a {
-          color: white;
-        }
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Comersant Platform Documentation</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      line-height: 1.6;
+      margin: 0;
+      padding: 20px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+      color: white;
+      padding: 40px;
+      text-align: center;
+    }
+
+    .header h1 {
+      margin: 0;
+      font-size: 2.5em;
+      font-weight: 300;
+    }
+
+    .header p {
+      margin: 10px 0 0 0;
+      opacity: 0.9;
+      font-size: 1.1em;
+    }
+
+    .docs-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 0;
+    }
+
+    .doc-card {
+      padding: 40px;
+      text-align: center;
+      border-right: 1px solid #eee;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .doc-card:last-child {
+      border-right: none;
+    }
+
+    .doc-card:hover {
+      background: #f8f9ff;
+      transform: translateY(-2px);
+    }
+
+    .doc-icon {
+      font-size: 3em;
+      margin-bottom: 20px;
+      display: block;
+    }
+
+    .doc-card h2 {
+      margin: 0 0 15px 0;
+      color: #333;
+      font-size: 1.5em;
+    }
+
+    .doc-card p {
+      margin: 0 0 25px 0;
+      color: #666;
+      line-height: 1.6;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 12px 24px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      text-decoration: none;
+      border-radius: 6px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      border: none;
+      cursor: pointer;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    }
+
+    .footer {
+      padding: 20px 40px;
+      background: #f5f5f5;
+      text-align: center;
+      color: #666;
+      font-size: 0.9em;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .container {
+        background: #2d3748;
       }
-    </style>
-    <title>Comersant Docs</title>
-  </head>
-  <body>
-    <div id="app">
-      <h1>Comersant Docs</h1>
-      <a href="backend">backend</a>
-      <a href="frontend">frontend</a>
+
+      .doc-card {
+        border-color: #4a5568;
+      }
+
+      .doc-card h2 {
+        color: #e2e8f0;
+      }
+
+      .doc-card p {
+        color: #a0aec0;
+      }
+
+      .footer {
+        background: #1a202c;
+        color: #a0aec0;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🎮 Comersant Platform</h1>
+      <p>Complete Documentation Portal</p>
     </div>
-  </body>
+
+    <div class="docs-grid">
+      <div class="doc-card">
+        <span class="doc-icon">🔧</span>
+        <h2>Backend API</h2>
+        <p>NestJS backend documentation with modules, services, controllers, and game logic</p>
+        <a href="./backend/index.html" class="btn">View Backend Docs</a>
+      </div>
+
+      <div class="doc-card">
+        <span class="doc-icon">🎨</span>
+        <h2>Frontend Components</h2>
+        <p>Angular application documentation with components, services, and modules</p>
+        <a href="./frontend/index.html" class="btn">View Frontend Docs</a>
+      </div>
+
+      <div class="doc-card">
+        <span class="doc-icon">📊</span>
+        <h2>Architecture</h2>
+        <p>C4 Model diagrams showing system architecture at different levels</p>
+        <a href="./architecture/index.html" class="btn">View Architecture</a>
+      </div>
+    </div>
+
+    <div class="footer">
+      Generated automatically | Comersant Game Platform
+    </div>
+  </div>
+</body>
+
 </html>

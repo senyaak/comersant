@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Architecture Diagrams - Comersant Platform</title>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      line-height: 1.6;
+      margin: 0;
+      padding: 20px;
+      background: #f8f9fa;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+      color: white;
+      padding: 40px;
+      text-align: center;
+    }
+
+    .header h1 {
+      margin: 0;
+      font-size: 2.5em;
+      font-weight: 300;
+    }
+
+    .header p {
+      margin: 10px 0 0 0;
+      opacity: 0.9;
+    }
+
+    .nav-links {
+      background: #e9ecef;
+      padding: 15px;
+      text-align: center;
+      border-bottom: 1px solid #dee2e6;
+    }
+
+    .nav-links a {
+      display: inline-block;
+      margin: 0 15px;
+      padding: 8px 16px;
+      background: white;
+      color: #495057;
+      text-decoration: none;
+      border-radius: 4px;
+      border: 1px solid #ced4da;
+      transition: all 0.3s ease;
+    }
+
+    .nav-links a:hover {
+      background: #007bff;
+      color: white;
+      border-color: #007bff;
+    }
+
+    .diagram-section {
+      padding: 40px;
+      border-bottom: 1px solid #eee;
+    }
+
+    .diagram-section:last-child {
+      border-bottom: none;
+    }
+
+    .diagram-section h2 {
+      color: #333;
+      margin-bottom: 20px;
+      font-size: 1.8em;
+      border-bottom: 2px solid #007bff;
+      padding-bottom: 10px;
+    }
+
+    .diagram-description {
+      background: #f8f9fa;
+      padding: 20px;
+      border-radius: 6px;
+      margin-bottom: 30px;
+      border-left: 4px solid #007bff;
+    }
+
+    .mermaid {
+      text-align: center;
+      margin: 20px 0;
+      background: white;
+      border: 1px solid #e9ecef;
+      border-radius: 6px;
+      padding: 20px;
+    }
+
+    .features {
+      background: #f8f9ff;
+      padding: 15px 20px;
+      border-radius: 6px;
+      margin-top: 20px;
+    }
+
+    .features h4 {
+      margin: 0 0 10px 0;
+      color: #495057;
+    }
+
+    .features ul {
+      margin: 0;
+      padding-left: 20px;
+    }
+
+    .features li {
+      margin: 5px 0;
+      color: #6c757d;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>📊 Architecture Diagrams</h1>
+      <p>C4 Model visualization of Comersant Platform architecture</p>
+    </div>
+
+    <div class="nav-links">
+      <a href="../backend/index.html">🔧 Backend API</a>
+      <a href="../frontend/index.html">🎨 Frontend Docs</a>
+      <a href="../index.html">📊 Architecture</a>
+    </div>
+
+    <!-- Level 1 - Context -->
+    <div class="diagram-section">
+      <h2>{{CONTEXT_TITLE}}</h2>
+      <div class="diagram-description">
+        <strong>Description:</strong> {{CONTEXT_DESCRIPTION}}
+      </div>
+
+      <div class="mermaid">
+        {{CONTEXT_DIAGRAM}}
+      </div>
+
+      <div class="features">
+        {{CONTEXT_FEATURES}}
+      </div>
+    </div>
+
+    <!-- Level 2 - Container -->
+    <div class="diagram-section">
+      <h2>{{CONTAINER_TITLE}}</h2>
+      <div class="diagram-description">
+        <strong>Description:</strong> {{CONTAINER_DESCRIPTION}}
+      </div>
+
+      <div class="mermaid">
+        {{CONTAINER_DIAGRAM}}
+      </div>
+
+      <div class="features">
+        {{CONTAINER_FEATURES}}
+      </div>
+    </div>
+
+    <!-- Level 3 - Backend Components -->
+    <div class="diagram-section">
+      <h2>{{BACKEND_TITLE}}</h2>
+      <div class="diagram-description">
+        <strong>Description:</strong> {{BACKEND_DESCRIPTION}}
+      </div>
+
+      <div class="mermaid">
+        {{BACKEND_DIAGRAM}}
+      </div>
+
+      <div class="features">
+        {{BACKEND_FEATURES}}
+      </div>
+    </div>
+
+    <!-- Level 3 - Frontend Components -->
+    <div class="diagram-section">
+      <h2>{{FRONTEND_TITLE}}</h2>
+      <div class="diagram-description">
+        <strong>Description:</strong> {{FRONTEND_DESCRIPTION}}
+      </div>
+
+      <div class="mermaid">
+        {{FRONTEND_DIAGRAM}}
+      </div>
+
+      <div class="features">
+        {{FRONTEND_FEATURES}}
+      </div>
+    </div>
+
+    <!-- Sequence Diagram -->
+    <div class="diagram-section">
+      <h2>{{SEQUENCE_TITLE}}</h2>
+      <div class="diagram-description">
+        <strong>Description:</strong> {{SEQUENCE_DESCRIPTION}}
+      </div>
+
+      <div class="mermaid">
+        {{SEQUENCE_DIAGRAM}}
+      </div>
+
+      <div class="features">
+        {{SEQUENCE_FEATURES}}
+      </div>
+    </div>
+  </div>
+
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'default',
+      securityLevel: 'loose',
+      flowchart: {
+        useMaxWidth: true,
+        htmlLabels: true
+      }
+    });
+  </script>
+</body>
+
+</html>
