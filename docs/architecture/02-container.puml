@@ -1,0 +1,52 @@
+@startuml C4_Container
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+LAYOUT_WITH_LEGEND()
+
+title Container diagram for Comersant Game Platform
+
+Person(player, "Game Player", "A person who wants to play the Comersant board game online")
+
+System_Boundary(c1, "Comersant Game Platform") {
+    Container(spa, "Single Page Application", "Angular 16, TypeScript", "Provides the game interface, lobby management, and real-time game board to players via web browser")
+    Container(api, "API Application", "NestJS, TypeScript", "Provides REST APIs for room management and serves static content")
+    Container(websocket, "WebSocket Server", "Socket.IO, NestJS", "Handles real-time communication for lobby events and game state synchronization")
+    Container(gameEngine, "Game Engine", "TypeScript Classes", "Manages game logic, player turns, property transactions, and board state")
+    Container(staticFiles, "Static File Server", "NestJS ServeStatic", "Serves documentation, compiled frontend, and static assets")
+}
+
+System_Ext(browser, "Web Browser", "Player's web browser")
+System_Ext(compodoc, "Compodoc Documentation", "Generated API documentation")
+
+Rel(player, browser, "Uses", "HTTPS")
+Rel(browser, spa, "Loads and interacts", "HTTPS")
+Rel(spa, api, "Makes API calls", "HTTPS/JSON")
+Rel(spa, websocket, "Real-time communication", "WebSocket")
+
+Rel(websocket, gameEngine, "Manages game state", "Method calls")
+Rel(api, websocket, "Room management", "Direct calls")
+Rel(staticFiles, spa, "Serves built app", "HTTP")
+Rel(staticFiles, compodoc, "Serves docs", "HTTP")
+
+note right of spa
+  Angular Modules:
+  - Lobby Module
+  - Game Module
+  - Shared Components
+end note
+
+note right of websocket
+  Two namespaces:
+  - /lobby (room management)
+  - /game (gameplay events)
+end note
+
+note right of gameEngine
+  Core game logic:
+  - Board management
+  - Player mechanics  
+  - Property system
+  - Turn processing
+end note
+
+@enduml

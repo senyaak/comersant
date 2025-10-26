@@ -1,0 +1,84 @@
+@startuml C4_Component_Frontend
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+LAYOUT_WITH_LEGEND()
+
+title Component diagram for Comersant Frontend (Angular SPA)
+
+Container(backend, "NestJS Backend", "API & WebSocket", "Game logic and room management")
+
+Container_Boundary(spa, "Angular Single Page Application") {
+    Component(appModule, "App Module", "Angular Module", "Root module with routing configuration")
+    Component(appComponent, "App Component", "Angular Component", "Root component with router outlet")
+    Component(appRouting, "App Routing", "Angular Routing", "Main routes: /lobby, /game")
+    
+    Component(lobbyModule, "Lobby Module", "Angular Module", "Lazy-loaded module for room management")
+    Component(lobbyComponents, "Lobby Components", "Angular Components", "MainComponent, RoomComponent, SetNameComponent, etc.")
+    Component(lobbyService, "Lobby Service", "Angular Service", "WebSocket connection to /lobby namespace")
+    Component(lobbyRouting, "Lobby Routing", "Angular Routing", "Routes: /, /:room")
+    
+    Component(gameModule, "Game Module", "Angular Module", "Lazy-loaded module for gameplay")
+    Component(gameMainComponent, "Game Main Component", "Angular Component", "Main game container component")
+    Component(gameBoardComponent, "Game Board Component", "Angular Component", "Renders game board and cells")
+    Component(gameUIComponents, "Game UI Components", "Angular Components", "GameControl, PlayerInfo, PropertyPanel")
+    Component(gameService, "Game Service", "Angular Service", "WebSocket connection to /game namespace")
+    Component(gameStateService, "Game State Service", "Angular Service", "Local game state management")
+    Component(gameEventsService, "Game Events Service", "Angular Service", "Game event coordination")
+    Component(gameRouting, "Game Routing", "Angular Routing", "Route: /:gameId")
+    
+    Component(sharedServices, "Shared Services", "Angular Services", "UserSettings, Translation, Common utilities")
+    Component(sharedModels, "Shared Models", "TypeScript Interfaces", "Types imported from backend models")
+}
+
+Rel(appModule, appRouting, "configures")
+Rel(appModule, lobbyModule, "lazy loads")
+Rel(appModule, gameModule, "lazy loads")
+Rel(appComponent, appRouting, "uses")
+
+Rel(lobbyModule, lobbyComponents, "declares")
+Rel(lobbyModule, lobbyService, "provides")
+Rel(lobbyModule, lobbyRouting, "configures")
+Rel(lobbyComponents, lobbyService, "uses")
+
+Rel(gameModule, gameMainComponent, "declares")
+Rel(gameModule, gameBoardComponent, "declares") 
+Rel(gameModule, gameUIComponents, "declares")
+Rel(gameModule, gameService, "provides")
+Rel(gameModule, gameStateService, "provides")
+Rel(gameModule, gameEventsService, "provides")
+Rel(gameModule, gameRouting, "configures")
+
+Rel(gameMainComponent, gameBoardComponent, "contains")
+Rel(gameMainComponent, gameUIComponents, "contains")
+Rel(gameUIComponents, gameService, "uses")
+Rel(gameUIComponents, gameStateService, "uses")
+Rel(gameService, gameEventsService, "coordinates with")
+
+Rel(lobbyService, backend, "WebSocket /lobby", "WebSocket")
+Rel(gameService, backend, "WebSocket /game", "WebSocket")
+Rel(sharedModels, backend, "imports types")
+
+note right of lobbyService
+  Lobby events:
+  - createRoom
+  - enterRoom
+  - startGame
+  - setName
+end note
+
+note right of gameService
+  Game events:
+  - nextTurn
+  - buyProperty
+  - handleGameState
+end note
+
+note right of gameBoardComponent
+  Renders:
+  - Board cells
+  - Player pawns
+  - Property states
+  - Cell interactions
+end note
+
+@enduml

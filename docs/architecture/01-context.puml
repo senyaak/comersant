@@ -1,0 +1,30 @@
+@startuml C4_Context
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+
+LAYOUT_WITH_LEGEND()
+
+title System Context diagram for Comersant Game Platform
+
+Person(player, "Game Player", "A person who wants to play the Comersant board game online")
+Person(admin, "System Administrator", "Manages the game platform and monitors system health")
+
+System(comersant, "Comersant Game Platform", "Allows players to create game rooms, join multiplayer Comersant (Monopoly-style) games, and play in real-time")
+
+System_Ext(browser, "Web Browser", "Player's web browser for accessing the game")
+System_Ext(docs, "Documentation System", "Compodoc generated documentation for frontend and backend")
+
+Rel(player, browser, "Uses", "HTTPS")
+Rel(browser, comersant, "Plays games, creates rooms", "HTTPS/WebSocket")
+Rel(admin, docs, "Views documentation", "HTTPS")
+Rel(admin, comersant, "Monitors system", "HTTPS")
+Rel(comersant, docs, "Serves documentation", "HTTP")
+
+note right of comersant
+  Real-time multiplayer game platform
+  - Room management
+  - Turn-based gameplay
+  - Property trading
+  - Real-time synchronization
+end note
+
+@enduml

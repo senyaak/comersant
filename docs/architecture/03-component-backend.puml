@@ -1,0 +1,69 @@
+@startuml C4_Component_Backend
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+LAYOUT_WITH_LEGEND()
+
+title Component diagram for Comersant Backend (API & WebSocket)
+
+Container(spa, "Single Page Application", "Angular", "Game interface and lobby")
+
+Container_Boundary(api, "NestJS Backend") {
+    Component(appModule, "App Module", "NestJS Module", "Main application module that orchestrates all other modules")
+    Component(appController, "App Controller", "NestJS Controller", "Handles basic application routes and health checks")
+    
+    Component(lobbyModule, "Lobby Module", "NestJS Module", "Manages game rooms and player connections")
+    Component(roomsController, "Rooms Controller", "NestJS Controller", "REST endpoints for room management")
+    Component(lobbyGateway, "Lobby Gateway", "WebSocket Gateway", "Handles lobby WebSocket events (join, create room, etc.)")
+    
+    Component(gameModule, "Game Module", "NestJS Module", "Manages active games and game logic")
+    Component(gamesController, "Games Controller", "NestJS Controller", "REST endpoints for game management")
+    Component(gamesService, "Games Service", "NestJS Service", "Manages multiple game instances")
+    Component(gameGateway, "Game Gateway", "WebSocket Gateway", "Handles game WebSocket events (turns, moves, etc.)")
+    
+    Component(gameEngine, "Game Engine", "TypeScript Class", "Core game logic and state management")
+    Component(gameModels, "Game Models", "TypeScript Classes", "Player, Board, Cell, Property models")
+    Component(gameUtils, "Game Utilities", "TypeScript Functions", "Validation decorators and helper functions")
+    
+    Component(staticServer, "Static Server", "ServeStatic Module", "Serves documentation and frontend assets")
+}
+
+Rel(spa, roomsController, "GET /lobby", "HTTPS")
+Rel(spa, gamesController, "Game management", "HTTPS")
+Rel(spa, lobbyGateway, "Room events", "WebSocket /lobby")
+Rel(spa, gameGateway, "Game events", "WebSocket /game")
+
+Rel(appModule, lobbyModule, "imports")
+Rel(appModule, gameModule, "imports")
+Rel(appModule, staticServer, "configures")
+
+Rel(lobbyModule, roomsController, "provides")
+Rel(lobbyModule, lobbyGateway, "provides")
+Rel(roomsController, lobbyGateway, "uses")
+
+Rel(gameModule, gamesController, "provides")
+Rel(gameModule, gamesService, "provides")
+Rel(gameModule, gameGateway, "provides")
+
+Rel(lobbyGateway, gamesService, "creates games")
+Rel(gameGateway, gamesService, "manages games")
+Rel(gamesService, gameEngine, "creates and manages")
+
+Rel(gameEngine, gameModels, "uses")
+Rel(gameGateway, gameUtils, "uses validation")
+
+note right of gameEngine
+  Core game mechanics:
+  - Turn management
+  - Property transactions
+  - Player movement
+  - Event handling
+end note
+
+note right of gameGateway
+  Real-time events:
+  - nextTurn
+  - buyProperty
+  - player_moved
+end note
+
+@enduml
