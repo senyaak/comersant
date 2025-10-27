@@ -5,9 +5,14 @@
     "skipLibCheck": true,
     "baseUrl": "./",
     "paths": {
-      "$server/*": ["./../src/*"],
-      "$i18n/*": ["./src/app/i18n/*"]
+      "$server/*": [
+        "./../src/*"
+      ],
+      "$i18n/*": [
+        "./src/app/i18n/*"
+      ]
     },
+    "esModuleInterop": true,
     "outDir": "./dist/out-tsc",
     "forceConsistentCasingInFileNames": true,
     "strict": true,
@@ -17,15 +22,17 @@
     "noFallthroughCasesInSwitch": false,
     "sourceMap": true,
     "declaration": false,
-    "downlevelIteration": true,
     "experimentalDecorators": true,
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "importHelpers": true,
     "target": "ES2022",
     "module": "ES2022",
     "useDefineForClassFields": false,
     "strictPropertyInitialization": true,
-    "lib": ["ES2022", "dom"]
+    "lib": [
+      "ES2022",
+      "dom"
+    ]
   },
   "exclude": ["node_modules", "**/node_modules", "dist", "**/*.spec.ts"],
   "angularCompilerOptions": {
