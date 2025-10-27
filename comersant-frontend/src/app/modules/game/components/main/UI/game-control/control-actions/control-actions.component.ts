@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit } from '@angular/core';
 import { GameEventsService } from 'src/app/modules/game/services/game-events.service';
 import { GameService } from 'src/app/modules/game/services/game.service';
 
@@ -52,6 +52,13 @@ export class ControlActionsComponent implements OnInit {
     }
 
     return 'Next Turn';
+  }
+
+  @HostListener('document:keydown.e', ['$event'])
+  handleKeyE(event: KeyboardEvent) {
+    console.log('Нажата клавиша E');
+    event.preventDefault();
+    this.onNextTurn();
   }
 
   /**

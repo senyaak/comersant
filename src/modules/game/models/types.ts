@@ -1,4 +1,5 @@
 import { ServerToClientEvents } from '../services/events/types';
+import { EventType } from './events';
 import { Cards } from './FieldModels/cards';
 import { IGame } from './GameModels/igame';
 import { Player } from './GameModels/player';
@@ -37,9 +38,12 @@ export interface IDiceResult {
   newPlayerPosition?: number;
 }
 
+/** do not create union for better dev experience */
 export interface IEventResult {
   taxPaid?: { amount: number, toPlayerId: Player['id'] };
   cardDrawn?: { cardKey: keyof Cards, card: Cards[keyof Cards] };
+  staticEvent?: EventType.BalanceChange | EventType.SkipTurn | EventType.TaxService;
+  interactiveEvent?: EventType.MoveToCenter | EventType.Raccito;
 }
 //#endregion turn events results
 //#region c2s events results

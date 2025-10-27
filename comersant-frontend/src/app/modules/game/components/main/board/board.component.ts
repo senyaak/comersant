@@ -86,8 +86,8 @@ export class BoardComponent implements OnInit, OnChanges {
       item.type === EventType.MoveToCenter
     ) {
       return 'MoveToCenter';
-    } else if (item instanceof InteractiveEventCell && item.type === EventType.Racitto) {
-      return 'Racitto';
+    } else if (item instanceof InteractiveEventCell && item.type === EventType.Raccito) {
+      return 'Raccito';
     } else if (item instanceof StaticEventCell && item.type === EventType.SkipTurn) {
       return 'SkipTurn';
     } else if (item instanceof InnerStartCell) {

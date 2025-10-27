@@ -215,7 +215,7 @@ function createCells(): Cell[][] {
           ]),
         ),
         new CardEventCell('surpise'),
-        new InteractiveEventCell(ET.Racitto),
+        new InteractiveEventCell(ET.Raccito),
         new PropertyCell(
           'kiosk',
           new PrivateBusiness(BussinessGroups.Farm, 41_000, 35_000, [
@@ -258,7 +258,7 @@ function createCells(): Cell[][] {
         ),
         new CardEventCell('post'),
         new PropertyCell('Site', new AreaSite(20_000)),
-        new InteractiveEventCell(ET.Racitto),
+        new InteractiveEventCell(ET.Raccito),
         new PropertyCell(
           'spartak',
           new PrivateBusiness(BussinessGroups.Stadium, 15_000, 15_000, [
@@ -288,7 +288,7 @@ function createCells(): Cell[][] {
         ),
         new StaticEventCell(ET.SkipTurn),
         new CardEventCell('risk'),
-        new StaticEventCell(ET.MoveToCenter),
+        new InteractiveEventCell(ET.MoveToCenter),
         new PropertyCell(
           'concerthall',
           new PrivateBusiness(BussinessGroups.Arena, 31_000, 26_000, [
@@ -319,7 +319,7 @@ function createCells(): Cell[][] {
       ] satisfies Cell[],
       [
         new InnerStartCell(),
-        new InteractiveEventCell(ET.Racitto),
+        new InteractiveEventCell(ET.Raccito),
         new CardEventCell('surpise'),
         new StaticEventCell(
           ET.BalanceChange,
@@ -363,7 +363,7 @@ function createCells(): Cell[][] {
         ),
         new PropertyCell('Site', new AreaSite(12_000)),
         new CardEventCell('post'),
-        new InteractiveEventCell(ET.TaxService),
+        new StaticEventCell(ET.TaxService),
         new PropertyCell(
           'culture',
           new GovBusiness(40_000, 35_000, [
@@ -373,8 +373,8 @@ function createCells(): Cell[][] {
             [150_000, 16_000],
           ]),
         ),
-        new StaticEventCell(ET.MoveToCenter),
-        new InteractiveEventCell(ET.Racitto),
+        new InteractiveEventCell(ET.MoveToCenter),
+        new InteractiveEventCell(ET.Raccito),
         new StaticEventCell(
           ET.BalanceChange,
           14_000,

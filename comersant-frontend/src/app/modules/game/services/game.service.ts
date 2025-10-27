@@ -133,12 +133,16 @@ export class GameService {
       this.game.getValue().nextTurn();
       this.turnFinished$.next(result);
     });
-    this.socket.on('event_result', (result) => {
-      if(result.taxPaid) {
-        // result.taxPaid.toPlayerId;
-        this.Game.players.find(player => player.Id === result.taxPaid?.toPlayerId)
-          ?.changeMoney(result.taxPaid.amount);
-        this.Game.players[this.Game.CurrentPlayer].changeMoney(-result.taxPaid.amount);
+    this.socket.on('event_result', (results) => {
+      for(const result of results) {
+        if(result.taxPaid) {
+          // result.taxPaid.toPlayerId;
+          this.Game.players.find(player => player.Id === result.taxPaid?.toPlayerId)
+            ?.changeMoney(result.taxPaid.amount);
+          this.Game.players[this.Game.CurrentPlayer].changeMoney(-result.taxPaid.amount);
+        }
+        // TODO:!!
+        // if() {}
       }
       // this.gameStateService.handleEventResult(result);
     });

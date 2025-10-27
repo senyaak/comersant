@@ -6,7 +6,7 @@ export enum EventType {
   MoneyTransfer,
   SkipTurn,
   TaxService,
-  Racitto,
+  Raccito,
   // TODO: consider implement random amount?
   Move,
   MoveTo,
@@ -80,7 +80,11 @@ export interface PropertyLossEvent extends BaseEvent {
   type: EventType.PropertyLoss;
 }
 
-export type Event =
+export interface TaxServiceEvent extends BaseEvent {
+  type: EventType.TaxService;
+}
+
+export type GameEvent =
   | BalanceChangeEvent
   | SkipTurnEvent
   | MoveToEvent
@@ -89,4 +93,5 @@ export type Event =
   | MoneyTransferEvent
   | MoveEvent
   | MovePlayerEvent
-  | PropertyLossEvent;
+  | PropertyLossEvent
+  | TaxServiceEvent;

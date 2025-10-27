@@ -15,6 +15,8 @@ export interface IRawPlayer {
   name: string;
   money: number;
   position: number;
+  raccito: boolean;
+  raccitoCounter: number;
 }
 
 export class Player {
@@ -24,6 +26,8 @@ export class Player {
   private money: IRawPlayer['money'] = 150_000;
   private readonly name: IRawPlayer['name'];
   private position: IRawPlayer['position'] = 0;
+  private raccito: boolean = false;
+  private raccitoCounter: number = 0;
   /**
    *  items: Item[];
    */
@@ -79,6 +83,14 @@ export class Player {
     return this.position;
   }
 
+  get Raccito(): boolean {
+    return this.raccito;
+  }
+
+  get RaccitoCounter(): number {
+    return this.raccitoCounter;
+  }
+
   private isArgumentPlayer(entity: unknown): entity is IRawPlayer {
     return typeof entity !== 'string' &&
     'id' in (entity as IRawPlayer) &&
@@ -94,12 +106,31 @@ export class Player {
   move(steps: number): void {
     // Board.cellsCounter;
     if(this.freezeTurns > 0) {
-      this.freezeTurns -= 1;
-      console.log('player', this.name, 'is frozen for', this.freezeTurns, 'more turns');
-      return;
+      // TODO: handle in event service? since we have to send event to FE...
+      // this.freezeTurns -= 1;
+      // console.log('player', this.name, 'is frozen for', this.freezeTurns, 'more turns');
+      throw new Error('Player is frozen and cannot move');
     }
+    if(this.raccitoCounter > 0) {
+      this.raccitoCounter -= steps;
+    }
+
     console.log('move player', this.name, 'by', steps, 'new position:', (this.position + steps) % Board.CellsCounter);
     this.position = (this.position + steps) % Board.CellsCounter;
+  }
+
+  removeRaccito(): void {
+    if(this.raccitoCounter > 0) {
+      throw new Error('Cannot remove raccito while counter is active');
+    }
+    this.raccito = false;
+    this.raccitoCounter = 0;
+  }
+
+  setRaccito(): void {
+    // TODO: drop security items
+    this.raccito = true;
+    this.raccitoCounter = Board.CellsCounter * 2;
   }
 
   skipTurn(): void {

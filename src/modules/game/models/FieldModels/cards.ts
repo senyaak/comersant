@@ -1,19 +1,23 @@
-import { Event, EventItem, EventType } from './../events';
+import { GameEvent, EventItem, EventType } from './../events';
 
 export interface Cards {
-  [key: string]: Event;
+  [key: string]: GameEvent;
+}
+
+export function getCardsByType(type: 'post' | 'risk' | 'surpise'): Cards {
+  switch (type) {
+    case 'post':
+      return Post;
+    case 'risk':
+      return Risk;
+    case 'surpise':
+      return Surprise;
+    default:
+      throw new Error(`Invalid card type: ${type}`);
+  }
 }
 
 export const Post: Cards = {
-  /* skip turn events */
-  YSTTickets: {
-    msg: 'Вам купили билеты на спектакль в тюз',
-    type: EventType.SkipTurn,
-  },
-  theaterTickets: {
-    msg: 'Вам купили билеты в театр оперы и балета',
-    type: EventType.SkipTurn,
-  },
   /* balance change events */
   grant: {
     msg: 'Вам предоставлен президентский гранд 25000',
@@ -141,13 +145,21 @@ export const Post: Cards = {
   },
   moveToTaxOffice: {
     msg: 'Вас вызывают в налоговую службу',
-    type: EventType.MoveTo,
-    to: 'interactiveEvent',
+    type: EventType.TaxService,
   },
   moveToTaxOffice2: {
     msg: 'Вас вызывают в налоговую службу',
+    type: EventType.TaxService,
+  },
+  YSTTickets: {
+    msg: 'Вам купили билеты на спектакль в тюз',
     type: EventType.MoveTo,
-    to: 'interactiveEvent',
+    to: 'children_theater',
+  },
+  theaterTickets: {
+    msg: 'Вам купили билеты в театр оперы и балета',
+    type: EventType.MoveTo,
+    to: 'ballet',
   },
   moveToRestoran: {
     msg: 'Посетите банкет в ресторане',
@@ -303,13 +315,11 @@ export const Surprise: Cards = {
   },
   moveToTaxOffice: {
     msg: 'Вас вызывают в налоговую службу',
-    type: EventType.MoveTo,
-    to: 'interactiveEvent',
+    type: EventType.TaxService,
   },
   moveToTaxOffice2: {
     msg: 'Вас вызывают в налоговую службу',
-    type: EventType.MoveTo,
-    to: 'interactiveEvent',
+    type: EventType.TaxService,
   },
   moveToLuzhniki: {
     msg: 'Вы приглашены на концерт в Лужниках',
@@ -480,7 +490,7 @@ export const Risk: Cards = {
     type: EventType.MoveTo,
     to: 'Start',
   },
-  moveToSovkhoz: {
+  moveToStatefarm: {
     msg: 'На утро после юбилея вы очнулись в совхозе',
     type: EventType.MoveTo,
     to: 'statefarm',
