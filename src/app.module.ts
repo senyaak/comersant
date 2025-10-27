@@ -34,6 +34,7 @@ import { LobbyModule } from './modules/lobby/lobby.module';
         'comersant-frontend',
         'dist',
         'comersant-frontend',
+        'browser',
       ),
     }),
     LobbyModule,
