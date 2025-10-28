@@ -1,10 +1,11 @@
 import { GameEvent, EventItem, EventType } from './../events';
+import { CardEventCellTypes } from './cells';
 
 export interface Cards {
   [key: string]: GameEvent;
 }
 
-export function getCardsByType(type: 'post' | 'risk' | 'surpise'): Cards {
+export function getCardsByType(type: CardEventCellTypes): Cards {
   switch (type) {
     case 'post':
       return Post;

@@ -4,6 +4,7 @@ import { EventItem, EventType, GameEvent } from '../events';
 import { Cards, getCardsByType } from '../FieldModels/cards';
 import {
   CardEventCell,
+  CardEventCellTypes,
   EventCell, InteractiveEventCell, PropertyCell, StaticEventCell,
 } from '../FieldModels/cells';
 import { IDiceResult, IEventResult, ITurnResult, PropertyBoughtResultSuccess, RollTurnResult } from '../types';
@@ -142,12 +143,14 @@ export class Game extends IGame {
         switch(card.item) {
           // Handle different items if needed
           case EventItem.Mail:
-            console.log('mail item');
+            results.push(...this.prepareCard('post'));
             break;
           case EventItem.Risk:
+            results.push(...this.prepareCard('risk'));
             console.log('risk item');
             break;
           case EventItem.Surprise:
+            results.push(...this.prepareCard('surpise'));
             console.log('surprise item');
             break;
           case EventItem.TaxFree:
@@ -187,17 +190,7 @@ export class Game extends IGame {
     const result: IEventResult[] = [];
     console.log('handle event cell');
     if(cell instanceof CardEventCell) {
-      const deck = getCardsByType(cell.type);
-      const cardKeys: (keyof Cards)[] = Object.keys(deck);
-      const randomKey: keyof Cards = cardKeys[Math.floor(Math.random() * cardKeys.length)];
-      const card = deck[randomKey as keyof typeof deck];
-      console.log(card.type);
-      console.log('Drew card:', card);
-
-      // todo: checl if valid
-      result.push(...this.handleCardEvent(card, `${randomKey}`));
-      // REMOVE: reminder - handle move to center/player events!
-      result.push({cardDrawn: {cardKey: randomKey, card}});
+      result.push(...this.prepareCard(cell.type));
     } else if(cell instanceof StaticEventCell) {
       console.log('static event cell');
       switch(cell.type) {
@@ -318,6 +311,20 @@ export class Game extends IGame {
       this.currentPlayer = (this.currentPlayer + 1) % this.players.length;
     }
     return result;
+  }
+
+  prepareCard(type: CardEventCellTypes): IEventResult[] {
+    const deck = getCardsByType(type);
+    const cardKeys: (keyof Cards)[] = Object.keys(deck);
+    const randomKey: keyof Cards = cardKeys[Math.floor(Math.random() * cardKeys.length)];
+    const card = deck[randomKey as keyof typeof deck];
+    console.log(card.type);
+    console.log('Drew card:', card);
+
+    // REMOVE: reminder - handle move to center/player events!
+    // todo: check if type of randomKey is valid
+    // result.push({cardDrawn: {cardKey: randomKey, card}});
+    return this.handleCardEvent(card, `${randomKey}`);
   }
 
   /** transfer money from other player to current player (eg birthday) */
