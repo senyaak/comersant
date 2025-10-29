@@ -2,6 +2,7 @@ import { ServerToClientEvents } from '../services/events/types';
 import { EventType } from './events';
 import { Cards } from './FieldModels/cards';
 import { IGame } from './GameModels/igame';
+import { ItemType } from './GameModels/items';
 import { Player } from './GameModels/player';
 
 //#region turn events results
@@ -44,6 +45,8 @@ export interface IEventResult {
   cardDrawn?: { cardKey: keyof Cards, card: Cards[keyof Cards] };
   staticEvent?: EventType.BalanceChange | EventType.SkipTurn | EventType.TaxService;
   interactiveEvent?: EventType.MoveToCenter | EventType.Raccito;
+  itemReceived?: ItemType;
+  propertyLost?: { propertyIndex: number | null };
 }
 //#endregion turn events results
 //#region c2s events results

@@ -9,8 +9,10 @@ import {
 } from '../FieldModels/cells';
 import { IDiceResult, IEventResult, ITurnResult, PropertyBoughtResultSuccess, RollTurnResult } from '../types';
 import { IGame } from './igame';
+import { ItemType } from './items';
 import { Player, PlayerColor } from './player';
-import { GovBusiness } from './properties';
+import { Business, BussinessGrade, GovBusiness } from './properties';
+import { GameStateType, StateManager } from './state-manager';
 import { Turn } from './turn';
 
 // Type constraint to ensure the method has playerId as first parameter
@@ -34,6 +36,29 @@ function ValidateActivePlayer<T extends unknown[], R>(
   return descriptor;
 }
 
+// Decorator to require specific game state
+function RequireGameState(requiredState: GameStateType) {
+  return function(
+    target: unknown,
+    propertyKey: string,
+    descriptor: PropertyDescriptor,
+  ): PropertyDescriptor {
+    const originalMethod = descriptor.value!;
+
+    descriptor.value = function(this: Game, ...args: unknown[]): unknown {
+      if (!this.stateManager.isStateValid(requiredState)) {
+        const currentState = this.stateManager.state;
+        throw new Error(
+          `Action not allowed in current game state. Required: ${requiredState}, Current: ${currentState}`,
+        );
+      }
+      return originalMethod.apply(this, args);
+    };
+
+    return descriptor;
+  };
+}
+
 export interface PlayersSettings {
   id: string;
   name: string;
@@ -42,6 +67,7 @@ export interface PlayersSettings {
 export class Game extends IGame {
   public override readonly id: string;
   public override readonly players: Player[];
+  public readonly stateManager: StateManager = new StateManager();
 
   constructor(players: { id: string, name: string }[]) {
     super();
@@ -53,6 +79,17 @@ export class Game extends IGame {
     this.players = players.map((player, counter) => {
       return new Player(player.id, Object.values(PlayerColor)[counter], player.name);
     });
+  }
+
+  /** transfer money from other player to current player (eg birthday) */
+  private transferMoney(amount: number): void {
+    for (const player of this.players) {
+      if (player.Id !== this.players[this.CurrentPlayer].Id) {
+        player.changeMoney(-amount);
+      } else {
+        player.changeMoney(amount * (this.players.length - 1));
+      }
+    }
   }
 
   /** current player wants to buy property */
@@ -107,6 +144,7 @@ export class Game extends IGame {
     return {propertyIndex, newOwnerId: newOwner.Id, success: true, price, oldOwnerId};
   }
 
+  @RequireGameState(GameStateType.Active)
   handleCardEvent(card: GameEvent, randomKey: string): IEventResult[] {
     const results: IEventResult[] = [];
     results.push({cardDrawn: {cardKey: randomKey, card}});
@@ -147,17 +185,17 @@ export class Game extends IGame {
             break;
           case EventItem.Risk:
             results.push(...this.prepareCard('risk'));
-            console.log('risk item');
             break;
           case EventItem.Surprise:
-            results.push(...this.prepareCard('surpise'));
-            console.log('surprise item');
+            results.push(...this.prepareCard('surprise'));
             break;
           case EventItem.TaxFree:
-            console.log('tax free item');
+            this.players[this.CurrentPlayer].giveItem(ItemType.TaxFree);
+            results.push({itemReceived: ItemType.TaxFree});
             break;
           case EventItem.Security:
-            console.log('security item');
+            this.players[this.CurrentPlayer].giveItem(ItemType.Security);
+            results.push({itemReceived: ItemType.Security});
             break;
           default:
             throw new Error('Unknown event item!');
@@ -167,6 +205,7 @@ export class Game extends IGame {
         this.transferMoney(card.amount);
         break;
       case EventType.PropertyLoss:
+        this.loseProperty(card.grade);
         break;
       case EventType.TaxService: {
         const currPos = this.players[this.CurrentPlayer].Position;
@@ -186,6 +225,7 @@ export class Game extends IGame {
     return results;
   }
 
+  @RequireGameState(GameStateType.Active)
   handleEvent(cell: EventCell): IEventResult[] {
     const result: IEventResult[] = [];
     console.log('handle event cell');
@@ -225,6 +265,7 @@ export class Game extends IGame {
     return result;
   }
 
+  @RequireGameState(GameStateType.Active)
   @ValidateActivePlayer
   handlePlayerMoved(playerId: string): [IEventResult[]] {
     const results: [IEventResult[]] = [[]];
@@ -260,6 +301,28 @@ export class Game extends IGame {
      */
   }
 
+  @RequireGameState(GameStateType.Active)
+  loseProperty(grade: BussinessGrade.Enterprise | BussinessGrade.Office): IEventResult[] {
+    const results: IEventResult[] = [];
+    const validPropsToLose = this.board.flatCells
+      .filter((cell) => PropertyCell.isPropertyCell(cell))
+      .filter((cell) => cell.object.owner === this.players[this.CurrentPlayer].Id)
+      .filter((cell) => Business.isBusiness(cell.object) && cell.object.grade === grade);
+    if (validPropsToLose.length === 0) {
+      console.log('No properties to lose for grade', grade);
+      results.push({propertyLost: {propertyIndex: null}});
+    } else {
+      const randomIndex = Math.floor(Math.random() * validPropsToLose.length);
+      const propertyToLose = validPropsToLose[randomIndex];
+      propertyToLose.object.owner = null;
+      results.push({propertyLost: {propertyIndex: this.board.flatCells.indexOf(propertyToLose)}});
+      console.log('Property lost:', propertyToLose);
+    }
+
+    return results;
+  }
+
+  @RequireGameState(GameStateType.Active)
   @ValidateActivePlayer
   public nextTurn(playerId: string, diceCounter?: number): ITurnResult {
     const result: ITurnResult = {};
@@ -313,29 +376,19 @@ export class Game extends IGame {
     return result;
   }
 
+  @RequireGameState(GameStateType.Active)
   prepareCard(type: CardEventCellTypes): IEventResult[] {
     const deck = getCardsByType(type);
     const cardKeys: (keyof Cards)[] = Object.keys(deck);
     const randomKey: keyof Cards = cardKeys[Math.floor(Math.random() * cardKeys.length)];
     const card = deck[randomKey as keyof typeof deck];
-    console.log(card.type);
+    console.log('prepare card', card.type);
     console.log('Drew card:', card);
 
     // REMOVE: reminder - handle move to center/player events!
     // todo: check if type of randomKey is valid
     // result.push({cardDrawn: {cardKey: randomKey, card}});
     return this.handleCardEvent(card, `${randomKey}`);
-  }
-
-  /** transfer money from other player to current player (eg birthday) */
-  transferMoney(amount: number): void {
-    for (const player of this.players) {
-      if (player.Id !== this.players[this.CurrentPlayer].Id) {
-        player.changeMoney(-amount);
-      } else {
-        player.changeMoney(amount * (this.players.length - 1));
-      }
-    }
   }
 
 }

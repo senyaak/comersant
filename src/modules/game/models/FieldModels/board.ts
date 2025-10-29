@@ -134,7 +134,7 @@ function createCells(): Cell[][] {
           -25000,
         ),
         new PropertyCell('Site', new AreaSite(15000)),
-        new CardEventCell('surpise'),
+        new CardEventCell('surprise'),
         new PropertyCell(
           'toys',
           new GovBusiness(40_000, 32_000, [
@@ -214,7 +214,7 @@ function createCells(): Cell[][] {
             [230_000, 21_000],
           ]),
         ),
-        new CardEventCell('surpise'),
+        new CardEventCell('surprise'),
         new InteractiveEventCell(ET.Raccito),
         new PropertyCell(
           'kiosk',
@@ -320,7 +320,7 @@ function createCells(): Cell[][] {
       [
         new InnerStartCell(),
         new InteractiveEventCell(ET.Raccito),
-        new CardEventCell('surpise'),
+        new CardEventCell('surprise'),
         new StaticEventCell(
           ET.BalanceChange,
           11_000,

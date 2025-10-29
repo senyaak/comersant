@@ -3,7 +3,7 @@
 import { BussinessGroups } from '../FieldModels/board';
 import { Player } from './player';
 
-enum BussinessGrade {
+export enum BussinessGrade {
   Area = 0,
   Office = 1,
   Department = 2,

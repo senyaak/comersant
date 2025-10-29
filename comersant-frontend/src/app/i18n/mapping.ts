@@ -69,7 +69,7 @@ export const shoes = _('shoes');
 export const canning = _('сanning'); // Note: Cyrillic 'с'
 /**============================*/
 
-export const surpise = _('surpise');
+export const surprise = _('surprise');
 export const post = _('post');
 export const risk = _('risk');
 

@@ -1,3 +1,4 @@
+import { BussinessGrade } from '../GameModels/properties';
 import { GameEvent, EventItem, EventType } from './../events';
 import { CardEventCellTypes } from './cells';
 
@@ -11,7 +12,7 @@ export function getCardsByType(type: CardEventCellTypes): Cards {
       return Post;
     case 'risk':
       return Risk;
-    case 'surpise':
+    case 'surprise':
       return Surprise;
     default:
       throw new Error(`Invalid card type: ${type}`);
@@ -505,9 +506,11 @@ export const Risk: Cards = {
   lostProp: {
     msg: 'Одна из ваших организаций признана банкротом',
     type: EventType.PropertyLoss,
+    grade: BussinessGrade.Enterprise,
   },
   lostProp2: {
     msg: 'Сгорел один из ваших фелиалов',
     type: EventType.PropertyLoss,
+    grade: BussinessGrade.Office,
   },
 };

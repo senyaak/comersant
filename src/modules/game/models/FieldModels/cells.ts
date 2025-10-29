@@ -158,7 +158,7 @@ export type EventCellTypes = 'card' | 'interactiveEvent' | 'staticEvent';
 export type CardEventCellTypes =
   | 'post'
   | 'risk'
-  | 'surpise';
+  | 'surprise';
 
 export function stringToCardEventType(str: unknown): CardEventCellTypes {
   if (typeof str !== 'string') {
@@ -170,7 +170,7 @@ export function stringToCardEventType(str: unknown): CardEventCellTypes {
     case 'risk':
       return 'risk';
     case 'surpise':
-      return 'surpise';
+      return 'surprise';
     default:
       throw new Error(`Invalid CardEventCellType string: ${str}`);
   }

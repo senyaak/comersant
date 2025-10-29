@@ -1,4 +1,5 @@
 import { Board } from '../FieldModels/board';
+import { ItemType } from './items';
 
 export enum PlayerColor {
   red = 'red',
@@ -23,6 +24,7 @@ export class Player {
   private readonly color: IRawPlayer['color'];
   private freezeTurns: number = 0;
   private id: IRawPlayer['id'];
+  private items: ItemType[] = [];
   private money: IRawPlayer['money'] = 150_000;
   private readonly name: IRawPlayer['name'];
   private position: IRawPlayer['position'] = 0;
@@ -101,6 +103,10 @@ export class Player {
 
   changeMoney(amount: number): void {
     this.money += amount;
+  }
+
+  giveItem(item: ItemType): void {
+    this.items.push(item);
   }
 
   move(steps: number): void {
