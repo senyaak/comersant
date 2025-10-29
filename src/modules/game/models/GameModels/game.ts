@@ -1,6 +1,7 @@
 import { randomBytes } from 'crypto';
 
 import { EventItem, EventType, GameEvent } from '../events';
+import { Board } from '../FieldModels/board';
 import { Cards, getCardsByType } from '../FieldModels/cards';
 import {
   CardEventCell,
@@ -79,6 +80,14 @@ export class Game extends IGame {
     this.players = players.map((player, counter) => {
       return new Player(player.id, Object.values(PlayerColor)[counter], player.name);
     });
+  }
+
+  private moveTo(player: Player, targetPosition: number): void {
+    const currentPosition = player.Position;
+    const movesCounter = currentPosition < targetPosition ?
+      targetPosition - currentPosition :
+      this.board.flatCells.length - currentPosition + targetPosition;
+    player.move(movesCounter);
   }
 
   /** transfer money from other player to current player (eg birthday) */
@@ -162,19 +171,17 @@ export class Game extends IGame {
         // TODO: set game to waiting for action to select player to move
         break;
       case EventType.MoveTo: {
-        const currentPosition = this.players[this.CurrentPlayer].Position;
         const targetPosition = this.board.flatCells.findIndex((cell) => {
           return cell.name === card.to;
         });
-        const movesCounter = currentPosition < targetPosition ?
-          targetPosition - currentPosition :
-          this.board.flatCells.length - currentPosition + targetPosition;
-        this.players[this.CurrentPlayer].move(movesCounter);
-        // trigger cells event after moving
-        // this.handlePlayerMoved(playerId);
+        this.moveTo(this.players[this.CurrentPlayer], targetPosition);
         break;
       }
       case EventType.MoveToCenter:
+        this.stateManager.setWaiting(
+          GameStateType.WaitingForMoveToCenter,
+          [this.players[this.CurrentPlayer].Id],
+        );
         // TODO: set game to waiting for action to move to center or not
         break;
       case EventType.GetEvent:
@@ -322,6 +329,18 @@ export class Game extends IGame {
     return results;
   }
 
+  @RequireGameState(GameStateType.WaitingForMoveToCenter)
+  @ValidateActivePlayer
+  public moveToCenter(playerId: string, newPosition: number): IEventResult[] {
+    const isPosition = newPosition >= Board.Cells[0].length && newPosition < Board.CellsCounter;
+    if(!isPosition) {
+      throw new Error('Invalid cell index for move to center');
+    }
+    const player = this.players.find(p => p.Id === playerId)!;
+    this.moveTo(player, newPosition);
+    return [];
+  }
+
   @RequireGameState(GameStateType.Active)
   @ValidateActivePlayer
   public nextTurn(playerId: string, diceCounter?: number): ITurnResult {
@@ -390,5 +409,4 @@ export class Game extends IGame {
     // result.push({cardDrawn: {cardKey: randomKey, card}});
     return this.handleCardEvent(card, `${randomKey}`);
   }
-
 }
