@@ -169,7 +169,7 @@ export function stringToCardEventType(str: unknown): CardEventCellTypes {
       return 'post';
     case 'risk':
       return 'risk';
-    case 'surpise':
+    case 'surprise':
       return 'surprise';
     default:
       throw new Error(`Invalid CardEventCellType string: ${str}`);

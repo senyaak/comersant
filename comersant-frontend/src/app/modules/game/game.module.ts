@@ -29,6 +29,7 @@ import { GameRoutingModule } from './game-routing.module';
 import { SplitLetters } from './pipes/singleLetterLine';
 import { Split } from './pipes/singleWordLine';
 import { GameEventsService } from './services/game-events.service';
+import { GameNotificationService } from './services/game-notification.service';
 import { GameStateService } from './services/game-state.service';
 import { GameService } from './services/game.service';
 
@@ -60,6 +61,6 @@ import { GameService } from './services/game.service';
     ControlActionsComponent,
   ],
   imports: [CommonModule, GameRoutingModule, TranslateModule],
-  providers: [GameService, GameStateService, GameEventsService],
+  providers: [GameService, GameStateService, GameEventsService, GameNotificationService],
 })
 export class GameModule {}

@@ -17,6 +17,7 @@ import { io } from 'socket.io-client';
 import { UserSettingsService } from 'src/app/services/user-settings.service';
 
 import { ICGame } from '../model/ICGame';
+import { GameNotificationService } from './game-notification.service';
 import { GameStateService } from './game-state.service';
 /**
  * init and stores game data
@@ -40,6 +41,7 @@ export class GameService {
     private readonly router: Router,
     private readonly userSettingsService: UserSettingsService,
     private readonly gameStateService: GameStateService,
+    private readonly gameNotificationService: GameNotificationService,
   ) {
     this.game.subscribe(() => {
       this.checkIfReady();
@@ -140,6 +142,9 @@ export class GameService {
           this.Game.players.find(player => player.Id === result.taxPaid?.toPlayerId)
             ?.changeMoney(result.taxPaid.amount);
           this.Game.players[this.Game.CurrentPlayer].changeMoney(-result.taxPaid.amount);
+        }
+        if(result.cardDrawn) {
+          this.gameNotificationService.showCard(result.cardDrawn);
         }
         // TODO:!!
         // if() {}

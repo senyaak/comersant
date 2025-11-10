@@ -154,9 +154,9 @@ export class Game extends IGame {
   }
 
   @RequireGameState(GameStateType.Active)
-  handleCardEvent(card: GameEvent, randomKey: string): IEventResult[] {
+  handleCardEvent(card: GameEvent, cardType: CardEventCellTypes): IEventResult[] {
     const results: IEventResult[] = [];
-    results.push({cardDrawn: {cardKey: randomKey, card}});
+    results.push({cardDrawn: {cardType, card}});
     switch(card.type) {
       case EventType.BalanceChange:
         this.players[this.CurrentPlayer].changeMoney(card.amount);
@@ -401,12 +401,12 @@ export class Game extends IGame {
     const cardKeys: (keyof Cards)[] = Object.keys(deck);
     const randomKey: keyof Cards = cardKeys[Math.floor(Math.random() * cardKeys.length)];
     const card = deck[randomKey as keyof typeof deck];
-    console.log('prepare card', card.type);
-    console.log('Drew card:', card);
+    // console.log('prepare card', card.type);
+    // console.log('Drew card:', card);
 
     // REMOVE: reminder - handle move to center/player events!
     // todo: check if type of randomKey is valid
     // result.push({cardDrawn: {cardKey: randomKey, card}});
-    return this.handleCardEvent(card, `${randomKey}`);
+    return this.handleCardEvent(card, type);
   }
 }

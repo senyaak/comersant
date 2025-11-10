@@ -1,5 +1,6 @@
 import { Component, HostListener, OnInit } from '@angular/core';
 import { GameEventsService } from 'src/app/modules/game/services/game-events.service';
+import { GameNotificationService } from 'src/app/modules/game/services/game-notification.service';
 import { GameService } from 'src/app/modules/game/services/game.service';
 
 @Component({
@@ -14,6 +15,7 @@ export class ControlActionsComponent implements OnInit {
   constructor(
     private gameEventsService: GameEventsService,
     private gameService: GameService,
+    private gameNotificationService: GameNotificationService,
   ) {}
 
   ngOnInit() {
@@ -22,13 +24,13 @@ export class ControlActionsComponent implements OnInit {
         const rolls = result.data.diceResult.diceRoll?.join(', ');
         const total = result.data.diceResult.diceRoll?.reduce((a, b) => a + b, 0);
 
-        this.gameEventsService.toast(`rolled: ${rolls} = ${total}`);
+        this.gameNotificationService.toast(`rolled: ${rolls} = ${total}`);
       }
       this.isProcessingTurn = false;
     });
     this.gameService.turnFinished$.subscribe((result) => {
       if (result.success) {
-        this.gameEventsService.toast('Turn finished successfully');
+        this.gameNotificationService.toast('Turn finished successfully');
       }
       console.log('turnFinished subscription', result);
       this.isProcessingTurn = false;
@@ -54,11 +56,13 @@ export class ControlActionsComponent implements OnInit {
     return 'Next Turn';
   }
 
-  @HostListener('document:keydown.e', ['$event'])
+  @HostListener('document:keydown', ['$event'])
   handleKeyE(event: KeyboardEvent) {
-    console.log('Нажата клавиша E');
-    event.preventDefault();
-    this.onNextTurn();
+    if (event.key.toLowerCase() === 'e') {
+      console.log('Нажата клавиша E');
+      event.preventDefault();
+      this.onNextTurn();
+    }
   }
 
   /**

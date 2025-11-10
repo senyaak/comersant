@@ -1,6 +1,7 @@
 import { ServerToClientEvents } from '../services/events/types';
 import { EventType } from './events';
 import { Cards } from './FieldModels/cards';
+import { CardEventCellTypes } from './FieldModels/cells';
 import { IGame } from './GameModels/igame';
 import { ItemType } from './GameModels/items';
 import { Player } from './GameModels/player';
@@ -42,7 +43,7 @@ export interface IDiceResult {
 /** do not create union for better dev experience */
 export interface IEventResult {
   taxPaid?: { amount: number, toPlayerId: Player['id'] };
-  cardDrawn?: { cardKey: keyof Cards, card: Cards[keyof Cards] };
+  cardDrawn?: { cardType: CardEventCellTypes, card: Cards[keyof Cards] };
   staticEvent?: EventType.BalanceChange | EventType.SkipTurn | EventType.TaxService;
   interactiveEvent?: EventType.MoveToCenter | EventType.Raccito;
   itemReceived?: ItemType;
