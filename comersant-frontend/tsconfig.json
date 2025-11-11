@@ -7,9 +7,6 @@
     "paths": {
       "$server/*": [
         "./../src/*"
-      ],
-      "$i18n/*": [
-        "./src/app/i18n/*"
       ]
     },
     "esModuleInterop": true,
