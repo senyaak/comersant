@@ -11,22 +11,28 @@
         <span>
           {{ currentPlayerName }}
         </span>
-        <span *ngIf="isMyTurn">
-          ({{ 'You' | translate }})
-        </span>
+        @if (isMyTurn) {
+          <span>
+            ({{ 'You' | translate }})
+          </span>
+        }
       </span>
     </div>
 
     <!-- <div class="turn-state" *ngIf="turnState">
-      <label>State:</label>
-      <span class="state-badge" [class]="'state-' + turnState.toLowerCase()">
-        {{ turnState }}
-      </span>
-    </div> -->
-  </div>
+    <label>State:</label>
+    <span class="state-badge" [class]="'state-' + turnState.toLowerCase()">
+      {{ turnState }}
+    </span>
+  </div> -->
+</div>
 
-  <app-control-actions />
-  <!-- TODO: use directives? -->
-  <app-buy-property *ngIf="canBuyProperty" />
-  <app-turn-control *ngIf="TurnState === 'Trading' && isMyTurn" />
+<app-control-actions />
+<!-- TODO: use directives? -->
+@if (canBuyProperty) {
+  <app-buy-property />
+}
+@if (TurnState === 'Trading' && isMyTurn) {
+  <app-turn-control />
+}
 </div>

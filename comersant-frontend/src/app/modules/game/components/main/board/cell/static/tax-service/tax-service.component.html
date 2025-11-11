@@ -3,7 +3,7 @@
     <svg:text class="move-to-center-text" [attr.x]="x + width / 2" [attr.y]="textTopPadding + fontSize"
       [attr.font-size]="fontSize" [attr.font-family]="font" [attr.stroke-width]="lineWidth" dominant-baseline="hanging"
       style="white-space: pre;" text-anchor="middle">
-      @for (word of 'centerEntrance' | translate | split; track word) {
+      @for (word of 'taxService' | translate | split; track word) {
       <svg:tspan [attr.x]="x + width / 2" dy="1.2em">{{word}}</svg:tspan>
       }
     </svg:text>

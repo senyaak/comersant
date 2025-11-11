@@ -1,8 +1,9 @@
 import { Component, Input, OnInit } from '@angular/core';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import {
   CardEventCell,
-  EventCell,
 } from '$server/modules/game/models/FieldModels/cells';
+import { CardPatterns, CardType } from 'src/app/modules/game/assets/svg/card-patterns';
 
 import { BaseComponent } from '../abstract/base';
 
@@ -13,12 +14,16 @@ import { BaseComponent } from '../abstract/base';
   standalone: false,
 })
 export class CardComponent extends BaseComponent implements OnInit {
-  @Input({ required: true }) cell!: EventCell;
+  @Input({ required: true }) cell!: CardEventCell;
 
   public color: string = 'black';
   public label: string = 'EVENT';
 
   public positionY: number = this.offset + this.height * 0.75;
+
+  constructor(private sanitizer: DomSanitizer) {
+    super();
+  }
 
   ngOnInit() {
     if (this.cell instanceof CardEventCell) {
@@ -28,5 +33,19 @@ export class CardComponent extends BaseComponent implements OnInit {
       console.log(this.cell);
       throw new Error('HANDLE OTHER EVENT ');
     }
+  }
+
+  get cardCenterX(): number {
+    const scaledWidth = CardPatterns.PATTERN_WIDTH * this.patternScale;
+    return this.x + this.width / 2 - scaledWidth / 2;
+  }
+
+  get cardPattern(): SafeHtml {
+    const pattern = CardPatterns.getPattern(this.cell.type as CardType);
+    return this.sanitizer.bypassSecurityTrustHtml(pattern);
+  }
+
+  get patternScale(): number {
+    return 0.7;
   }
 }

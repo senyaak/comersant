@@ -1,29 +1,30 @@
 <ul>
-  <li *ngFor="let room of roomsList">
-    <span>{{ room.id }}</span>
+  @for (room of roomsList; track room.id) {
+    <li>
+      <span>{{ room.id }}</span>
 
-    <ng-container
-      *ngIf="room.users.length < 2; then join; else full"></ng-container>
-    <ng-template #join>
-      <span>
-        <button (click)="enterRoom(room.id)">Join</button>
-      </span>
-    </ng-template>
-    <ng-template #full>
-      <span> (Full) </span>
-    </ng-template>
-    <!-- <ng-container *ngIf="userId === user; then you; else id"></ng-container> -->
-    <!-- <ng-template #you>
+      @if (room.users.length < 2) {
+        <span>
+          <button (click)="enterRoom(room.id)">Join</button>
+        </span>
+      } @else {
+        <span> (Full) </span>
+      }
+      <!-- <ng-container *ngIf="userId === user; then you; else id"></ng-container> -->
+      <!-- <ng-template #you>
       <span>YOU</span>
     </ng-template>
     <ng-template #id> -->
     <!-- </ng-template> -->
   </li>
-  <div *ngIf="roomsList.length < 1">
+}
+@if (roomsList.length < 1) {
+  <div>
     <span>No games.</span>
   </div>
-  <div>
-    <button (click)="createDialog.show()">Create</button>
-  </div>
+}
+<div>
+  <button (click)="createDialog.show()">Create</button>
+</div>
 </ul>
 <app-create-room #createDialog />

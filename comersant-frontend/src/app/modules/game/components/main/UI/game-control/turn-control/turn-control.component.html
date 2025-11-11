@@ -1,15 +1,14 @@
 <div>
   <div class="dice-container">
-    <button
-      *ngFor="let dice of [1, 2, 3]; let i = index"
-      [class.selected]="DiceCounter > i"
-      [class.disabled]="DiceCounter <= i && DiceCounter !== 0"
-      (click)="DiceCounter = (i + 1)"
-      class="dice-button">
+    @for (dice of [1, 2, 3]; track dice; let i = $index) {
+    <button [class.selected]="DiceCounter > i" [class.disabled]="DiceCounter <= i && DiceCounter !== 0"
+      (click)="DiceCounter = (i + 1)" class="dice-button">
       <div class="dice-face">
-        <div *ngFor="let dot of getDiceDots(i + 1)" [class]="getDotClass(i)"></div>
+        @for (dot of getDiceDots(i + 1); track dot) {
+        <div [class]="getDotClass(i)"></div>
+        }
       </div>
     </button>
+    }
   </div>
 </div>
-

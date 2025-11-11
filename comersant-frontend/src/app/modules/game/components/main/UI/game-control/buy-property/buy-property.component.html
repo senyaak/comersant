@@ -1,4 +1,8 @@
 <button class="buy-property-btn" [disabled]="isLoading" (click)="onBuyProperty()">
-  <ng-container *ngIf="!isLoading">{{ 'Buy Property' | translate }}</ng-container>
-  <ng-container *ngIf="isLoading">{{ 'Loading...' | translate }}</ng-container>
+  @if (!isLoading) {
+    {{ 'Buy Property' | translate }}
+  }
+  @if (isLoading) {
+    {{ 'Loading...' | translate }}
+  }
 </button>

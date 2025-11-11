@@ -35,6 +35,9 @@
         @case ('InnerStartCell') {
         <svg:g app-enter-center [orderNumber]="$index" />
         }
+        @case ('TaxService') {
+        <svg:g app-tax-service [orderNumber]="$index" />
+        }
         @default {
         <!-- <svg:g app-land [orderNumber]="$index" /> -->
         }

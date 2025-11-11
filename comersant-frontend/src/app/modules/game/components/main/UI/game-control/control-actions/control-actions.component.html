@@ -5,10 +5,14 @@
     (click)="onNextTurn()"
     [class.loading]="isProcessingTurn"
     [class.waiting]="!isMyTurn">
-    <span class="btn-icon" *ngIf="!isProcessingTurn && isMyTurn">▶</span>
+    @if (!isProcessingTurn && isMyTurn) {
+      <span class="btn-icon">▶</span>
+    }
     <span class="btn-text">
       {{ getButtonText() }}
     </span>
-    <span class="spinner" *ngIf="isProcessingTurn"></span>
+    @if (isProcessingTurn) {
+      <span class="spinner"></span>
+    }
   </button>
 </div>

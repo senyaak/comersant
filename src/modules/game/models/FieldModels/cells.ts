@@ -89,6 +89,8 @@ export abstract class EventCell extends Cell {
     super(name);
   }
 }
+
+// TODO: add money change event cell
 export class StaticEventCell extends EventCell {
   static isStaticEventCell(cell: Cell): cell is StaticEventCell {
     return cell.name === 'staticEvent';
@@ -141,19 +143,6 @@ export class CardEventCell extends EventCell {
 }
 
 export type EventCellTypes = 'card' | 'interactiveEvent' | 'staticEvent';
-
-// export function stringToEventCellType(str: string): EventCellTypes {
-//   switch (str) {
-//     case 'card':
-//       return EventCellTypes.card;
-//     case 'interactiveEvent':
-//       return EventCellTypes.interactiveEvent;
-//     case 'staticEvent':
-//       return EventCellTypes.staticEvent;
-//     default:
-//       throw new Error(`Invalid EventCellType string: ${str}`);
-//   }
-// }
 
 export type CardEventCellTypes =
   | 'post'

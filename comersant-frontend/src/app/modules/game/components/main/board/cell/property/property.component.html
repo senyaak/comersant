@@ -1,115 +1,62 @@
 <svg:g app-cell-wrapper [orderNumber]="orderNumber" [fill]="cellColor">
   <svg:g>
     <!-- label -->
-    <svg:text
-      [attr.x]="x + width / 2"
-      [attr.y]="textTopPadding + extraPadding"
-      [attr.font-size]="fontSize"
-      [attr.font-family]="font"
-      [attr.stroke-width]="lineWidth"
-      dominant-baseline="hanging"
-      text-anchor="middle">
+    <svg:text [attr.x]="x + width / 2" [attr.y]="textTopPadding + extraPadding" [attr.font-size]="fontSize"
+      [attr.font-family]="font" [attr.stroke-width]="lineWidth" dominant-baseline="hanging" text-anchor="middle">
       <!-- TODO: handle case when title is too long(split+push(price)+ngForloop) -->
       {{ label }}
     </svg:text>
     <!-- price -->
-    <svg:text
-      [attr.x]="x + width / 2"
-      [attr.y]="textTopPadding + extraPadding + fontSize"
-      [attr.font-size]="fontSize"
-      [attr.font-family]="font"
-      [attr.stroke-width]="lineWidth"
-      dominant-baseline="hanging"
-      text-anchor="middle">
+    <svg:text [attr.x]="x + width / 2" [attr.y]="textTopPadding + extraPadding + fontSize" [attr.font-size]="fontSize"
+      [attr.font-family]="font" [attr.stroke-width]="lineWidth" dominant-baseline="hanging" text-anchor="middle">
       {{ cell.object.price }}
     </svg:text>
     <!-- top separator -->
-    <svg:line
-      [attr.x1]="x"
-      [attr.y1]="topSeparatorY"
-      [attr.x2]="x + width"
-      [attr.y2]="topSeparatorY"
-      [attr.stroke-width]="lineWidth"
-      [attr.stroke]="black"></svg:line>
+    <svg:line [attr.x1]="x" [attr.y1]="topSeparatorY" [attr.x2]="x + width" [attr.y2]="topSeparatorY"
+      [attr.stroke-width]="lineWidth" [attr.stroke]="black"></svg:line>
     <!-- bot separator -->
-    <svg:line
-      [attr.x1]="x"
-      [attr.y1]="botSeparatorY"
-      [attr.x2]="x + width"
-      [attr.y2]="botSeparatorY"
-      [attr.stroke-width]="lineWidth"
-      [attr.stroke]="black"></svg:line>
+    <svg:line [attr.x1]="x" [attr.y1]="botSeparatorY" [attr.x2]="x + width" [attr.y2]="botSeparatorY"
+      [attr.stroke-width]="lineWidth" [attr.stroke]="black"></svg:line>
     <!-- vertical separator -->
-    <svg:line
-      [attr.x1]="splitterX"
-      [attr.y1]="topSeparatorY"
-      [attr.x2]="splitterX"
-      [attr.y2]="botSeparatorY"
-      [attr.stroke-width]="lineWidth"
-      [attr.stroke]="black"></svg:line>
+    <svg:line [attr.x1]="splitterX" [attr.y1]="topSeparatorY" [attr.x2]="splitterX" [attr.y2]="botSeparatorY"
+      [attr.stroke-width]="lineWidth" [attr.stroke]="black"></svg:line>
     <!-- info   -->
     <svg:g>
       <svg:g>
         <!-- left -->
         @for (item of buys; track $index) {
-          <svg:text
-            [attr.x]="textStartLine"
-            [attr.y]="
+        <svg:text [attr.x]="textStartLine" [attr.y]="
               topSeparatorY + textPadding + lineWidth + fontSize * $index
-            "
-            [attr.font-size]="fontSize"
-            [attr.font-family]="font"
-            dominant-baseline="hanging">
-            {{ prefixes[$index] }}-{{ item }}
-          </svg:text>
+            " [attr.font-size]="fontSize" [attr.font-family]="font" dominant-baseline="hanging">
+          {{ prefixes[$index] }}-{{ item }}
+        </svg:text>
         }
         <!-- right -->
         @for (item of payouts; track $index) {
-          <svg:text
-            [attr.x]="splitterX + textPadding"
-            [attr.y]="
+        <svg:text [attr.x]="splitterX + textPadding" [attr.y]="
               topSeparatorY + textPadding + lineWidth + fontSize * $index
-            "
-            [attr.font-size]="fontSize"
-            [attr.font-family]="font"
-            dominant-baseline="hanging">
-            {{ item }}
-          </svg:text>
+            " [attr.font-size]="fontSize" [attr.font-family]="font" dominant-baseline="hanging">
+          {{ item }}
+        </svg:text>
         }
       </svg:g>
 
       <!-- upgradePrice -->
-      <svg:text
-        [attr.x]="x + width / 2"
-        [attr.y]="botSeparatorY + extraPadding"
-        [attr.font-size]="fontSize"
-        [attr.font-family]="font"
-        [attr.stroke-width]="lineWidth"
-        dominant-baseline="hanging"
-        text-anchor="middle">
+      <svg:text [attr.x]="x + width / 2" [attr.y]="botSeparatorY + extraPadding" [attr.font-size]="fontSize"
+        [attr.font-family]="font" [attr.stroke-width]="lineWidth" dominant-baseline="hanging" text-anchor="middle">
         {{ 'upgradePrice' | translate }}
       </svg:text>
-      <svg:text
-        [attr.x]="x + width / 2"
-        [attr.y]="botSeparatorY + extraPadding + fontSize"
-        [attr.font-size]="fontSize"
-        [attr.font-family]="font"
-        [attr.stroke-width]="lineWidth"
-        dominant-baseline="hanging"
-        text-anchor="middle">
+      <svg:text [attr.x]="x + width / 2" [attr.y]="botSeparatorY + extraPadding + fontSize" [attr.font-size]="fontSize"
+        [attr.font-family]="font" [attr.stroke-width]="lineWidth" dominant-baseline="hanging" text-anchor="middle">
         {{ cell.object.upgradePrice }}
       </svg:text>
     </svg:g>
     <svg:g class="owner-mark">
-      <svg:circle
-        *ngIf="cellOwned"
-        [attr.cx]="ownerX"
-        [attr.cy]="ownerY"
-        [attr.r]="ownerMarkRadius"
-        [attr.fill]="ownerColor"
-        stroke="black"
-        [attr.stroke-width]="1">
+      @if (cellOwned) {
+      <svg:circle [attr.cx]="ownerX" [attr.cy]="ownerY" [attr.r]="ownerMarkRadius" [attr.fill]="ownerColor"
+        stroke="black" [attr.stroke-width]="1">
       </svg:circle>
+      }
     </svg:g>
   </svg:g>
 </svg:g>

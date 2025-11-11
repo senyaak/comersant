@@ -1,14 +1,17 @@
 <h1>{{ roomName }}</h1>
-<div *ngFor="let user of users; let i = index">
-  <span [ngClass]="{ owner: user.owner }"> {{ user.name }} </span>
-  <span *ngIf="user.id === userId">(YOU)</span>
-</div>
+@for (user of users; track user.id; let i = $index) {
+  <div>
+    <span [ngClass]="{ owner: user.owner }"> {{ user.name }} </span>
+    @if (user.id === userId) {
+      <span>(YOU)</span>
+    }
+  </div>
+}
 <div>
-  <button
-    *ngIf="isGameOwner"
-    [disabled]="users.length < 2"
-    (click)="startGame()">
-    start game
-  </button>
+  @if (isGameOwner) {
+    <button [disabled]="users.length < 2" (click)="startGame()">
+      start game
+    </button>
+  }
   <button (click)="leaveRoom()">leave</button>
 </div>

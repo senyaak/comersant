@@ -42,7 +42,7 @@ export class AreaSite extends Property {
 
 export abstract class Business extends Property {
   static isBusiness(obj: object): obj is Business {
-    return Property.isProperty(obj) && 'group' in obj && 'upgradePrice' in obj && 'grades' in obj && 'grade' in obj;
+    return Property.isProperty(obj) && 'upgradePrice' in obj && 'grades' in obj && 'grade' in obj;
   }
 
   constructor(

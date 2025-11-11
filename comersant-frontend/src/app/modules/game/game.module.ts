@@ -12,6 +12,7 @@ import { MoveToCenterComponent } from './components/main/board/cell/static/move-
 import { RacittoComponent } from './components/main/board/cell/static/racitto/racitto.component';
 import { SkipTurnComponent } from './components/main/board/cell/static/skip-turn/skip-turn.component';
 import { StartComponent } from './components/main/board/cell/static/start/start.component';
+import { TaxServiceComponent } from './components/main/board/cell/static/tax-service/tax-service.component';
 import { TaxComponent } from './components/main/board/cell/tax/tax.component';
 import { CellWrapperComponent } from './components/main/board/cell/wrapper.component';
 import { PawnComponent } from './components/main/board/player-ui/pawn/pawn.component';
@@ -59,6 +60,7 @@ import { GameService } from './services/game.service';
     BuyPropertyComponent,
     PlayerPropertyComponent,
     ControlActionsComponent,
+    TaxServiceComponent,
   ],
   imports: [CommonModule, GameRoutingModule, TranslateModule],
   providers: [GameService, GameStateService, GameEventsService, GameNotificationService],

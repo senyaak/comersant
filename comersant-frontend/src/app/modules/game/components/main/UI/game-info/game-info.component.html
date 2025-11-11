@@ -1,4 +1,8 @@
-<div id="game-info" *ngIf="Players && Players.length > 0">
-  <div>game-info works!</div>
-  <app-player-info *ngFor="let player of Players" [playerId]="player.Id" />
-</div>
+@if (Players && Players.length > 0) {
+  <div id="game-info">
+    <div>game-info works!</div>
+    @for (player of Players; track player.Id) {
+      <app-player-info [playerId]="player.Id" />
+    }
+  </div>
+}

@@ -1,12 +1,18 @@
 <h3>Users in lobby</h3>
 <ul>
-  <li *ngFor="let user of lobbyList">
-    <!-- <ng-container *ngIf="userId === user.id; then you; else id"></ng-container> -->
-    <div class="user-item">
-      <div *ngIf="!user.data.name" class="loader"></div>
-      <span>{{ user.data.name ?? user.id }}</span>
-      <span *ngIf="user.id === userId">(YOU)</span>
-    </div>
-  </li>
+  @for (user of lobbyList; track user.id) {
+    <li>
+      <!-- <ng-container *ngIf="userId === user.id; then you; else id"></ng-container> -->
+      <div class="user-item">
+        @if (!user.data.name) {
+          <div class="loader"></div>
+        }
+        <span>{{ user.data.name ?? user.id }}</span>
+        @if (user.id === userId) {
+          <span>(YOU)</span>
+        }
+      </div>
+    </li>
+  }
 </ul>
 <app-set-name />

@@ -1,6 +1,8 @@
-<div *ngIf="initialized" id="game-main-container">
-  <app-board />
-  <app-game-info />
-  <app-game-control />
-  <app-player-property />
-</div>
+@if (initialized) {
+  <div id="game-main-container">
+    <app-board />
+    <app-game-info />
+    <app-game-control />
+    <app-player-property />
+  </div>
+}

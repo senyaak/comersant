@@ -1,38 +1,23 @@
 <svg:g app-cell-wrapper [orderNumber]="orderNumber">
   <svg:g>
-    <svg:line
-      [attr.x1]="splitterX"
-      [attr.y1]="offset"
-      [attr.x2]="splitterX"
-      [attr.y2]="height + offset"
-      [attr.stroke-width]="lineWidth"
-      [attr.stroke]="black"></svg:line>
+    <svg:line [attr.x1]="splitterX" [attr.y1]="offset" [attr.x2]="splitterX" [attr.y2]="height + offset"
+      [attr.stroke-width]="lineWidth" [attr.stroke]="black"></svg:line>
 
-    <svg:text
-      [attr.x]="x + width / 2"
-      [attr.y]="textTopPadding + fontSize"
-      [attr.font-size]="fontSize"
-      [attr.font-family]="font"
-      [attr.stroke-width]="lineWidth"
-      dominant-baseline="hanging"
-      style="white-space: pre;"
-      >
-      <svg:tspan *ngFor="let letter of 'second-circle' | translate | splitLetters" [attr.x]="x + width / 4" [attr.dy]="lettersHeight">
+    <svg:text [attr.x]="x + width / 2" [attr.y]="textTopPadding + fontSize" [attr.font-size]="fontSize"
+      [attr.font-family]="font" [attr.stroke-width]="lineWidth" dominant-baseline="hanging" style="white-space: pre;">
+      @for (letter of 'second-circle' | translate | splitLetters; track letter) {
+      <svg:tspan [attr.x]="x + width / 4" [attr.dy]="lettersHeight">
         {{letter}}
       </svg:tspan>
+      }
     </svg:text>
-    <svg:text
-      [attr.x]="x + width / 3"
-      [attr.y]="textTopPadding + fontSize"
-      [attr.font-size]="fontSize"
-      [attr.font-family]="font"
-      [attr.stroke-width]="lineWidth"
-      dominant-baseline="hanging"
-      style="white-space: pre;"
-      >
-      <svg:tspan *ngFor="let letter of 'to-start' | translate | splitLetters" [attr.x]="x + width / 2" [attr.dy]="lettersHeight">
+    <svg:text [attr.x]="x + width / 3" [attr.y]="textTopPadding + fontSize" [attr.font-size]="fontSize"
+      [attr.font-family]="font" [attr.stroke-width]="lineWidth" dominant-baseline="hanging" style="white-space: pre;">
+      @for (letter of 'to-start' | translate | splitLetters; track letter) {
+      <svg:tspan [attr.x]="x + width / 2" [attr.dy]="lettersHeight">
         {{letter}}
       </svg:tspan>
+      }
     </svg:text>
   </svg:g>
 </svg:g>

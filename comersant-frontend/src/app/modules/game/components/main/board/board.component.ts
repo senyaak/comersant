@@ -66,6 +66,7 @@ export class BoardComponent implements OnInit, OnChanges {
       return 'StartCell';
     } else if (item instanceof PropertyCell) {
       if (item.object instanceof AreaSite) {
+        console.log('AreaSite detected', item);
         return 'AreaSite';
       } else {
         return 'Property';
@@ -82,7 +83,7 @@ export class BoardComponent implements OnInit, OnChanges {
         return 'TaxCell';
       }
     } else if (
-      item instanceof StaticEventCell &&
+      item instanceof InteractiveEventCell &&
       item.type === EventType.MoveToCenter
     ) {
       return 'MoveToCenter';
@@ -92,12 +93,12 @@ export class BoardComponent implements OnInit, OnChanges {
       return 'SkipTurn';
     } else if (item instanceof InnerStartCell) {
       return 'InnerStartCell';
-    } else if (item instanceof StaticEventCell) {
-      return 'StaticEventCell';
+    } else if (item instanceof StaticEventCell && item.type === EventType.TaxService) {
+      return 'TaxService';
     }
 
-    // console.log('item', item);
-    // throw new Error('dmb');
+    console.log('item', item);
+    throw new Error('dmb');
     return 'unknown';
   }
 }

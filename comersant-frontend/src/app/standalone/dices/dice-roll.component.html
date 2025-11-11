@@ -1,65 +1,62 @@
-<svg:svg
-  *ngIf="visible()"
-  [attr.width]="svgWidth()"
-  [attr.height]="size"
-  [style.--roll-ms.ms]="rollStepMs"
-  [class.fade-out]="fading()"
-  [style.--fade-ms.ms]="fadeMs"
-  (animationiteration)="noop()"
->
-  <svg:g *ngFor="let d of dice(); let i = index"
-      class="die"
-      [class.rolling]="d.rolling"
-      [attr.transform]="'translate(' + (i * (size + gap)) + ',0)'">
+@if (visible()) {
+<svg:svg [attr.width]="svgWidth()" [attr.height]="size" [style.--roll-ms.ms]="rollStepMs" [class.fade-out]="fading()"
+  [style.--fade-ms.ms]="fadeMs" (animationiteration)="noop()">
+  @for (d of dice(); track d; let i = $index) {
+  <svg:g class="die" [class.rolling]="d.rolling" [attr.transform]="'translate(' + (i * (size + gap)) + ',0)'">
     <!-- корпус кубика -->
     <svg:rect class="die-body" [attr.width]="size" [attr.height]="size" />
     <!-- точки -->
     <ng-container [ngTemplateOutlet]="pipsTpl" [ngTemplateOutletContext]="{ face: d.current }"></ng-container>
   </svg:g>
+  }
 </svg:svg>
+}
 
 <!-- Шаблон точек -->
 <ng-template #pipsTpl let-face="face">
-  <ng-container [ngSwitch]="face">
-    <!-- 1 -->
-    <svg:circle *ngSwitchCase="1" class="pip" [attr.cx]="c" [attr.cy]="c" [attr.r]="r"/>
-    <!-- 2 -->
-    <ng-container *ngSwitchCase="2">
-      <svg:circle class="pip" [attr.cx]="q1" [attr.cy]="q1" [attr.r]="r"/>
-      <svg:circle class="pip" [attr.cx]="q3" [attr.cy]="q3" [attr.r]="r"/>
-    </ng-container>
-    <!-- 3 -->
-    <ng-container *ngSwitchCase="3">
-      <svg:circle class="pip" [attr.cx]="q1" [attr.cy]="q1" [attr.r]="r"/>
-      <svg:circle class="pip" [attr.cx]="c"  [attr.cy]="c"  [attr.r]="r"/>
-      <svg:circle class="pip" [attr.cx]="q3" [attr.cy]="q3" [attr.r]="r"/>
-    </ng-container>
-    <!-- 4 -->
-    <ng-container *ngSwitchCase="4">
-      <svg:circle class="pip" [attr.cx]="q1" [attr.cy]="q1" [attr.r]="r"/>
-      <svg:circle class="pip" [attr.cx]="q3" [attr.cy]="q1" [attr.r]="r"/>
-      <svg:circle class="pip" [attr.cx]="q1" [attr.cy]="q3" [attr.r]="r"/>
-      <svg:circle class="pip" [attr.cx]="q3" [attr.cy]="q3" [attr.r]="r"/>
-    </ng-container>
-    <!-- 5 -->
-    <ng-container *ngSwitchCase="5">
-      <svg:circle class="pip" [attr.cx]="q1" [attr.cy]="q1" [attr.r]="r"/>
-      <svg:circle class="pip" [attr.cx]="q3" [attr.cy]="q1" [attr.r]="r"/>
-      <svg:circle class="pip" [attr.cx]="c"  [attr.cy]="c"  [attr.r]="r"/>
-      <svg:circle class="pip" [attr.cx]="q1" [attr.cy]="q3" [attr.r]="r"/>
-      <svg:circle class="pip" [attr.cx]="q3" [attr.cy]="q3" [attr.r]="r"/>
-    </ng-container>
-    <!-- 6 -->
-    <ng-container *ngSwitchCase="6">
-      <svg:circle class="pip" [attr.cx]="q1" [attr.cy]="q1" [attr.r]="r"/>
-      <svg:circle class="pip" [attr.cx]="q3" [attr.cy]="q1" [attr.r]="r"/>
-      <svg:circle class="pip" [attr.cx]="q1" [attr.cy]="c"  [attr.r]="r"/>
-      <svg:circle class="pip" [attr.cx]="q3" [attr.cy]="c"  [attr.r]="r"/>
-      <svg:circle class="pip" [attr.cx]="q1" [attr.cy]="q3" [attr.r]="r"/>
-      <svg:circle class="pip" [attr.cx]="q3" [attr.cy]="q3" [attr.r]="r"/>
-    </ng-container>
-
-    <!-- дефолт (на случай некорректного face) -->
-    <svg:circle *ngSwitchDefault class="pip" [attr.cx]="c" [attr.cy]="c" [attr.r]="r"/>
-  </ng-container>
+  @switch (face) {
+  <!-- 1 -->
+  @case (1) {
+  <svg:circle class="pip" [attr.cx]="c" [attr.cy]="c" [attr.r]="r" />
+  }
+  <!-- 2 -->
+  @case (2) {
+  <svg:circle class="pip" [attr.cx]="q1" [attr.cy]="q1" [attr.r]="r" />
+  <svg:circle class="pip" [attr.cx]="q3" [attr.cy]="q3" [attr.r]="r" />
+  }
+  <!-- 3 -->
+  @case (3) {
+  <svg:circle class="pip" [attr.cx]="q1" [attr.cy]="q1" [attr.r]="r" />
+  <svg:circle class="pip" [attr.cx]="c" [attr.cy]="c" [attr.r]="r" />
+  <svg:circle class="pip" [attr.cx]="q3" [attr.cy]="q3" [attr.r]="r" />
+  }
+  <!-- 4 -->
+  @case (4) {
+  <svg:circle class="pip" [attr.cx]="q1" [attr.cy]="q1" [attr.r]="r" />
+  <svg:circle class="pip" [attr.cx]="q3" [attr.cy]="q1" [attr.r]="r" />
+  <svg:circle class="pip" [attr.cx]="q1" [attr.cy]="q3" [attr.r]="r" />
+  <svg:circle class="pip" [attr.cx]="q3" [attr.cy]="q3" [attr.r]="r" />
+  }
+  <!-- 5 -->
+  @case (5) {
+  <svg:circle class="pip" [attr.cx]="q1" [attr.cy]="q1" [attr.r]="r" />
+  <svg:circle class="pip" [attr.cx]="q3" [attr.cy]="q1" [attr.r]="r" />
+  <svg:circle class="pip" [attr.cx]="c" [attr.cy]="c" [attr.r]="r" />
+  <svg:circle class="pip" [attr.cx]="q1" [attr.cy]="q3" [attr.r]="r" />
+  <svg:circle class="pip" [attr.cx]="q3" [attr.cy]="q3" [attr.r]="r" />
+  }
+  <!-- 6 -->
+  @case (6) {
+  <svg:circle class="pip" [attr.cx]="q1" [attr.cy]="q1" [attr.r]="r" />
+  <svg:circle class="pip" [attr.cx]="q3" [attr.cy]="q1" [attr.r]="r" />
+  <svg:circle class="pip" [attr.cx]="q1" [attr.cy]="c" [attr.r]="r" />
+  <svg:circle class="pip" [attr.cx]="q3" [attr.cy]="c" [attr.r]="r" />
+  <svg:circle class="pip" [attr.cx]="q1" [attr.cy]="q3" [attr.r]="r" />
+  <svg:circle class="pip" [attr.cx]="q3" [attr.cy]="q3" [attr.r]="r" />
+  }
+  <!-- дефолт (на случай некорректного face) -->
+  @default {
+  <svg:circle class="pip" [attr.cx]="c" [attr.cy]="c" [attr.r]="r" />
+  }
+  }
 </ng-template>

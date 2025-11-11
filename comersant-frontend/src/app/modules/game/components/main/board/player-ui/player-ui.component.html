@@ -1,5 +1,7 @@
 <svg:g>
-  <svg:g *ngFor="let player of Players">
+  @for (player of Players; track player.Id) {
+  <svg:g>
     <svg:g app-pawn [player]="player"></svg:g>
   </svg:g>
+  }
 </svg:g>
