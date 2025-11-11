@@ -66,7 +66,6 @@ export class BoardComponent implements OnInit, OnChanges {
       return 'StartCell';
     } else if (item instanceof PropertyCell) {
       if (item.object instanceof AreaSite) {
-        console.log('AreaSite detected', item);
         return 'AreaSite';
       } else {
         return 'Property';

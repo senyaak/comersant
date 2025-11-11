@@ -4,7 +4,7 @@
     <button [class.selected]="DiceCounter > i" [class.disabled]="DiceCounter <= i && DiceCounter !== 0"
       (click)="DiceCounter = (i + 1)" class="dice-button">
       <div class="dice-face">
-        @for (dot of getDiceDots(i + 1); track dot) {
+        @for (dot of getDiceDots(i + 1); track $index) {
         <div [class]="getDotClass(i)"></div>
         }
       </div>

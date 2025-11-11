@@ -98,6 +98,30 @@ export class LobbyService {
     }
   }
 
+  get Id() {
+    return this.socket.id;
+  }
+
+  get LobbyList(): Observable<UserIdentity[]> {
+    return this.lobbySubject.asObservable();
+  }
+
+  get Name() {
+    return this.name;
+  }
+
+  get RoomName() {
+    return this.roomName;
+  }
+
+  get RoomsList() {
+    return this.roomsSubject.asObservable();
+  }
+
+  get SelectedRoom() {
+    return this.selectedRoom.asObservable();
+  }
+
   createRoom(roomName: string) {
     this.socket.emit(ClientEvents.CreateRoom, roomName);
   }
@@ -131,29 +155,5 @@ export class LobbyService {
   startGame() {
     console.log('click');
     this.socket.emit(ClientEvents.StartGame);
-  }
-
-  get Id() {
-    return this.socket.id;
-  }
-
-  get LobbyList(): Observable<UserIdentity[]> {
-    return this.lobbySubject.asObservable();
-  }
-
-  get Name() {
-    return this.name;
-  }
-
-  get RoomName() {
-    return this.roomName;
-  }
-
-  get RoomsList() {
-    return this.roomsSubject.asObservable();
-  }
-
-  get SelectedRoom() {
-    return this.selectedRoom.asObservable();
   }
 }
