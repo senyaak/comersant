@@ -1,6 +1,7 @@
 {
   "name": "comersant-frontend",
   "version": "0.0.0",
+  "type": "module",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
@@ -12,9 +13,13 @@
     "compodoc:build": "compodoc -p tsconfig.doc.json",
     "compodoc:build-and-serve": "compodoc -p tsconfig.doc.json -s",
     "compodoc:serve": "compodoc -s",
-    "i18n:extract": "ng extract-i18n --format=json --output-path=src/assets/i18n && node scripts/sync-translations.js"
+    "i18n:extract": "ng extract-i18n --format=json --output-path=src/assets/i18n && node scripts/sync-translations.ts"
   },
   "private": true,
+  "engines": {
+    "node": ">=24.11.0",
+    "npm": ">=11.6.0"
+  },
   "dependencies": {
     "@angular/animations": "^20.3.7",
     "@angular/common": "^20.3.7",

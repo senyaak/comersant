@@ -1,29 +1,38 @@
 #!/usr/bin/env node
 
-const fs = require('fs');
-const path = require('path');
+import { readFileSync, writeFileSync, existsSync } from 'fs';
+import { join, basename, dirname } from 'path';
+import { fileURLToPath } from 'url';
 
-const ROOT = path.join(__dirname, '..');
-const I18N_DIR = path.join(ROOT, 'src/assets/i18n');
-const BASE_FILE = path.join(I18N_DIR, 'messages.json');
-const DE_FILE = path.join(I18N_DIR, 'messages.de.json');
-const RU_FILE = path.join(I18N_DIR, 'messages.ru.json');
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+const ROOT = join(__dirname, '..');
+const I18N_DIR = join(ROOT, 'src/assets/i18n');
+const BASE_FILE = join(I18N_DIR, 'messages.json');
+const DE_FILE = join(I18N_DIR, 'messages.de.json');
+const RU_FILE = join(I18N_DIR, 'messages.ru.json');
+
+interface TranslationFile {
+  locale: string;
+  translations: Record<string, string>;
+}
 
 console.log('🔄 Syncing translations...\n');
 
 // 1. Read base file
-const base = JSON.parse(fs.readFileSync(BASE_FILE, 'utf8'));
+const base: TranslationFile = JSON.parse(readFileSync(BASE_FILE, 'utf8'));
 const baseKeys = Object.keys(base.translations);
 
 console.log(`📄 Base file: ${baseKeys.length} keys\n`);
 
 // Sync function
-function syncTranslations(filePath, locale) {
-  console.log(`🌍 Processing: ${path.basename(filePath)} (${locale})`);
+function syncTranslations(filePath: string, locale: string): void {
+  console.log(`🌍 Processing: ${basename(filePath)} (${locale})`);
 
-  let target;
-  if (fs.existsSync(filePath)) {
-    target = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+  let target: TranslationFile;
+  if (existsSync(filePath)) {
+    target = JSON.parse(readFileSync(filePath, 'utf8'));
   } else {
     target = { locale, translations: {} };
     console.log('   ⚠️  File does not exist, creating new one');
@@ -49,7 +58,7 @@ function syncTranslations(filePath, locale) {
   });
 
   // Re-sort keys in the same order as base
-  const sortedTranslations = {};
+  const sortedTranslations: Record<string, string> = {};
   baseKeys.forEach(key => {
     if (key in target.translations) {
       sortedTranslations[key] = target.translations[key];
@@ -58,7 +67,7 @@ function syncTranslations(filePath, locale) {
   target.translations = sortedTranslations;
 
   // Write back
-  fs.writeFileSync(filePath, JSON.stringify(target, null, 2) + '\n', 'utf8');
+  writeFileSync(filePath, JSON.stringify(target, null, 2) + '\n', 'utf8');
 
   // Output statistics
   if (missingKeys.length > 0) {
