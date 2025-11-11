@@ -7,7 +7,6 @@
  * @generated This file was generated/enhanced by AI (GitHub Copilot)
  */
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { PropertyMods } from '$i18n/mapping';
 import { GovPropertyColor, PropertyGroupsColors } from '$server/modules/game/models/FieldModels/board';
 import { PropertyCell } from '$server/modules/game/models/FieldModels/cells';
 import { AreaSite, Business, PrivateBusiness, Property } from '$server/modules/game/models/GameModels/properties';
@@ -85,7 +84,7 @@ export class PlayerPropertyComponent implements OnInit, OnDestroy {
   }
 
   private getPrefixes(): string[] {
-    return PropertyMods.map(mod =>
+    return this.localization.propertyMods.map(mod =>
       this.localization.getPropertyModPrefix(mod),
     );
   }

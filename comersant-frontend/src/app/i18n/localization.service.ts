@@ -1,9 +1,42 @@
 import { Injectable } from '@angular/core';
+import {
+  AreaSiteCells,
+  ArenaBusinessCells,
+  EatBusinessCells,
+  FarmBusinessCells,
+  FoodBusinessCells,
+  GovBusinessCells,
+  MarketBusinessCells,
+  StadiumBusinessCells,
+  StorageBusinessCells,
+  TheaterBusinessCells,
+} from '$server/modules/game/models/FieldModels/board';
+import { CardEventCellTypes } from '$server/modules/game/models/FieldModels/cells';
+
+// Property asset grades/levels
+export type PropertyGrades = 'areasite' | 'office' | 'department' | 'enterprise';
+
+// Union type for all valid cell names that can be translated
+export type TranslatableCellName =
+  | EatBusinessCells
+  | MarketBusinessCells
+  | FoodBusinessCells
+  | FarmBusinessCells
+  | StadiumBusinessCells
+  | ArenaBusinessCells
+  | TheaterBusinessCells
+  | StorageBusinessCells
+  | GovBusinessCells
+  | AreaSiteCells
+  | CardEventCellTypes
+  | PropertyGrades;
 
 @Injectable({
   providedIn: 'root',
 })
 export class LocalizationService {
+  // Property modification levels
+  readonly propertyMods: ReadonlyArray<PropertyGrades> = ['areasite', 'office', 'department', 'enterprise'] as const;
   private getPropertyMod(key: string): string {
     const mods: Record<string, () => string> = {
       'Site': () => $localize`:@@Site:Site`,
@@ -51,7 +84,7 @@ export class LocalizationService {
     return names[key] ? names[key]() : '';
   }
 
-  getPropertyModPrefix(mod: string): string {
+  getPropertyModPrefix(mod: PropertyGrades): string {
     const translated = this.getPropertyMod(mod);
     return translated.substring(0, 1).toUpperCase();
   }

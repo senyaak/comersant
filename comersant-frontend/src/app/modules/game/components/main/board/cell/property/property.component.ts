@@ -1,5 +1,4 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { PropertyMods } from '$i18n/mapping';
 import { GovPropertyColor, PropertyGroupsColors } from '$server/modules/game/models/FieldModels/board';
 import { PropertyCell } from '$server/modules/game/models/FieldModels/cells';
 import { Business, PrivateBusiness } from '$server/modules/game/models/GameModels/properties';
@@ -53,7 +52,7 @@ export class PropertyComponent extends Asset implements OnInit {
   }
 
   get prefixes(): string[] {
-    return PropertyMods.map(mod =>
+    return this.localization.propertyMods.map(mod =>
       this.localization.getPropertyModPrefix(mod),
     );
   }
