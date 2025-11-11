@@ -1,20 +1,20 @@
 <div id="game-control">
   <div class="control-header" style="display: flex; justify-content: space-between;">
-    <h3 translate>Game Control</h3>
-    <h5>{{ TurnState | translate }}</h5>
+    <h3 i18n="@@game-control">Game Control</h3>
+    <h5>{{ TurnState }}</h5>
   </div>
 
   <div class="turn-info">
     <div class="current-player">
-      <label translate="">Active Player:</label>
+      <label i18n="@@active-player">Active Player:</label>
       <span class="player-name">
         <span>
           {{ currentPlayerName }}
         </span>
         @if (isMyTurn) {
-          <span>
-            ({{ 'You' | translate }})
-          </span>
+        <span i18n="@@you">
+          (You)
+        </span>
         }
       </span>
     </div>
@@ -25,14 +25,14 @@
       {{ turnState }}
     </span>
   </div> -->
-</div>
+  </div>
 
-<app-control-actions />
-<!-- TODO: use directives? -->
-@if (canBuyProperty) {
+  <app-control-actions />
+  <!-- TODO: use directives? -->
+  @if (canBuyProperty) {
   <app-buy-property />
-}
-@if (TurnState === 'Trading' && isMyTurn) {
+  }
+  @if (TurnState === 'Trading' && isMyTurn) {
   <app-turn-control />
-}
+  }
 </div>

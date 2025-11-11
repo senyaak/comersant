@@ -1,16 +1,9 @@
 <svg:g app-cell-wrapper [orderNumber]="orderNumber">
   <svg:g>
-    <svg:text
-      [attr.x]="x + width / 2"
-      [attr.y]="textTopPadding + fontSize"
-      [attr.font-size]="fontSize"
-      [attr.font-family]="font"
-      [attr.stroke-width]="lineWidth"
-      dominant-baseline="hanging"
-      style="white-space: pre;"
-      text-anchor="middle"
-      >
-      <svg:tspan [attr.x]="x + width / 2" dy="1.2em">{{ 'skip-turn' | translate }}</svg:tspan>
+    <svg:text [attr.x]="x + width / 2" [attr.y]="textTopPadding + fontSize" [attr.font-size]="fontSize"
+      [attr.font-family]="font" [attr.stroke-width]="lineWidth" dominant-baseline="hanging" style="white-space: pre;"
+      text-anchor="middle" i18n="@@skip-turn">
+      <svg:tspan [attr.x]="x + width / 2" dy="1.2em">Skip Turn</svg:tspan>
     </svg:text>
   </svg:g>
 </svg:g>

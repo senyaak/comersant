@@ -7,12 +7,12 @@
  * @generated This file was generated/enhanced by AI (GitHub Copilot)
  */
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { TranslateService } from '@ngx-translate/core';
 import { PropertyMods } from '$i18n/mapping';
 import { GovPropertyColor, PropertyGroupsColors } from '$server/modules/game/models/FieldModels/board';
 import { PropertyCell } from '$server/modules/game/models/FieldModels/cells';
 import { AreaSite, Business, PrivateBusiness, Property } from '$server/modules/game/models/GameModels/properties';
 import { Subscription } from 'rxjs';
+import { LocalizationService } from 'src/app/i18n/localization.service';
 
 import { GameService } from '../../../../services/game.service';
 
@@ -39,41 +39,39 @@ export class PlayerPropertyComponent implements OnInit, OnDestroy {
 
   constructor(
     private gameService: GameService,
-    private translate: TranslateService,
+    private localization: LocalizationService,
   ) {}
 
   ngOnDestroy() {
     this.propertyBoughtSubscription?.unsubscribe();
   }
 
-  async ngOnInit() {
-    await this.loadPlayerProperties();
+  ngOnInit() {
+    this.loadPlayerProperties();
 
     // Subscribe to property purchases to update the deck
-    this.propertyBoughtSubscription = this.gameService.propertyBought$.subscribe(async (result) => {
+    this.propertyBoughtSubscription = this.gameService.propertyBought$.subscribe((result) => {
       if (result.success) {
-        await this.loadPlayerProperties();
+        this.loadPlayerProperties();
       }
     });
   }
 
-  private async createDemoProperties(): Promise<PropertyCardData[]> {
+  private createDemoProperties(): PropertyCardData[] {
     const demoData = [
       { name: 'gastronomie', color: PropertyGroupsColors[0] },
       { name: 'mercery', color: PropertyGroupsColors[1] },
       { name: 'diner', color: PropertyGroupsColors[2] },
     ];
 
-    return Promise.all(
-      demoData.map(async (demo) => ({
-        cell: {} as PropertyCell<Business>, // Demo placeholder
-        label: await this.translate.get(demo.name).toPromise(),
-        cellColor: demo.color,
-        buys: [900, 15000, 54000, 120000],
-        payouts: [400, 1500, 5200, 11000],
-        prefixes: this.getPrefixes(),
-      })),
-    );
+    return demoData.map((demo) => ({
+      cell: {} as PropertyCell<Business>, // Demo placeholder
+      label: this.localization.translate(demo.name),
+      cellColor: demo.color,
+      buys: [900, 15000, 54000, 120000],
+      payouts: [400, 1500, 5200, 11000],
+      prefixes: this.getPrefixes(),
+    }));
   }
 
   private getCellColor(cell: PropertyCell<Property>): string {
@@ -88,7 +86,7 @@ export class PlayerPropertyComponent implements OnInit, OnDestroy {
 
   private getPrefixes(): string[] {
     return PropertyMods.map(mod =>
-      this.translate.instant(mod).substring(0, 1).toUpperCase(),
+      this.localization.getPropertyModPrefix(mod),
     );
   }
 
@@ -97,38 +95,36 @@ export class PlayerPropertyComponent implements OnInit, OnDestroy {
     return !this.gameService.Player || !this.gameService.Game.id;
   }
 
-  private async loadPlayerProperties() {
+  private loadPlayerProperties() {
     const ownedProperties = this.gameService.ownedProperties;
     const playerProperties = ownedProperties[this.gameService.Player.Id] || [];
 
     // For demo purposes, add some example properties if none exist
     if (playerProperties.length === 0 && this.isDemoMode()) {
-      this.playerProperties = await this.createDemoProperties();
+      this.playerProperties = this.createDemoProperties();
       return;
     }
 
     // Include all properties (Business and AreaSite)
-    this.playerProperties = await Promise.all(
-      playerProperties.map(async (cell) => {
-        const baseData = {
-          cell,
-          label: await this.translate.get(cell.name).toPromise(),
-          cellColor: this.getCellColor(cell),
-        };
+    this.playerProperties = playerProperties.map((cell) => {
+      const baseData = {
+        cell,
+        label: this.localization.translate(cell.name),
+        cellColor: this.getCellColor(cell),
+      };
 
-        // Add business-specific data if it's a business property
-        if (cell.object instanceof Business) {
-          return {
-            ...baseData,
-            buys: cell.object.buys,
-            payouts: cell.object.payouts,
-            prefixes: this.getPrefixes(),
-          };
-        } else {
-          return baseData;
-        }
-      }),
-    );
+      // Add business-specific data if it's a business property
+      if (cell.object instanceof Business) {
+        return {
+          ...baseData,
+          buys: cell.object.buys,
+          payouts: cell.object.payouts,
+          prefixes: this.getPrefixes(),
+        };
+      } else {
+        return baseData;
+      }
+    });
   }
 
   isAreaSite(cell: PropertyCell<Property>): cell is PropertyCell<AreaSite> {

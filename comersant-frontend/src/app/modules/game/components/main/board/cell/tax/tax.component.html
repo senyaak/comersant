@@ -1,13 +1,8 @@
 <svg:g class="app-card-cell" app-cell-wrapper [orderNumber]="orderNumber">
   <svg:g>
-    <svg:text
-      [attr.x]="x + width / 2"
-      [attr.y]="height / 2"
-      [attr.font-family]="font"
-      [attr.font-size]="fontSize"
-      [attr.fill]="color"
-      text-anchor="middle">
-      {{ 'tax' | translate }}: {{ -tax }}
+    <svg:text [attr.x]="x + width / 2" [attr.y]="height / 2" [attr.font-family]="font" [attr.font-size]="fontSize"
+      [attr.fill]="color" text-anchor="middle" i18n="@@tax-value">
+      Tax: {{ -tax }}
     </svg:text>
   </svg:g>
 </svg:g>

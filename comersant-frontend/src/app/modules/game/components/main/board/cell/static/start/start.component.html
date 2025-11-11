@@ -1,36 +1,16 @@
 <svg:g app-cell-wrapper [orderNumber]="orderNumber">
   <svg:g>
-    <svg:text
-      [attr.x]="x + width * 0.5"
-      [attr.y]="offset + height * 0.2"
-      text-anchor="middle"
-      font-family="Verdana"
-      font-size="30">
-      {{ 'start' | translate }}
+    <svg:text [attr.x]="x + width * 0.5" [attr.y]="offset + height * 0.2" text-anchor="middle" font-family="Verdana"
+      font-size="30" i18n="@@start">
+      Start
     </svg:text>
     <svg:polygon [attr.points]="polygonPoints" stroke-linejoin="round" />
-    <svg:rect
-      [attr.x]="x + width * 0.45"
-      [attr.y]="offset + height * 0.55 - 5"
-      [attr.width]="10"
-      [attr.height]="10"
-      fill="black"
-      stroke="black" />
-    <svg:circle
-      [attr.cx]="x + width * 0.45 + 35"
-      [attr.cy]="offset + height * 0.55"
-      [attr.r]="this.height * 0.15" />
-    <svg:rect
-      [attr.x]="x + width * 0.45 + 35"
-      [attr.y]="offset + this.height * 0.4"
-      [attr.width]="30"
-      [attr.height]="this.height * 0.3"
-      fill="black"
-      stroke="black" />
-    <svg:circle
-      [attr.cx]="x + width * 0.45 + 35"
-      [attr.cy]="offset + height * 0.55"
-      [attr.r]="this.height * 0.05"
+    <svg:rect [attr.x]="x + width * 0.45" [attr.y]="offset + height * 0.55 - 5" [attr.width]="10" [attr.height]="10"
+      fill="black" stroke="black" />
+    <svg:circle [attr.cx]="x + width * 0.45 + 35" [attr.cy]="offset + height * 0.55" [attr.r]="this.height * 0.15" />
+    <svg:rect [attr.x]="x + width * 0.45 + 35" [attr.y]="offset + this.height * 0.4" [attr.width]="30"
+      [attr.height]="this.height * 0.3" fill="black" stroke="black" />
+    <svg:circle [attr.cx]="x + width * 0.45 + 35" [attr.cy]="offset + height * 0.55" [attr.r]="this.height * 0.05"
       fill="white" />
   </svg:g>
 </svg:g>

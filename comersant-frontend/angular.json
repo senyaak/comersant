@@ -14,6 +14,19 @@
       "root": "",
       "sourceRoot": "src",
       "prefix": "app",
+      "i18n": {
+        "sourceLocale": "en-US",
+        "locales": {
+          "de": {
+            "translation": "src/assets/i18n/messages.de.json",
+            "baseHref": "/de/"
+          },
+          "ru": {
+            "translation": "src/assets/i18n/messages.ru.json",
+            "baseHref": "/ru/"
+          }
+        }
+      },
       "architect": {
         "build": {
           "builder": "@angular/build:application",
@@ -32,7 +45,8 @@
             "styles": ["src/styles.scss"],
             "progress": true,
             "scripts": [],
-            "browser": "src/main.ts"
+            "browser": "src/main.ts",
+            "localize": ["en", "de", "ru"]
           },
           "configurations": {
             "production": {
@@ -54,7 +68,14 @@
               "optimization": false,
               "extractLicenses": false,
               "sourceMap": true,
-              "namedChunks": true
+              "namedChunks": true,
+              "localize": false
+            },
+            "de": {
+              "localize": ["de"]
+            },
+            "ru": {
+              "localize": ["ru"]
             }
           },
           "defaultConfiguration": "production"
@@ -67,6 +88,12 @@
             },
             "development": {
               "buildTarget": "comersant-frontend:build:development"
+            },
+            "de": {
+              "buildTarget": "comersant-frontend:build:de"
+            },
+            "ru": {
+              "buildTarget": "comersant-frontend:build:ru"
             }
           },
           "defaultConfiguration": "development"

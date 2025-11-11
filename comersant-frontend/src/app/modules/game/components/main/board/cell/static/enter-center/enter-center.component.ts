@@ -13,7 +13,15 @@ export class EnterCenterComponent extends BaseComponent {
     return '0.8em';
   }
 
+  get secondCircleLetters(): string[] {
+    return $localize`:@@second-circle:2nd Circle`.split('');
+  }
+
   get splitterX(): number {
     return this.x + this.width / 2;
+  }
+
+  get toStartLetters(): string[] {
+    return $localize`:@@to-start:To Start`.split('');
   }
 }

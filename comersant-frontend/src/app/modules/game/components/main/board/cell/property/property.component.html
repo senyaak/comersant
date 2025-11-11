@@ -43,8 +43,9 @@
 
       <!-- upgradePrice -->
       <svg:text [attr.x]="x + width / 2" [attr.y]="botSeparatorY + extraPadding" [attr.font-size]="fontSize"
-        [attr.font-family]="font" [attr.stroke-width]="lineWidth" dominant-baseline="hanging" text-anchor="middle">
-        {{ 'upgradePrice' | translate }}
+        [attr.font-family]="font" [attr.stroke-width]="lineWidth" dominant-baseline="hanging" text-anchor="middle"
+        i18n="@@upgradePrice">
+        Upgrade
       </svg:text>
       <svg:text [attr.x]="x + width / 2" [attr.y]="botSeparatorY + extraPadding + fontSize" [attr.font-size]="fontSize"
         [attr.font-family]="font" [attr.stroke-width]="lineWidth" dominant-baseline="hanging" text-anchor="middle">

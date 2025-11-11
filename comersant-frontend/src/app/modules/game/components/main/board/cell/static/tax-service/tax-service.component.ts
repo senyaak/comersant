@@ -9,5 +9,7 @@ import { BaseComponent } from '../../abstract/base';
   styleUrl: './tax-service.component.scss',
 })
 export class TaxServiceComponent extends BaseComponent {
-
+  get words(): string[] {
+    return $localize`:@@taxService:Tax Service`.split(' ');
+  }
 }

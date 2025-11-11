@@ -28,7 +28,7 @@ export class CardComponent extends BaseComponent implements OnInit {
   ngOnInit() {
     if (this.cell instanceof CardEventCell) {
       // console.log('-> ', this, this.cell.name, this.cell.type);
-      this.label = this.cell.type;
+      this.label = this.getLocalizedLabel(this.cell.type);
     } else {
       console.log(this.cell);
       throw new Error('HANDLE OTHER EVENT ');
@@ -47,5 +47,14 @@ export class CardComponent extends BaseComponent implements OnInit {
 
   get patternScale(): number {
     return 0.7;
+  }
+
+  private getLocalizedLabel(type: string): string {
+    const labels: Record<string, string> = {
+      'surprise': $localize`:@@surprise:Surprise`,
+      'post': $localize`:@@post:Post`,
+      'risk': $localize`:@@risk:Risk`,
+    };
+    return labels[type] || type;
   }
 }

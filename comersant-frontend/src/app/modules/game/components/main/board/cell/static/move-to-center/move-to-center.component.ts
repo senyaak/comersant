@@ -8,4 +8,8 @@ import { BaseComponent } from '../../abstract/base';
   styleUrl: './move-to-center.component.scss',
   standalone: false,
 })
-export class MoveToCenterComponent extends BaseComponent {}
+export class MoveToCenterComponent extends BaseComponent {
+  get words(): string[] {
+    return $localize`:@@centerEntrance:Entrance to the Center`.split(' ');
+  }
+}

@@ -47,6 +47,16 @@ export class GameControlComponent implements OnInit {
   }
 
   get TurnState() {
-    return this.gameService.Game.CurrentTurnState;
+    const state = this.gameService.Game.CurrentTurnState;
+    return this.getLocalizedTurnState(state);
+  }
+
+  private getLocalizedTurnState(state: string): string {
+    const states: Record<string, string> = {
+      'Trading': $localize`:@@turn-state-trading:Trading`,
+      'Event': $localize`:@@turn-state-event:Event`,
+      'Moving': $localize`:@@turn-state-moving:Moving`,
+    };
+    return states[state] || state;
   }
 }

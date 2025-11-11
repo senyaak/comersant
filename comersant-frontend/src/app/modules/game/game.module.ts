@@ -1,6 +1,5 @@
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
-import { TranslateModule } from '@ngx-translate/core';
 
 import { BoardComponent } from './components/main/board/board.component';
 import { AreaComponent } from './components/main/board/cell/area/area.component';
@@ -62,7 +61,7 @@ import { GameService } from './services/game.service';
     ControlActionsComponent,
     TaxServiceComponent,
   ],
-  imports: [CommonModule, GameRoutingModule, TranslateModule],
+  imports: [CommonModule, GameRoutingModule],
   providers: [GameService, GameStateService, GameEventsService, GameNotificationService],
 })
 export class GameModule {}

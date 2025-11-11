@@ -1,8 +1,8 @@
 <button class="buy-property-btn" [disabled]="isLoading" (click)="onBuyProperty()">
   @if (!isLoading) {
-    {{ 'Buy Property' | translate }}
+  <span i18n="@@buy-property">Buy Property</span>
   }
   @if (isLoading) {
-    {{ 'Loading...' | translate }}
+  <span i18n="@@loading">Loading...</span>
   }
 </button>

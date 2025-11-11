@@ -12,8 +12,7 @@
     "compodoc:build": "compodoc -p tsconfig.doc.json",
     "compodoc:build-and-serve": "compodoc -p tsconfig.doc.json -s",
     "compodoc:serve": "compodoc -s",
-    "i18n:init": "ngx-translate-extract --input ./src --output ./src/assets/i18n/template.json --key-as-default-value --replace --format json",
-    "i18n:extract": "ngx-translate-extract --input ./src --output ./src/assets/i18n/{en,de,ru}.json --clean --format json --key-as-default-value --marker _"
+    "i18n:extract": "ng extract-i18n --format=json --output-path=src/assets/i18n && node scripts/sync-translations.js"
   },
   "private": true,
   "dependencies": {
@@ -25,8 +24,6 @@
     "@angular/platform-browser": "^20.3.7",
     "@angular/platform-browser-dynamic": "^20.3.7",
     "@angular/router": "^20.3.7",
-    "@ngx-translate/core": "^16.0.4",
-    "@ngx-translate/http-loader": "^16.0.1",
     "rxjs": "~7.8.2",
     "socket.io-client": "^4.8.1",
     "tslib": "^2.8.1",
@@ -40,7 +37,6 @@
     "@angular/localize": "^20.3.7",
     "@eslint/js": "^9.24.0",
     "@types/jasmine": "~5.1.7",
-    "@vendure/ngx-translate-extract": "^9.4.0",
     "eslint": "^9.24.0",
     "eslint-plugin-perfectionist": "^4.11.0",
     "globals": "^16.0.0",
