@@ -1,5 +1,5 @@
-const fs = require('fs');
-const path = require('path');
+import * as fs from 'fs';
+import * as path from 'path';
 
 // Пути к файлам
 const DOCS_DIR = path.join(__dirname, '..', 'docs', 'architecture');
