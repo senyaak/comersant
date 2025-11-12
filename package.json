@@ -20,7 +20,7 @@
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "docs:backend": "typedoc --options typedoc.json",
     "docs:frontend": "compodoc -p ./comersant-frontend/tsconfig.json -d ./comersant-frontend/documentation",
-    "docs:architecture": "node scripts/build-architecture.ts",
+    "docs:architecture": "node scripts/build-architecture.js",
     "docs:build": "npm run docs:backend && npm run docs:frontend && npm run docs:architecture",
     "compodoc:build": "compodoc -p tsconfig.json",
     "compodoc:build-and-serve": "compodoc -p tsconfig.json -s",
