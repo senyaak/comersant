@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Architecture Decision Records - Comersant Platform</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      background: #f5f7fa;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      background: white;
+      min-height: 100vh;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .header {
+      background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+      color: white;
+      padding: 40px;
+      text-align: center;
+    }
+
+    .header h1 {
+      font-size: 2.5em;
+      font-weight: 300;
+      margin-bottom: 10px;
+    }
+
+    .header p {
+      opacity: 0.9;
+      font-size: 1.1em;
+    }
+
+    .header .adr-count {
+      margin-top: 15px;
+      font-size: 0.9em;
+      opacity: 0.8;
+    }
+
+    .nav-links {
+      background: #e9ecef;
+      padding: 15px;
+      text-align: center;
+      border-bottom: 1px solid #dee2e6;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .nav-links a {
+      display: inline-block;
+      padding: 8px 16px;
+      background: white;
+      color: #495057;
+      text-decoration: none;
+      border-radius: 4px;
+      border: 1px solid #ced4da;
+      transition: all 0.3s ease;
+      font-size: 0.9em;
+    }
+
+    .nav-links a:hover {
+      background: #007bff;
+      color: white;
+      border-color: #007bff;
+    }
+
+    .breadcrumb {
+      padding: 15px 40px;
+      background: #f8f9fa;
+      border-bottom: 1px solid #e9ecef;
+      font-size: 0.9em;
+    }
+
+    .breadcrumb a {
+      color: #007bff;
+      text-decoration: none;
+    }
+
+    .breadcrumb a:hover {
+      text-decoration: underline;
+    }
+
+    .adr-section {
+      padding: 40px;
+      border-bottom: 1px solid #eee;
+    }
+
+    .adr-section:last-child {
+      border-bottom: none;
+    }
+
+    .adr-header {
+      margin-bottom: 30px;
+    }
+
+    .adr-number {
+      display: inline-block;
+      background: #007bff;
+      color: white;
+      padding: 4px 12px;
+      border-radius: 4px;
+      font-size: 0.85em;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+
+    .adr-section h2 {
+      color: #1e3c72;
+      font-size: 2em;
+      margin-bottom: 15px;
+      padding-bottom: 10px;
+      border-bottom: 3px solid #2a5298;
+    }
+
+    .adr-meta {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+      font-size: 0.9em;
+    }
+
+    .adr-meta span {
+      padding: 5px 12px;
+      background: #f8f9fa;
+      border-radius: 4px;
+    }
+
+    .status {
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.85em;
+    }
+
+    .status-accepted {
+      background: #d4edda !important;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+
+    .status-proposed {
+      background: #fff3cd !important;
+      color: #856404;
+      border: 1px solid #ffeaa7;
+    }
+
+    .status-deprecated {
+      background: #f8d7da !important;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+
+    .status-superseded {
+      background: #e2e3e5 !important;
+      color: #383d41;
+      border: 1px solid #d6d8db;
+    }
+
+    .date,
+    .author {
+      color: #6c757d;
+    }
+
+    .adr-content {
+      color: #495057;
+    }
+
+    .adr-content h1 {
+      color: #1e3c72;
+      font-size: 1.8em;
+      margin: 30px 0 20px 0;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #e9ecef;
+    }
+
+    .adr-content h2 {
+      color: #2a5298;
+      font-size: 1.5em;
+      margin: 25px 0 15px 0;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #e9ecef;
+    }
+
+    .adr-content h3 {
+      color: #495057;
+      font-size: 1.2em;
+      margin: 20px 0 10px 0;
+    }
+
+    .adr-content p {
+      margin-bottom: 15px;
+      text-align: justify;
+    }
+
+    .adr-content ul,
+    .adr-content ol {
+      margin-left: 30px;
+      margin-bottom: 15px;
+    }
+
+    .adr-content li {
+      margin-bottom: 8px;
+    }
+
+    .adr-content code {
+      background: #f8f9fa;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.9em;
+      color: #e83e8c;
+    }
+
+    .adr-content pre {
+      background: #282c34;
+      color: #abb2bf;
+      padding: 20px;
+      border-radius: 6px;
+      overflow-x: auto;
+      margin: 20px 0;
+      border: 1px solid #21252b;
+    }
+
+    .adr-content pre code {
+      background: none;
+      color: inherit;
+      padding: 0;
+      font-size: 0.9em;
+      line-height: 1.5;
+    }
+
+    .adr-content strong {
+      color: #2a5298;
+      font-weight: 600;
+    }
+
+    .adr-content em {
+      font-style: italic;
+      color: #6c757d;
+    }
+
+    .adr-content a {
+      color: #007bff;
+      text-decoration: none;
+      border-bottom: 1px solid transparent;
+      transition: border-bottom 0.2s;
+    }
+
+    .adr-content a:hover {
+      border-bottom: 1px solid #007bff;
+    }
+
+    .adr-content table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+    }
+
+    .adr-content th,
+    .adr-content td {
+      padding: 12px;
+      border: 1px solid #dee2e6;
+      text-align: left;
+    }
+
+    .adr-content th {
+      background: #f8f9fa;
+      font-weight: 600;
+      color: #495057;
+    }
+
+    .adr-content blockquote {
+      border-left: 4px solid #007bff;
+      padding-left: 20px;
+      margin: 20px 0;
+      color: #6c757d;
+      font-style: italic;
+      background: #f8f9ff;
+      padding: 15px 20px;
+      border-radius: 4px;
+    }
+
+    .adr-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+      gap: 20px;
+      padding: 40px;
+    }
+
+    .adr-card {
+      background: white;
+      border: 1px solid #e9ecef;
+      border-radius: 8px;
+      padding: 20px;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    .adr-card:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      transform: translateY(-2px);
+    }
+
+    .adr-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+
+    .adr-card-title {
+      color: #1e3c72;
+      font-size: 1.2em;
+      margin-bottom: 15px;
+      line-height: 1.4;
+    }
+
+    .adr-card-meta {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+      font-size: 0.85em;
+      color: #6c757d;
+      margin-bottom: 15px;
+    }
+
+    .adr-card-link {
+      display: inline-block;
+      padding: 8px 16px;
+      background: #007bff;
+      color: white;
+      text-decoration: none;
+      border-radius: 4px;
+      transition: background 0.3s ease;
+      font-size: 0.9em;
+    }
+
+    .adr-card-link:hover {
+      background: #0056b3;
+    }
+
+    .footer {
+      background: #f8f9fa;
+      padding: 20px;
+      text-align: center;
+      color: #6c757d;
+      border-top: 1px solid #e9ecef;
+      margin-top: 40px;
+      font-size: 0.9em;
+    }
+
+    .intro-section {
+      padding: 40px;
+      background: linear-gradient(to bottom, #f8f9fa 0%, white 100%);
+      border-bottom: 1px solid #e9ecef;
+    }
+
+    .intro-section h2 {
+      color: #1e3c72;
+      margin-bottom: 15px;
+    }
+
+    .intro-section p {
+      color: #495057;
+      line-height: 1.8;
+      margin-bottom: 15px;
+    }
+
+    @media (max-width: 768px) {
+      .header h1 {
+        font-size: 1.8em;
+      }
+
+      .adr-section {
+        padding: 20px;
+      }
+
+      .breadcrumb {
+        padding: 10px 20px;
+      }
+
+      .nav-links {
+        padding: 10px;
+        gap: 5px;
+      }
+
+      .adr-meta {
+        flex-direction: column;
+        gap: 10px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>📚 Architecture Decision Records</h1>
+      <p>Comersant Platform - Technical Decision Documentation</p>
+      <div class="adr-count">{{ADR_COUNT}} documented decisions</div>
+    </div>
+
+    <div class="nav-links">
+      {{NAV_LINKS}}
+    </div>
+
+    <div class="breadcrumb">
+      <a href="../index.html">Documentation</a> / <strong>Architecture Decision Records</strong>
+    </div>
+
+    <div class="intro-section">
+      <h2>What are ADRs?</h2>
+      <p>
+        Architecture Decision Records (ADRs) capture important architectural decisions made during the development
+        of the Comersant platform. Each record documents the context, decision rationale, and consequences of
+        significant technical choices.
+      </p>
+      <p>
+        These records serve as a historical reference and help current and future developers understand why
+        certain design decisions were made, what alternatives were considered, and what trade-offs were accepted.
+      </p>
+    </div>
+
+    <div class="adr-grid">
+      {{ADR_LIST}}
+    </div>
+
+    <div class="footer">
+      <p>Generated from ADR markdown files | Comersant Platform © 2025</p>
+      <p>Last updated: {{GENERATION_DATE}}</p>
+    </div>
+  </div>
+</body>
+
+</html>

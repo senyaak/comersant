@@ -133,90 +133,10 @@
     </div>
 
     <div class="nav-links">
-      <a href="../backend/index.html">🔧 Backend API</a>
-      <a href="../frontend/index.html">🎨 Frontend Docs</a>
-      <a href="../index.html">📊 Architecture</a>
+      {{NAV_LINKS}}
     </div>
 
-    <!-- Level 1 - Context -->
-    <div class="diagram-section">
-      <h2>{{CONTEXT_TITLE}}</h2>
-      <div class="diagram-description">
-        <strong>Description:</strong> {{CONTEXT_DESCRIPTION}}
-      </div>
-
-      <div class="mermaid">
-        {{CONTEXT_DIAGRAM}}
-      </div>
-
-      <div class="features">
-        {{CONTEXT_FEATURES}}
-      </div>
-    </div>
-
-    <!-- Level 2 - Container -->
-    <div class="diagram-section">
-      <h2>{{CONTAINER_TITLE}}</h2>
-      <div class="diagram-description">
-        <strong>Description:</strong> {{CONTAINER_DESCRIPTION}}
-      </div>
-
-      <div class="mermaid">
-        {{CONTAINER_DIAGRAM}}
-      </div>
-
-      <div class="features">
-        {{CONTAINER_FEATURES}}
-      </div>
-    </div>
-
-    <!-- Level 3 - Backend Components -->
-    <div class="diagram-section">
-      <h2>{{BACKEND_TITLE}}</h2>
-      <div class="diagram-description">
-        <strong>Description:</strong> {{BACKEND_DESCRIPTION}}
-      </div>
-
-      <div class="mermaid">
-        {{BACKEND_DIAGRAM}}
-      </div>
-
-      <div class="features">
-        {{BACKEND_FEATURES}}
-      </div>
-    </div>
-
-    <!-- Level 3 - Frontend Components -->
-    <div class="diagram-section">
-      <h2>{{FRONTEND_TITLE}}</h2>
-      <div class="diagram-description">
-        <strong>Description:</strong> {{FRONTEND_DESCRIPTION}}
-      </div>
-
-      <div class="mermaid">
-        {{FRONTEND_DIAGRAM}}
-      </div>
-
-      <div class="features">
-        {{FRONTEND_FEATURES}}
-      </div>
-    </div>
-
-    <!-- Sequence Diagram -->
-    <div class="diagram-section">
-      <h2>{{SEQUENCE_TITLE}}</h2>
-      <div class="diagram-description">
-        <strong>Description:</strong> {{SEQUENCE_DESCRIPTION}}
-      </div>
-
-      <div class="mermaid">
-        {{SEQUENCE_DIAGRAM}}
-      </div>
-
-      <div class="features">
-        {{SEQUENCE_FEATURES}}
-      </div>
-    </div>
+    {{DIAGRAM_SECTIONS}}
   </div>
 
   <script>

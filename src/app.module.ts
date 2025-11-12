@@ -9,19 +9,27 @@ import { LobbyModule } from './modules/lobby/lobby.module';
 
 @Module({
   imports: [
-    // Документация с наивысшим приоритетом
+    // Backend API документация
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'documentation'),
       serveRoot: '/docs/backend',
     }),
+    // Frontend документация
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'comersant-frontend', 'documentation'),
       serveRoot: '/docs/frontend',
     }),
+    // Architecture диаграммы
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'documentation', 'architecture'),
       serveRoot: '/docs/architecture',
     }),
+    // ADR документация
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'documentation', 'adr'),
+      serveRoot: '/docs/adr',
+    }),
+    // Главная страница документации из src/static (НЕ генерируется!)
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'src', 'static'),
       serveRoot: '/docs',
