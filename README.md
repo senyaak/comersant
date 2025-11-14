@@ -104,7 +104,7 @@ The backend serves the built frontend at `http://localhost:3000`
 
 ### User Documentation
 
-- **How to play**: [Game Rules](./docs/game-rules.md) *(coming soon)*
+- **How to play**: [Game Rules 🇷🇺](./docs/gamerulez_ru.md) | [Game Rules 🇬🇧](./docs/gamerulez_en.md)
 - **API Documentation**: [Auto-generated](#generate-documentation) at `http://localhost:3000/docs`
 
 ### Developer Documentation
