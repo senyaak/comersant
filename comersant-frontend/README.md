@@ -144,9 +144,8 @@ npm run test -- --browsers=ChromeHeadless --watch=false
 
 ### Generate Component Documentation
 
-All documentation is generated in BE part see [Generate Documentation](./../README.md### Generate Documentation).
+All documentation is generated in the backend part. See [Generate Documentation](../README.md#generate-documentation).
 
-```bash
 ### View Architecture
 
 See parent [README](../README.md) for:
