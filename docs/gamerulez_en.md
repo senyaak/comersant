@@ -1,372 +1,302 @@
-# Kommersant (The Merchant)
+# Коммерсант
 
-**An Economics Game for Beginners**
+**Правила**
 
-## Game Description
+### Количество игроков
+От 2 до 6 человек.
 
-Our era is a time of transition to market relations. Among people, especially the younger generation, there is a growing interest in economics and, first and foremost, in its new manifestations.
-
-This game is an attempt to show in general terms certain aspects of the market, its laws, and its "pitfalls." The game will teach you to:
-- Think outside the box
-- Make bold decisions quickly with long-term planning
-- Train independence
-- Develop creative thinking and resourcefulness
-- Strengthen memory
+### Стартовый капитал
+Каждый игрок получает:
+- **250,000 рублей**
 
 ---
 
-## Game Components
+## Начало игры
 
-- **Game Board** — divided into sectors (lots) representing commercial and sports/cultural enterprises
-- **3 Dice**
-- **Up to 6 Playing Pieces** — one for each player
-- **Three Decks of Cards**: "Risk," "Letter," and "Surprise"
-- **Property Markers**: "Enterprise" (E), "Department" (D), and "Office" (O)
-- **"Property" Cards** — identical to the lots on the game board
-- **Banknotes** of various denominations
-- **Red Tokens** — indicate the right to purchase a state-owned enterprise
+### Определение очередности хода
 
----
+1. Очерёдность определяется списком игроков в лобби до начала игры. Создающий игру ходит первым.
 
-## Game Setup
+### Первый ход
 
-### Number of Players
-2 to 6 people.
-
-### Board Preparation
-
-1. Place **red tokens** on any of the lots (spaces) on the board, except for "State Enterprise" spaces
-2. Place **"Property,"** **"Risk,"** **"Surprise,"** and **"Letter"** cards in separate stacks
-3. "Risk," "Surprise," and "Letter" cards are placed **face up**
-4. Cut out the cards and banknotes before playing
-
-### Starting Capital
-
-Each player receives:
-- A **playing piece** of a specific color
-- **250,000 rubles** in banknotes
-
-**Exception for the Banker**: receives **280,000 rubles** (due to being constantly distracted by conducting financial operations).
-
-### Choosing the Banker
-
-One of the players becomes the **Banker**. This should be the most responsible player who can count quickly.
-
-**Banker's Responsibilities**:
-- Accept and issue payments
-- Conduct auctions
-- Manage financial operations
+- Начало игры ведется с клетки **«Старт»**
+- На сумму очков, выпавших на трех кубиках, игрок передвигает свою фишку
 
 ---
 
-## Starting the Game
+## Правила игры
 
-### Determining Turn Order
+### Движение по полю
 
-1. All players roll **three dice**
-2. The player with the **highest sum** gets the first turn
-3. Play continues with the player sitting to the **left**, and then **clockwise**
+- В свой ход игрок может кидать **один, два или три кубика** по желанию (в зависимости от ситуации)
+- На одной клетке могут стоять **несколько фишек**
+- Все финансовые операции игрок совершает **перед своим броском кубиков**
+- Если кубики брошены, а операция не проведена — необходимо ожидать следующего хода
 
-### First Move
+### Особое правило: три одинаковых числа
 
-- The game starts from the **"Start"** space
-- A player moves their piece according to the sum of the dice rolled
+Если на всех трех кубиках выпало **одно и то же число**, игрок может **по желанию** пройти вперед на **удвоенное число** суммы очков.
 
----
+### Прохождение круга и дивиденды
 
-## Game Rules
+При прохождении **полного круга** игрок получает **дивиденды (прибыль)** со всех своих предприятий в размере, указанном на карточке.
 
-### Movement on the Board
-
-- On their turn, a player can roll **one, two, or three dice** at will (depending on the situation)
-- **Multiple pieces** can occupy the same space
-- All financial transactions are conducted **before rolling the dice**
-- If the dice have been rolled and the transaction was not completed, the player must wait for the next turn
-
-### Special Rule: Three Identical Numbers
-
-If all three dice show **the same number**, the player can **optionally** move forward **double the sum** of the dice.
-
-### Completing a Lap and Dividends
-
-When completing a **full lap**, a player receives **dividends (profit)** from all their enterprises in the amount indicated on the card.
-
-- Profit increases proportionally to the money invested in the enterprise
-- Dividends are paid when completing a "full" lap (outer and inner)
-- Transition from the outer circle occurs according to the instructions on the board
+- Прибыль увеличивается пропорционально вложенным в предприятие деньгам
+- Дивиденды выплачиваются при прохождении «полного» круга (внешнего и внутреннего)
+- Переход с внешнего круга происходит согласно указаниям на поле
 
 ---
 
-## Landing on Spaces
+## Остановка на клетках
 
-### Landing on an Unowned Lot
+### Остановка на свободном участке
 
-When a player's piece lands on an **unowned lot** with an enterprise:
+Когда фишка игрока попадает на **свободный участок** с предприятием:
 
-1. The player can **purchase** it at the price indicated on the card
-2. Money is paid to the **Bank**
-3. The Banker gives the player a **"Property" card** identical to the acquired lot
+1. Игрок может **купить** его по цене, указанной в карточке
+2. Деньги выплачиваются **банку**
+3. Игрок получает **карту «Собственность»**, идентичную приобретенному участку
 
-**If purchase is declined**: the Banker has the right to sell the lot to other players at a negotiated price (highest bidder), but **not less than** the price indicated on the card.
+**При отказе от покупки**: начинается аукцион между всеми игроками (включая того, кто отказался). стартовая цена — цена на карточке.
 
-### Landing on an Owned Lot
+### Остановка на занятом участке
 
-If a player's piece lands on a lot owned by another player, they must **pay the owner rent** according to the card:
+Если фишка игрока остановилась на участке, принадлежащем другому игроку, необходимо **выплатить владельцу плату** за остановку согласно карточке:
 
-- **Area (A)**: base rent
-- **Office (O)**: increased rent
-- **Department (D)**: significantly higher rent
-- **Enterprise (E)**: maximum rent
+- **Пустой участок (У)**: базовая плата
+- **Филиал (Ф)**: увеличенная плата
+- **Отделение (О)**: значительно большая плата
+- **Предприятие (П)**: максимальная плата
 
-**Exception**: If the group is incomplete or the enterprise is mortgaged, rent is **not charged**.
+**Исключение**: При заложенном предприятии плата **не взимается**.
 
-### "Letter," "Risk," "Surprise" Spaces
+### Клетки «Письмо», «Риск», «Сюрприз»
 
-The player takes the top card from the corresponding deck (placed face down), performs the operations specified on the card, and places it at the **bottom of the deck**.
+Автоматически разыгрывается карта из соответствующей колоды. Все игроки видят что на карте.
 
-### "Vacation," "Treatment" Spaces
+### Клетка «Отпуск», «Лечение»
 
-The player **skips their turn**.
+Игрок **пропускает ход**.
 
-### "Fine," "Profit" Spaces
+### Клетки «Штраф», «Прибыль»
 
-A transaction is made with the bank for the amounts indicated in the spaces.
+Производится взаиморасчет с банком на суммы, указанные в клеточках.
 
-### "Move to Center" Space
+### Клетка «Ход в центр»
 
-When landing on one of the two "Move to Center" spaces, the player **optionally**:
+При остановке на одной из двух клеток «Ход в центр» игрок **по желанию**:
 
-1. Can move immediately to the **central circle**
-2. On their next turn, has the right to move to **any space on the board**
-3. **To exit the center**, the player must roll **at least 14 points** on three dice
+1. Может встать сразу в **центральный круг**
+2. При последующем ходе имеет право встать на **любую клетку поля**
+3. **Выйти из центра** можно только при условии выпадания на трех кубиках **не менее 14 очков**
 
-### "Tax Service" Space
+### Клетка «Налоговая служба»
 
-To move forward, the player must:
-- Pay the bank **10,000 rubles**, OR
-- Roll three dice and score **at least 13 points** on their next turn
-
----
-
-## Enterprise Groups and Development
-
-### Enterprise Groups
-
-All enterprises are divided into **groups of the same color** with **three in each**:
-- Stores
-- Food Service
-- Theaters
-- And others
-
-### Main Objective of the Game
-
-Acquire property, preferably **by color group**, and then purchase on these lots:
-1. **Office**
-2. **Department**
-3. **Head Enterprise**
-
-To own them and collect rent from opponents.
-
-### Complete Group Advantage
-
-A player owning **three lots of the same color** charges a player landing on their property **double rent**.
-
-**Triple rent** is charged when owning:
-- **"Statefarm,"** AND
-- **Three lots of the same color** from the group:
-  - "Food Product Trade"
-  - "Public Catering"
-  - "Agricultural Product Sales"
-
-### Enterprise Development
-
-After purchasing **all three lots of the same color**, the player begins to develop the property:
-
-**Development Sequence** (on each lot):
-1. Purchase **Office (O)**
-2. Purchase **Department (D)**
-3. Purchase **Enterprise (E)**
-
-**Important Rule**: Property is acquired **evenly**.
-
-**Example of Improper Development**:
-A player CANNOT purchase an enterprise on one lot if other lots in the same group have only an office or department.
-
-**In one turn**, a player can place **only one** office, department, or enterprise on one lot.
-
-### Development Example: "Grocery Store"
-
-1. **Lot Purchase**: 30,000 rubles
-2. **Office**: +20,000 rubles (marker "O" is placed)
-3. **Department**: +20,000 rubles (marker "D" is placed)
-4. **Enterprise**: +20,000 rubles (marker "E" is placed)
-
-**Rent when opponent lands**:
-- Area (A): 4,000 rubles
-- Office (O): 12,000 rubles
-- Department (D): 50,000 rubles
-- Enterprise (E): 120,000 rubles
-
-**Dividends when completing a lap**:
-- For example, if you own an office: 1,200 rubles
-- Profit is summed across all enterprises
+Чтобы пойти дальше, игрок обязан:
+- Заплатить в банк **10,000 руб.**, ИЛИ
+- Бросить три кубика и набрать **не менее 13 очков** при своем очередном ходе. Прив провале меньшего числа — игрок пропускает ход.
 
 ---
 
-## State-Owned Enterprises
+## Группы предприятий и развитие
 
-The game includes **six state-owned enterprises**, marked with the letter **"S"** (State).
+### Группы предприятий
 
-### How to Purchase a State Enterprise
+Все предприятия делятся на **группы одинакового цвета** по **три в каждой**:
+- Магазины
+- Общепит
+- Театры
+- И другие
 
-Requirements:
-1. Have a **red token** (obtained by landing on a space with a token placed nearby)
-2. Land on a **"State Enterprise"** space
+### Основной смысл игры
 
-### State Enterprise Features
+Приобретение собственности, желательно **по одной группе (цвету)**, и затем выкупа на этих участках:
+1. **Филиала**
+2. **Отделения**
+3. **Головного предприятия**
 
-- **Purchase price is higher** than regular enterprises
-- **Does not require** acquiring three lots of the same color
-- **Rent from other players is higher**
-- Purchase follows the same sequence: **Office → Department → Enterprise**
+Чтобы затем ими владеть и брать с противников плату.
 
-### Trading Red Tokens
+### Преимущество полной группы
 
-If a player doesn't have a red token but another player does, the **token can be purchased** at a negotiated price.
+Игрок, владеющий **тремя участками одного цвета**, взимает с остановившегося на его поле игрока **двойную плату**.
 
----
+**Тройная плата** взимается при наличии:
+- **«Совхоза»**, И
+- **Трех участков одного цвета** из группы:
+  - «Торговля продовольственными товарами»
+  - «Общественное питание»
+  - «Реализация сельхозпродукции»
 
-## Vacant Land Lot
+### Развитие предприятий
 
-The board has spaces for **"Vacant Land Lot"** with the price indicated.
+При условии покупки **всех трех участков одного цвета**, игрок начинает развивать собственность:
 
-**Opportunities**:
-- Upon landing, a player can **purchase** the lot
-- Opponents are charged **rent** when landing on this lot
-- The lot can be **sold** to other players at any time at a negotiated price
+**Последовательность развития** (на каждом участке):
+1. Покупка **Филиала (Ф)**
+2. Покупка **Отделения (О)**
+3. Покупка **Предприятия (П)**
 
----
+**Важное правило**: Собственность приобретается **равномерно**.
 
-## Raccito
+**Пример неправильного развития**:
+Игрок НЕ может выкупить предприятие на одном из участков, если на других участках той же группы выкуплено только по филиалу или отделению.
 
-The board has **four "Raccito" spaces**.
+**За один ход** можно поставить на одном участке **только один** филиал, отделение или предприятие.
 
-### Raccito Advantages
+### Пример развития: «Гастроном»
 
-When landing on a "Raccito" space, a player can **optionally** become a racketeer and gain advantages:
+1. **Покупка участка**: 30,000 руб.
+2. **Филиал**: +20,000 руб. (ставится знак «Ф»)
+3. **Отделение**: +20,000 руб. (ставится знак «О»)
+4. **Предприятие**: +20,000 руб. (ставится знак «П»)
 
-- When landing on **another player's lot**: not only **does not pay** the owner, but also **takes** from them half the cost of the office or enterprise at the stage at which it was purchased
+**Плата при остановке соперника**:
+- Пустой участок (У): 4,000 руб.
+- Филиал (Ф): 12,000 руб.
+- Отделение (О): 50,000 руб.
+- Предприятие (П): 120,000 руб.
 
-### Protection from Raccito
-
-The "Risk" deck contains **four cards** marked **"Your enterprises are under police protection"**.
-
-A player who receives this card keeps it, and when a racketeer lands on their property:
-- The racketeer has all **cash confiscated** by the bank (excluding real estate)
-
-### Special Raccito Rules
-
-- The racketeer marks their piece or the banker makes notes
-- The racketeer can cease "activities" only after completing **at least two full laps** of the game
-- The racketeer conducts any buying and selling operations
-
----
-
-## Loans
-
-When temporarily short of funds, a player has the right to take a **loan** from the bank.
-
-### Loan Terms
-
-- **Maximum amount**: 100,000 rubles
-- **Repayment period**: no later than **three laps**
-- **Interest**: 20% of the loan amount
-- **Early repayment** is possible in installments with mandatory interest payment
-
-### Purpose of Loan
-
-A loan is taken when purchasing property if there is a shortage of cash at the moment.
+**Дивиденды при прохождении круга**:
+- Например, если владеете филиалом: 1,200 руб.
+- Прибыль суммируется по всем предприятиям
 
 ---
 
-## Property Trading and Mortgaging
+## Государственные предприятия
 
-### Trading
+В игре участвуют **шесть государственных предприятий**, обозначенных буквой **«Г»**.
 
-A player should strive to purchase all offices, departments, and enterprises of a color group as quickly as possible.
+### Как купить госпредприятие
 
-**Trading Rules**:
-- Transactions are conducted **before the player's turn**
-- Purchase or sale of lots occurs **by agreement** with the bank and other players
-- A lot **CANNOT be sold** or exchanged if an office, department, or enterprise is already built on it
+Необходимо:
+1. Иметь **красный кружок** (получается при остановке на клетке, против которой расположен кружок)
+2. Остановиться на клетке **«Госпредприятие»**
 
-### Mortgage
+### Особенности госпредприятий
 
-Done by turning the "Property" card face down.
+- **Выкуп дороже**, чем обычные предприятия
+- **Не требуется** приобретать три участка одного цвета
+- **Плата с других игроков больше**
+- Выкуп производится в той же последовательности: **Филиал → Отделение → Предприятие**
 
-**Mortgage Terms**:
-- Mortgaged **only to the bank**
-- At **half the price** of the cost
-- When an enterprise is mortgaged, rent from opponents is **not charged**
+### Торговля красным кружком
 
-**Selling to the Bank**:
-- An enterprise is sold to the bank at **full price**
-
-### Selling Offices and Departments
-
-If short of money, a player can **sell** an office or enterprise, but **evenly** removing them from lots (following the principle of even development).
+Если у игрока нет красного кружка, но он есть у другого игрока — возможна **покупка кружка** по цене договоренности.
 
 ---
 
-## Penalties and Violations
+## Свободный участок земли
 
-### Player Penalties
+На поле расположены клетки **«Свободный участок земли»** с указанием стоимости.
 
-**Fine of 2,000 rubles** is paid to the bank if a player:
-- Moved another player's piece, OR
-- Did not fully pay an opponent
-
-### Banker Penalty
-
-A banker caught in **dishonest operations** with bank money or personal funds:
-- Must **stop playing**
-- Their property becomes **ownerless** and re-enters the game
-- A **new bank manager** is chosen to continue the game
+**Возможности**:
+- При остановке игрок может **купить** участок
+- С соперников взимается **плата** при их остановке на этом участке
+- Возможна **продажа** участка другим игрокам в любое время по цене договоренности
 
 ---
 
-## Bankruptcy and Game End
+## Рэкет
 
-### Bankruptcy
+На поле расположены **четыре клетки «Рэкет»**.
 
-Players unable to make financial transactions with the bank or opponents at any given moment (**bankrupts**) are **eliminated from the game**.
+### Преимущества рэкетира
 
-### Victory
+При остановке на клетке «Рэкет» игрок **по желанию** может стать рэкетиром и получить преимущества:
 
-The **winner** is the player with the **most property and cash** at the end of the game.
+- При остановке на **чужом участке**: не только **не платит** собственнику, но и **берет** с него половину стоимости филиала или предприятия на той стадии, на какой оно выкуплено
 
----
+### Защита от рэкета
 
-## Additional Notes
+В карточках «Риск» есть **четыре карты** с пометкой **«Ваши предприятия взяты под охрану милицией»**.
 
-1. **Card Transfer**: When purchasing a lot, the "Enterprise" card is transferred to the owner, as well as the "Land Lot" and "State Enterprise" cards
+Игрок, получивший эту карточку, хранит ее у себя и при остановке рэкетира на его собственности:
+- У рэкетира банком **изымаются все наличные деньги** (за исключением недвижимости)
 
-2. **Voluntary Raccito**: When landing on a "Raccito" space, the raccito rule does not necessarily apply to the player — it depends on their choice
+### Особые правила рэкета
 
-3. **"Property" Card**: Certifies the player's right to own the lot and further construction of an office, department, and head enterprise on it
-
----
-
-## Game History
-
-These materials are a detailed reconstruction of the game **"Kommersant"**, published in **1991** with a print run of **100,000 copies** by the "Omskaya Pravda" printing house.
-
-**Acknowledgments**:
-- User "sergey_sergei" (forum.ngs70.ru) — for providing scans of game rules
-- Users "Pitonmohax" and "-Borius-" (forum.omsk.com) — for source files of the game board, banknotes, etc.
-
-**From the reconstruction author**: All creative and technical efforts, searches, and time spent on the project are dedicated to **Yerofeev B.T. (1928-2012)**, my partner in this game 20 years ago.
+- Фишка Рэкетира помечается специальным знаком 
+- Можно прекратить «деятельность» рэкетира только после прохождения **не менее полных двух кругов** игры
+- Рэкетир совершает любые операции купли-продажи
 
 ---
 
-**WE WISH YOU AN ENJOYABLE TIME PLAYING!**
+## Кредиты
+
+При временной нехватке денежных средств игрок имеет право взять в банке **кредит**.
+
+### Условия кредита
+
+- **Максимальная сумма**: 100,000 рублей
+- **Срок возврата**: не позднее чем через **три круга**
+- **Процент**: 20% от суммы взятого кредита
+- Возможен **досрочный возврат** частями с обязательной уплатой процентов
+
+### Цель кредита
+
+Кредит берется при покупке собственности при условии нехватки наличности в данный момент.
+
+---
+
+## Торговля собственностью и залог
+
+### Торговля
+
+Игроку необходимо стремиться как можно быстрее купить все филиалы, отделения и предприятия группы одного цвета.
+
+**Правила торговли**:
+- Операции производятся **перед ходом** игрока
+- Покупка или продажа участков происходит **путем договоренности** с банком и другими игроками
+- Участок **НЕ продается** и не обменивается, если на нем уже построены филиал, отделение или предприятие
+
+### Залог
+
+Производится путем переворачивания карточки «Собственность» обратной стороной.
+
+**Условия залога**:
+- Закладывается **только в банк**
+- По **половинной цене** от стоимости
+- При заложенном предприятии плата с соперников **не взимается**
+
+**Продажа в банк**:
+- Предприятие продается в банк **по полной стоимости**
+
+### Продажа филиалов и отделений
+
+В случае нехватки денег игрок может **продать** филиал или предприятие, но **равномерно** снимая их с участков (соблюдая принцип равномерного развития).
+
+---
+
+
+## Банкротство и окончание игры
+
+### Банкротство
+
+Игроки, не имеющие возможности произвести в определенный момент игры денежные взаиморасчеты с банком или с соперниками (**банкроты**), **выбывают из игры**.
+
+### Победа
+
+**Выигравшим** считается тот, у кого в конце игры будет **больше собственности и денежных средств**.
+
+---
+
+## Дополнительные примечания
+
+1. **Добровольность рэкета**: При остановке на клетке «Рэкет» на игрока не обязательно распространяется правило «рэкетирства» — это зависит от его желания
+
+---
+
+## История игры
+
+Данные материалы являются подробной реконструкцией игры **«Коммерсант»**, выпущенной в **1991 году** тиражом **100,000 экземпляров** типографией «Омская правда».
+
+**Благодарности**:
+- Пользователю «sergey_sergei» (forum.ngs70.ru) — за предоставленные сканы правил игры
+- Пользователям «Pitonmohax» и «-Borius-» (forum.omsk.com) — за исходники игрового поля, купюр и т.д.
+
+**От автора оригинала реконструкции**: Все творческие и технические усилия, поиски и время, затраченное на проект, посвящаю **Ерофееву Б.Т. (1928-2012)**, моему партнеру по этой игре 20 лет назад.
+
+---
+
+**ЖЕЛАЕМ ВАМ ИНТЕРЕСНО ПРОВЕСТИ ВРЕМЯ ЗА ИГРОЙ!**
