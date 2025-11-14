@@ -18,7 +18,7 @@ export class EnterCenterComponent extends BaseComponent {
   }
 
   get splitterX(): number {
-    return this.x + this.width / 2;
+    return this.localX + this.width / 2;
   }
 
   get toStartLetters(): string[] {

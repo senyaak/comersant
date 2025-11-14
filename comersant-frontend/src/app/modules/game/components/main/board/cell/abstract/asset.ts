@@ -22,7 +22,12 @@ export abstract class Asset extends BaseComponent {
   }
 
   get ownerColor(): string {
-    return this.gameService.Game.players.find(p => p.Id === this.cell.object.owner)!.Color;
+    const owner = this.gameService.Game.players.find(p => p.Id === this.cell.object.owner);
+    if(!owner) {
+      throw new Error('Owner not found');
+    }
+
+    return owner.Color;
   }
 
   get ownerMarkRadius(): number {
@@ -30,7 +35,7 @@ export abstract class Asset extends BaseComponent {
   }
 
   get ownerX(): number {
-    return this.x + this.width - this.ownerMarkRadius - this.extraPadding;
+    return this.localX + this.width - this.ownerMarkRadius - this.extraPadding;
   }
 
   get ownerY(): number {

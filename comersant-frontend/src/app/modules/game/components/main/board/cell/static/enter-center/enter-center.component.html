@@ -3,18 +3,18 @@
     <svg:line [attr.x1]="splitterX" [attr.y1]="offset" [attr.x2]="splitterX" [attr.y2]="height + offset"
       [attr.stroke-width]="lineWidth" [attr.stroke]="black"></svg:line>
 
-    <svg:text [attr.x]="x + width / 2" [attr.y]="textTopPadding + fontSize" [attr.font-size]="fontSize"
+    <svg:text [attr.x]="localX + width / 2" [attr.y]="textTopPadding + fontSize" [attr.font-size]="fontSize"
       [attr.font-family]="font" [attr.stroke-width]="lineWidth" dominant-baseline="hanging" style="white-space: pre;">
       @for (letter of secondCircleLetters; track $index) {
-      <svg:tspan [attr.x]="x + width / 4" [attr.dy]="lettersHeight">
+      <svg:tspan [attr.x]="localX + width / 4" [attr.dy]="lettersHeight">
         {{letter}}
       </svg:tspan>
       }
     </svg:text>
-    <svg:text [attr.x]="x + width / 3" [attr.y]="textTopPadding + fontSize" [attr.font-size]="fontSize"
+    <svg:text [attr.x]="localX + width / 3" [attr.y]="textTopPadding + fontSize" [attr.font-size]="fontSize"
       [attr.font-family]="font" [attr.stroke-width]="lineWidth" dominant-baseline="hanging" style="white-space: pre;">
       @for (letter of toStartLetters; track $index) {
-      <svg:tspan [attr.x]="x + width / 2" [attr.dy]="lettersHeight">
+      <svg:tspan [attr.x]="localX + width / 2" [attr.dy]="lettersHeight">
         {{letter}}
       </svg:tspan>
       }
