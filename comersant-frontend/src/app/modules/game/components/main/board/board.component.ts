@@ -13,7 +13,8 @@ import {
 import { AreaSite } from '$server/modules/game/models/GameModels/properties';
 
 import { GameService } from '../../../services/game.service';
-import { BoardCenter, CellHeight, CellOffset, CellWidth } from './cell/abstract/base';
+import { CellHeight, CellOffset, CellWidth } from './cell/abstract/base';
+import { ViewportController } from './utils/viewport-controller';
 
 // import { SVG } from '@svgdotjs/svg.js';
 @Component({
@@ -25,19 +26,7 @@ import { BoardCenter, CellHeight, CellOffset, CellWidth } from './cell/abstract/
 export class BoardComponent implements OnInit, OnChanges, OnDestroy {
   public board!: Board;
 
-  // Zoom and pan constants
-  private readonly MIN_ZOOM = 0.5;
-  private readonly MAX_ZOOM = 3;
-  private readonly ZOOM_FACTOR = 0.9;
-  private readonly VIEWPORT_ESTIMATE_PX = 800; // Approximate viewport size for pan calculation
-
-  // Zoom and pan state
-  zoomLevel = 1;
-  panX = 0;
-  panY = 0;
-  isPanning = false;
-  lastMouseX = 0;
-  lastMouseY = 0;
+  private readonly viewport = new ViewportController();
 
   // Event listener references for cleanup
   private mouseMoveListener: ((event: MouseEvent) => void) | null = null;
@@ -93,28 +82,14 @@ export class BoardComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   get viewBox(): string {
-    // Dynamic viewBox for zoom/pan centered on circular board
-    const boardSize = BoardCenter * 2;
-    // Safety check to prevent division by zero
-    const safeZoom = Math.max(0.01, this.zoomLevel);
-    const size = boardSize / safeZoom;
-
-    // Center viewBox on board center, then apply pan offset
-    const x = BoardCenter - size/2 - this.panX;
-    const y = BoardCenter - size/2 - this.panY;
-    return `${x} ${y} ${size} ${size}`;
+    return this.viewport.getViewBox();
   }
 
   @HostListener('wheel', ['$event'])
   onWheel(event: WheelEvent): void {
-    const zoomFactor = event.deltaY > 0 ? this.ZOOM_FACTOR : 1 / this.ZOOM_FACTOR;
-    const newZoom = this.zoomLevel * zoomFactor;
-    const clampedZoom = Math.max(this.MIN_ZOOM, Math.min(this.MAX_ZOOM, newZoom));
-
     // Only prevent default if zoom actually changes (allows page scroll when at zoom limits)
-    if (clampedZoom !== this.zoomLevel) {
+    if (this.viewport.handleWheel(event.deltaY)) {
       event.preventDefault();
-      this.zoomLevel = clampedZoom;
     }
   }
 
@@ -122,40 +97,17 @@ export class BoardComponent implements OnInit, OnChanges, OnDestroy {
   onMouseDown(event: MouseEvent): void {
     // Only pan with left mouse button
     if (event.button === 0) {
-      this.isPanning = true;
-      this.lastMouseX = event.clientX;
-      this.lastMouseY = event.clientY;
+      this.viewport.startPan(event.clientX, event.clientY);
       event.preventDefault();
     }
   }
 
   onMouseUp(): void {
-    this.isPanning = false;
+    this.viewport.endPan();
   }
 
   onMouseMove(event: MouseEvent): void {
-    if (this.isPanning) {
-      // Convert pixel delta to SVG units (inversely proportional to zoom)
-      const boardSize = BoardCenter * 2;
-      const viewBoxSize = boardSize / this.zoomLevel;
-
-      // Approximate conversion factor (assumes square viewport)
-      const svgToPixelRatio = viewBoxSize / this.VIEWPORT_ESTIMATE_PX;
-
-      const dx = (event.clientX - this.lastMouseX) * svgToPixelRatio;
-      const dy = (event.clientY - this.lastMouseY) * svgToPixelRatio;
-
-      this.panX += dx;
-      this.panY += dy;
-
-      // Clamp pan to keep board mostly visible
-      const maxPan = boardSize / 2;
-      this.panX = Math.max(-maxPan, Math.min(maxPan, this.panX));
-      this.panY = Math.max(-maxPan, Math.min(maxPan, this.panY));
-
-      this.lastMouseX = event.clientX;
-      this.lastMouseY = event.clientY;
-    }
+    this.viewport.updatePan(event.clientX, event.clientY);
   }
 
   getType(item: Cell) {
