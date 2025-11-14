@@ -1,4 +1,4 @@
-import { Component, OnChanges, OnInit } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnChanges, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { EventType } from '$server/modules/game/models/events';
 import { Board } from '$server/modules/game/models/FieldModels/board';
 import {
@@ -14,6 +14,7 @@ import { AreaSite } from '$server/modules/game/models/GameModels/properties';
 
 import { GameService } from '../../../services/game.service';
 import { CellHeight, CellOffset, CellWidth } from './cell/abstract/base';
+import { ViewportController } from './utils/viewport-controller';
 
 // import { SVG } from '@svgdotjs/svg.js';
 @Component({
@@ -22,13 +23,26 @@ import { CellHeight, CellOffset, CellWidth } from './cell/abstract/base';
   styleUrls: ['./board.component.scss'],
   standalone: false,
 })
-export class BoardComponent implements OnInit, OnChanges {
+export class BoardComponent implements OnInit, AfterViewInit, OnChanges, OnDestroy {
+  private readonly viewport = new ViewportController();
+
   public board!: Board;
+  @ViewChild('boardSvg', { static: false }) boardSvgRef!: ElementRef<SVGSVGElement>;
 
   constructor(private gameService: GameService) {}
 
+  ngAfterViewInit() {
+    // Initialize viewport controller with SVG element
+    this.viewport.init(this.boardSvgRef.nativeElement);
+  }
+
   ngOnChanges() {
     console.log('BoardComponent changes detected');
+  }
+
+  ngOnDestroy() {
+    // Clean up viewport controller
+    this.viewport.destroy();
   }
 
   ngOnInit() {
@@ -50,7 +64,7 @@ export class BoardComponent implements OnInit, OnChanges {
   }
 
   get boardWidthScale() {
-    return '350%';
+    return '100%';
   }
 
   get flatCells() {
@@ -58,7 +72,7 @@ export class BoardComponent implements OnInit, OnChanges {
   }
 
   get viewBox(): string {
-    return `0 0 ${this.boardWidthC} ${this.boardHeightC}`;
+    return this.viewport.getViewBox();
   }
 
   getType(item: Cell) {

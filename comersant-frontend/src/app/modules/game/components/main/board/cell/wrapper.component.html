@@ -1,10 +1,12 @@
-<svg:rect
-  class="cell"
-  [attr.x]="x"
-  [attr.y]="offset"
-  [attr.width]="width"
-  [attr.height]="height"
-  [attr.stroke-width]="lineWidth"
-  [attr.fill]="fill"
-  stroke="black"></svg:rect>
-<ng-content></ng-content>
+<svg:g [attr.transform]="'translate(' + x + ',' + y + ') rotate(' + rotation + ',' + rotationOriginX + ',' + rotationOriginY + ')'">
+  <svg:rect
+    class="cell"
+    [attr.x]="0"
+    [attr.y]="offset"
+    [attr.width]="width"
+    [attr.height]="height"
+    [attr.stroke-width]="lineWidth"
+    [attr.fill]="fill"
+    stroke="black"></svg:rect>
+  <ng-content></ng-content>
+</svg:g>

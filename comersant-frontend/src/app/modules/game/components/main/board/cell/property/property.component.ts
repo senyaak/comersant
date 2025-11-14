@@ -58,7 +58,7 @@ export class PropertyComponent extends Asset implements OnInit {
   }
 
   get splitterX(): number {
-    return this.x + this.width * 0.6;
+    return this.localX + this.width * 0.6;
   }
 
   get topSeparatorY(): number {
