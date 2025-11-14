@@ -173,21 +173,6 @@ npm run i18n:extract
 
 Translation files are stored in `src/assets/i18n/`.
 
-## 🔧 Code Scaffolding
-
-Generate new components:
-
-```bash
-# Generate component
-ng generate component modules/game/components/my-component
-
-# Generate service
-ng generate service modules/game/services/my-service
-
-# Generate module
-ng generate module modules/my-module
-```
-
 ## 🛠️ Tech Stack
 
 - **Angular** 20.3.7 - Framework
