@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { Board } from '$server/modules/game/models/FieldModels/board';
-import { calculateCircularPosition, Position } from '../../utils/board-layout.utils';
+import { calculateCircularX, calculateCircularY } from '../../utils/board-layout.utils';
 
 export const CellHeight = 200;
 export const CellWidth = 150;
@@ -18,17 +18,6 @@ export const InnerRadius = 650;   // 23 cells: perfect spacing
 })
 export abstract class BaseComponent {
   @Input({ required: true }) orderNumber!: number;
-
-  private cachedCenter: Position | null = null;
-  private cachedOrderNumber: number = -1;
-
-  protected get centerPosition(): Position {
-    if (this.cachedOrderNumber !== this.orderNumber) {
-      this.cachedCenter = calculateCircularPosition(this.orderNumber);
-      this.cachedOrderNumber = this.orderNumber;
-    }
-    return this.cachedCenter!;
-  }
 
   protected get black() {
     return 'black';
@@ -112,13 +101,11 @@ export abstract class BaseComponent {
   }
 
   protected get x(): number {
-    // Use shared circular position calculation (cached), then adjust for cell dimensions
-    return this.centerPosition.x - this.width / 2;
+    return calculateCircularX(this.orderNumber) - this.width / 2;
   }
 
   protected get y(): number {
-    // Use shared circular position calculation (cached), then adjust for cell dimensions
-    return this.centerPosition.y - (this.height + this.offset) / 2;
+    return calculateCircularY(this.orderNumber) - (this.height + this.offset) / 2;
   }
 
   protected get rotation(): number {
