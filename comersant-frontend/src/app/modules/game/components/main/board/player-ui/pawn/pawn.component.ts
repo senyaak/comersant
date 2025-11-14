@@ -4,9 +4,9 @@ import { Player } from '$server/modules/game/models/GameModels/player';
 import { GameService } from 'src/app/modules/game/services/game.service';
 
 import {
-  ANIMATION_STEP_MS,
+  AnimationStepMs,
   calculateCircularPosition,
-  PLAYER_OFFSET_PX,
+  PlayerOffsetPx,
   Position
 } from '../../utils/board-layout.utils';
 
@@ -77,7 +77,7 @@ export class PawnComponent implements OnInit, DoCheck, OnDestroy {
 
       // Continue if not yet at target
       if (this.visualPosition !== targetPosition) {
-        this.animationTimeout = window.setTimeout(step, ANIMATION_STEP_MS);
+        this.animationTimeout = window.setTimeout(step, AnimationStepMs);
       }
     };
 
@@ -96,7 +96,7 @@ export class PawnComponent implements OnInit, DoCheck, OnDestroy {
       this.cachePlayerIndex();
     }
 
-    const offset = (this.playerIndex - this.gameService.Game.players.length / 2) * PLAYER_OFFSET_PX;
+    const offset = (this.playerIndex - this.gameService.Game.players.length / 2) * PlayerOffsetPx;
     return {
       x: pos.x + offset,
       y: pos.y + offset

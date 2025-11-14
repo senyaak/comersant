@@ -1,10 +1,10 @@
 import { Board } from '$server/modules/game/models/FieldModels/board';
-import { BOARD_CENTER, INNER_RADIUS, OUTER_RADIUS } from '../cell/abstract/base';
+import { BoardCenter, InnerRadius, OuterRadius } from '../cell/abstract/base';
 
 export type Position = { x: number; y: number };
 
-export const ANIMATION_STEP_MS = 150;
-export const PLAYER_OFFSET_PX = 10;
+export const AnimationStepMs = 150;
+export const PlayerOffsetPx = 10;
 
 /**
  * Calculate the circular position for a cell at given index
@@ -16,13 +16,13 @@ export function calculateCircularPosition(cellIndex: number): Position {
   const isOuter = cellIndex < outerCellCount;
   const ringIndex = isOuter ? cellIndex : cellIndex - outerCellCount;
   const total = isOuter ? outerCellCount : innerCellCount;
-  const radius = isOuter ? OUTER_RADIUS : INNER_RADIUS;
+  const radius = isOuter ? OuterRadius : InnerRadius;
 
   const angleStep = (2 * Math.PI) / total;
   const angle = ringIndex * angleStep + Math.PI / 2; // Start at bottom (6 o'clock), go clockwise
 
   return {
-    x: BOARD_CENTER + radius * Math.cos(angle),
-    y: BOARD_CENTER + radius * Math.sin(angle)
+    x: BoardCenter + radius * Math.cos(angle),
+    y: BoardCenter + radius * Math.sin(angle)
   };
 }

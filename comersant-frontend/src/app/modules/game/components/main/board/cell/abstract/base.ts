@@ -6,10 +6,10 @@ export const CellWidth = 150;
 export const CellOffset = 10;
 
 // Board layout constants
-export const BOARD_CENTER = 1500;
+export const BoardCenter = 1500;
 // Radius to outer edge of cells (cells form circle at their top edge)
-export const OUTER_RADIUS = 1050;  // 37 cells: increased to eliminate overlap
-export const INNER_RADIUS = 650;   // 23 cells: perfect spacing
+export const OuterRadius = 1050;  // 37 cells: increased to eliminate overlap
+export const InnerRadius = 650;   // 23 cells: perfect spacing
 
 @Component({
   selector: 'app-base',
@@ -91,7 +91,7 @@ export abstract class BaseComponent {
   }
 
   protected get radius(): number {
-    return this.isOuterRing ? OUTER_RADIUS : INNER_RADIUS;
+    return this.isOuterRing ? OuterRadius : InnerRadius;
   }
 
   protected get angle(): number {
@@ -101,12 +101,12 @@ export abstract class BaseComponent {
 
   protected get x(): number {
     // Position cell CENTER at circular position
-    return BOARD_CENTER + this.radius * Math.cos(this.angle) - this.width / 2;
+    return BoardCenter + this.radius * Math.cos(this.angle) - this.width / 2;
   }
 
   protected get y(): number {
     // Position cell CENTER at circular position
-    return BOARD_CENTER + this.radius * Math.sin(this.angle) - (this.height + this.offset) / 2;
+    return BoardCenter + this.radius * Math.sin(this.angle) - (this.height + this.offset) / 2;
   }
 
   protected get rotation(): number {

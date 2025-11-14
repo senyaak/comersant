@@ -13,7 +13,7 @@ import {
 import { AreaSite } from '$server/modules/game/models/GameModels/properties';
 
 import { GameService } from '../../../services/game.service';
-import { BOARD_CENTER, CellHeight, CellOffset, CellWidth } from './cell/abstract/base';
+import { BoardCenter, CellHeight, CellOffset, CellWidth } from './cell/abstract/base';
 
 // import { SVG } from '@svgdotjs/svg.js';
 @Component({
@@ -94,14 +94,14 @@ export class BoardComponent implements OnInit, OnChanges, OnDestroy {
 
   get viewBox(): string {
     // Dynamic viewBox for zoom/pan centered on circular board
-    const boardSize = BOARD_CENTER * 2;
+    const boardSize = BoardCenter * 2;
     // Safety check to prevent division by zero
     const safeZoom = Math.max(0.01, this.zoomLevel);
     const size = boardSize / safeZoom;
 
     // Center viewBox on board center, then apply pan offset
-    const x = BOARD_CENTER - size/2 - this.panX;
-    const y = BOARD_CENTER - size/2 - this.panY;
+    const x = BoardCenter - size/2 - this.panX;
+    const y = BoardCenter - size/2 - this.panY;
     return `${x} ${y} ${size} ${size}`;
   }
 
@@ -136,7 +136,7 @@ export class BoardComponent implements OnInit, OnChanges, OnDestroy {
   onMouseMove(event: MouseEvent): void {
     if (this.isPanning) {
       // Convert pixel delta to SVG units (inversely proportional to zoom)
-      const boardSize = BOARD_CENTER * 2;
+      const boardSize = BoardCenter * 2;
       const viewBoxSize = boardSize / this.zoomLevel;
 
       // Approximate conversion factor (assumes square viewport)
