@@ -246,8 +246,7 @@ comersant/
 ├── docs/                                 # Documentation
 │   ├── architecture/                     # C4 diagrams
 │   └── adr/                              # ADRs
-├── scripts/                              # Build scripts
-└── test/                                 # E2E tests
+└── scripts/                              # Build scripts
 ```
 
 ## 🔧 Configuration
