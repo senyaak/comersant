@@ -21,7 +21,7 @@ This game is an attempt to show in general terms certain aspects of the market, 
 - **3 Dice**
 - **Up to 6 Playing Pieces** — one for each player
 - **Three Decks of Cards**: "Risk," "Letter," and "Surprise"
-- **Property Markers**: "Enterprise" (E), "Branch" (B), and "Franchise" (F)
+- **Property Markers**: "Enterprise" (E), "Department" (D), and "Office" (O)
 - **"Property" Cards** — identical to the lots on the game board
 - **Banknotes** of various denominations
 - **Red Tokens** — indicate the right to purchase a state-owned enterprise
@@ -113,9 +113,9 @@ When a player's piece lands on an **unowned lot** with an enterprise:
 
 If a player's piece lands on a lot owned by another player, they must **pay the owner rent** according to the card:
 
-- **Empty lot (L)**: base rent
-- **Franchise (F)**: increased rent
-- **Branch (B)**: significantly higher rent
+- **Area (A)**: base rent
+- **Office (O)**: increased rent
+- **Department (D)**: significantly higher rent
 - **Enterprise (E)**: maximum rent
 
 **Exception**: If the group is incomplete or the enterprise is mortgaged, rent is **not charged**.
@@ -161,8 +161,8 @@ All enterprises are divided into **groups of the same color** with **three in ea
 ### Main Objective of the Game
 
 Acquire property, preferably **by color group**, and then purchase on these lots:
-1. **Franchise**
-2. **Branch**
+1. **Office**
+2. **Department**
 3. **Head Enterprise**
 
 To own them and collect rent from opponents.
@@ -172,7 +172,7 @@ To own them and collect rent from opponents.
 A player owning **three lots of the same color** charges a player landing on their property **double rent**.
 
 **Triple rent** is charged when owning:
-- **"State Farm,"** AND
+- **"Statefarm,"** AND
 - **Three lots of the same color** from the group:
   - "Food Product Trade"
   - "Public Catering"
@@ -183,32 +183,32 @@ A player owning **three lots of the same color** charges a player landing on the
 After purchasing **all three lots of the same color**, the player begins to develop the property:
 
 **Development Sequence** (on each lot):
-1. Purchase **Franchise (F)**
-2. Purchase **Branch (B)**
+1. Purchase **Office (O)**
+2. Purchase **Department (D)**
 3. Purchase **Enterprise (E)**
 
 **Important Rule**: Property is acquired **evenly**.
 
 **Example of Improper Development**:
-A player CANNOT purchase an enterprise on one lot if other lots in the same group have only a franchise or branch.
+A player CANNOT purchase an enterprise on one lot if other lots in the same group have only an office or department.
 
-**In one turn**, a player can place **only one** franchise, branch, or enterprise on one lot.
+**In one turn**, a player can place **only one** office, department, or enterprise on one lot.
 
 ### Development Example: "Grocery Store"
 
 1. **Lot Purchase**: 30,000 rubles
-2. **Franchise**: +20,000 rubles (marker "F" is placed)
-3. **Branch**: +20,000 rubles (marker "B" is placed)
+2. **Office**: +20,000 rubles (marker "O" is placed)
+3. **Department**: +20,000 rubles (marker "D" is placed)
 4. **Enterprise**: +20,000 rubles (marker "E" is placed)
 
 **Rent when opponent lands**:
-- Empty lot (L): 4,000 rubles
-- Franchise (F): 12,000 rubles
-- Branch (B): 50,000 rubles
+- Area (A): 4,000 rubles
+- Office (O): 12,000 rubles
+- Department (D): 50,000 rubles
 - Enterprise (E): 120,000 rubles
 
 **Dividends when completing a lap**:
-- For example, if you own a franchise: 1,200 rubles
+- For example, if you own an office: 1,200 rubles
 - Profit is summed across all enterprises
 
 ---
@@ -228,7 +228,7 @@ Requirements:
 - **Purchase price is higher** than regular enterprises
 - **Does not require** acquiring three lots of the same color
 - **Rent from other players is higher**
-- Purchase follows the same sequence: **Franchise → Branch → Enterprise**
+- Purchase follows the same sequence: **Office → Department → Enterprise**
 
 ### Trading Red Tokens
 
@@ -247,24 +247,24 @@ The board has spaces for **"Vacant Land Lot"** with the price indicated.
 
 ---
 
-## Racket
+## Raccito
 
-The board has **four "Racket" spaces**.
+The board has **four "Raccito" spaces**.
 
-### Racketeer Advantages
+### Raccito Advantages
 
-When landing on a "Racket" space, a player can **optionally** become a racketeer and gain advantages:
+When landing on a "Raccito" space, a player can **optionally** become a racketeer and gain advantages:
 
-- When landing on **another player's lot**: not only **does not pay** the owner, but also **takes** from them half the cost of the franchise or enterprise at the stage at which it was purchased
+- When landing on **another player's lot**: not only **does not pay** the owner, but also **takes** from them half the cost of the office or enterprise at the stage at which it was purchased
 
-### Protection from Racket
+### Protection from Raccito
 
 The "Risk" deck contains **four cards** marked **"Your enterprises are under police protection"**.
 
 A player who receives this card keeps it, and when a racketeer lands on their property:
 - The racketeer has all **cash confiscated** by the bank (excluding real estate)
 
-### Special Racket Rules
+### Special Raccito Rules
 
 - The racketeer marks their piece or the banker makes notes
 - The racketeer can cease "activities" only after completing **at least two full laps** of the game
@@ -293,12 +293,12 @@ A loan is taken when purchasing property if there is a shortage of cash at the m
 
 ### Trading
 
-A player should strive to purchase all franchises, branches, and enterprises of a color group as quickly as possible.
+A player should strive to purchase all offices, departments, and enterprises of a color group as quickly as possible.
 
 **Trading Rules**:
 - Transactions are conducted **before the player's turn**
 - Purchase or sale of lots occurs **by agreement** with the bank and other players
-- A lot **CANNOT be sold** or exchanged if a franchise, branch, or enterprise is already built on it
+- A lot **CANNOT be sold** or exchanged if an office, department, or enterprise is already built on it
 
 ### Mortgage
 
@@ -312,9 +312,9 @@ Done by turning the "Property" card face down.
 **Selling to the Bank**:
 - An enterprise is sold to the bank at **full price**
 
-### Selling Franchises and Branches
+### Selling Offices and Departments
 
-If short of money, a player can **sell** a franchise or enterprise, but **evenly** removing them from lots (following the principle of even development).
+If short of money, a player can **sell** an office or enterprise, but **evenly** removing them from lots (following the principle of even development).
 
 ---
 
@@ -351,9 +351,9 @@ The **winner** is the player with the **most property and cash** at the end of t
 
 1. **Card Transfer**: When purchasing a lot, the "Enterprise" card is transferred to the owner, as well as the "Land Lot" and "State Enterprise" cards
 
-2. **Voluntary Racket**: When landing on a "Racket" space, the racket rule does not necessarily apply to the player — it depends on their choice
+2. **Voluntary Raccito**: When landing on a "Raccito" space, the raccito rule does not necessarily apply to the player — it depends on their choice
 
-3. **"Property" Card**: Certifies the player's right to own the lot and further construction of a franchise, branch, and head enterprise on it
+3. **"Property" Card**: Certifies the player's right to own the lot and further construction of an office, department, and head enterprise on it
 
 ---
 
