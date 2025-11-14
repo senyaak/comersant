@@ -1,8 +1,14 @@
-import { AfterViewInit, Component, DoCheck, ElementRef, Input, ViewChild } from '@angular/core';
+import { Component, DoCheck, Input, OnDestroy, OnInit } from '@angular/core';
+import { Board } from '$server/modules/game/models/FieldModels/board';
 import { Player } from '$server/modules/game/models/GameModels/player';
 import { GameService } from 'src/app/modules/game/services/game.service';
 
-import { CellOffset, CellWidth } from '../../cell/abstract/base';
+import {
+  AnimationStepMs,
+  calculateCircularPosition,
+  PlayerOffsetPx,
+  Position,
+} from '../../utils/board-layout.utils';
 
 @Component({
   selector: '[app-pawn]',
@@ -10,35 +16,35 @@ import { CellOffset, CellWidth } from '../../cell/abstract/base';
   templateUrl: './pawn.component.html',
   styleUrl: './pawn.component.scss',
 })
-export class PawnComponent implements AfterViewInit, DoCheck {
-  @ViewChild('cxAnim', { static: true }) cxAnim!: ElementRef<SVGAnimateElement>;
-  lastCx = 0;
+export class PawnComponent implements OnInit, DoCheck, OnDestroy {
+  private animationTimeout?: number;
+
+  private lastCheckedPosition: number = 0;
   @Input({required: true }) player!: Player;
+  visualPosition: number = 0;
 
   constructor(private gameService: GameService) {}
 
-  ngAfterViewInit() {
-    this.lastCx = this.cx;
-  }
-
   ngDoCheck() {
-    const next = this.cx;
-    if (next !== this.lastCx) {
-      const anim = this.cxAnim.nativeElement;
-      anim.setAttribute('from', this.lastCx.toString());
-      anim.setAttribute('to', next.toString());
-      anim.beginElement();
-      this.lastCx = next;
+    const targetPosition = this.PlayerPosition;
+
+    // Detect position change and animate
+    if (targetPosition !== this.lastCheckedPosition) {
+      this.lastCheckedPosition = targetPosition;
+      this.animateToPosition(targetPosition);
     }
   }
 
-  get cx(): number {
-    return this.PlayerPosition * (CellWidth + CellOffset) + 40;
+  ngOnDestroy() {
+    // Clean up timeout to prevent memory leak
+    if (this.animationTimeout) {
+      clearTimeout(this.animationTimeout);
+    }
   }
 
-  get cy(): number {
-    const pIndex = this.gameService.Game.players.findIndex(p => p.Id === this.player.Id);
-    return 50 + pIndex * 20;
+  ngOnInit() {
+    this.visualPosition = this.PlayerPosition;
+    this.lastCheckedPosition = this.PlayerPosition;
   }
 
   get Player(): Player {
@@ -49,11 +55,65 @@ export class PawnComponent implements AfterViewInit, DoCheck {
     return this.player.Color;
   }
 
+  get PlayerIndex(): number {
+    const result = this.gameService.Game.players.findIndex(p => p.Id === this.player.Id);
+    if (result === -1) {
+      throw new Error('Player not found in game');
+    }
+
+    return result;
+  }
+
   get PlayerPosition(): number {
     return this.player.Position;
   }
 
+  get position(): Position {
+    return this.calculatePosition(this.visualPosition);
+  }
+
   get Radius(): number {
     return 15;
+  }
+
+  private animateToPosition(targetPosition: number) {
+    // Clear any ongoing animation
+    if (this.animationTimeout) {
+      clearTimeout(this.animationTimeout);
+    }
+
+    const totalCells = Board.CellsCounter;
+
+    // Validate target position
+    if (targetPosition < 0 || targetPosition >= totalCells) {
+      console.warn('Invalid target position:', targetPosition);
+      return;
+    }
+
+    const step = () => {
+      if (this.visualPosition === targetPosition) {
+        return;
+      }
+
+      // Always move forward (wrapping around the board)
+      this.visualPosition = (this.visualPosition + 1) % totalCells;
+
+      // Continue if not yet at target
+      if (this.visualPosition !== targetPosition) {
+        this.animationTimeout = window.setTimeout(step, AnimationStepMs);
+      }
+    };
+
+    step();
+  }
+
+  private calculatePosition(cellIndex: number): Position {
+    const pos = calculateCircularPosition(cellIndex);
+
+    const offset = (this.PlayerIndex - this.gameService.Game.players.length / 2) * PlayerOffsetPx;
+    return {
+      x: pos.x + offset,
+      y: pos.y + offset,
+    };
   }
 }

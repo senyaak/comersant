@@ -1,30 +1,6 @@
 <svg:g class="app-pawn">
   <svg:g>
-    <svg:circle
-      [attr.cx]="cx"
-      [attr.cy]="cy"
-      [attr.r]="Radius"
-      [attr.fill]="player.Color"
-      stroke="black"
-      stroke-width="2"
-      class="app-pawn-circle"
-    >
-      <svg:animate
-        #cxAnim
-        attributeName="cx"
-        dur="0.6s"
-        fill="freeze"
-        begin="indefinite"
-      ></svg:animate>
-    </svg:circle>
-    <!-- <svg:text
-      [attr.x]="x + width / 2"
-      [attr.y]="height / 3"
-      [attr.font-family]="font"
-      [attr.font-size]="fontSize"
-      text-anchor="middle">
-      <svg:tspan [attr.x]="x + width / 2" dy="1.2em">{{ 'areasite' | translate }}</svg:tspan>
-      <svg:tspan [attr.x]="x + width / 2" dy="1.2em">{{ cell.object.price }}</svg:tspan>
-    </svg:text> -->
+    <svg:circle [attr.cx]="position.x" [attr.cy]="position.y" [attr.r]="Radius" [attr.fill]="player.Color"
+      stroke="black" stroke-width="2" class="app-pawn-circle"></svg:circle>
   </svg:g>
 </svg:g>

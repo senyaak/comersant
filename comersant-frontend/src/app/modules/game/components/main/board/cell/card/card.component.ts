@@ -37,7 +37,7 @@ export class CardComponent extends BaseComponent implements OnInit {
 
   get cardCenterX(): number {
     const scaledWidth = CardPatterns.PATTERN_WIDTH * this.patternScale;
-    return this.x + this.width / 2 - scaledWidth / 2;
+    return this.localX + this.width / 2 - scaledWidth / 2;
   }
 
   get cardPattern(): SafeHtml {
