@@ -1,5 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { Board } from '$server/modules/game/models/FieldModels/board';
+import { calculateCircularPosition } from '../../utils/board-layout.utils';
 
 export const CellHeight = 200;
 export const CellWidth = 150;
@@ -100,13 +101,15 @@ export abstract class BaseComponent {
   }
 
   protected get x(): number {
-    // Position cell CENTER at circular position
-    return BoardCenter + this.radius * Math.cos(this.angle) - this.width / 2;
+    // Use shared circular position calculation, then adjust for cell dimensions
+    const center = calculateCircularPosition(this.orderNumber);
+    return center.x - this.width / 2;
   }
 
   protected get y(): number {
-    // Position cell CENTER at circular position
-    return BoardCenter + this.radius * Math.sin(this.angle) - (this.height + this.offset) / 2;
+    // Use shared circular position calculation, then adjust for cell dimensions
+    const center = calculateCircularPosition(this.orderNumber);
+    return center.y - (this.height + this.offset) / 2;
   }
 
   protected get rotation(): number {
