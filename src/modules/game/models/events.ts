@@ -1,5 +1,5 @@
 import { Cell } from './FieldModels/cells';
-import { BussinessGrade } from './GameModels/properties';
+import { BusinessGrade } from './GameModels/properties';
 
 export enum EventType {
   BalanceChange,
@@ -79,7 +79,7 @@ export interface MovePlayerEvent extends BaseEvent {
 
 export interface PropertyLossEvent extends BaseEvent {
   type: EventType.PropertyLoss;
-  grade: BussinessGrade.Enterprise | BussinessGrade.Office;
+  grade: BusinessGrade.Enterprise | BusinessGrade.Office;
 }
 
 export interface TaxServiceEvent extends BaseEvent {

@@ -1,9 +1,9 @@
 // import { Player } from './player';
 
-import { BussinessGroups } from '../FieldModels/board';
+import { BusinessGroups as BusinessGroups } from '../FieldModels/board';
 import { Player } from './player';
 
-export enum BussinessGrade {
+export enum BusinessGrade {
   Area = 0,
   Office = 1,
   Department = 2,
@@ -50,7 +50,7 @@ export abstract class Business extends Property {
     public readonly upgradePrice: number,
     public readonly grades: Grades,
     owner: Player['id'] | null = null,
-    public grade: BussinessGrade = 1,
+    public grade: BusinessGrade = BusinessGrade.Area,
   ) {
     super(price, owner);
   }
@@ -122,12 +122,12 @@ export class PrivateBusiness extends Business {
   }
 
   constructor(
-    public readonly group: BussinessGroups,
+    public readonly group: BusinessGroups,
     price: number,
     upgradePrice: number,
     grades: Grades,
     owner: Player['id'] | null = null,
-    grade: BussinessGrade = 0,
+    grade: BusinessGrade = 0,
   ) {
     super(price, upgradePrice, grades, owner, grade);
   }

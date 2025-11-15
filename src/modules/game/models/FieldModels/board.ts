@@ -16,7 +16,7 @@ import {
   stringToCardEventType,
 } from './cells';
 
-export enum BussinessGroups {
+export enum BusinessGroups {
   Eat = 0,
   Market = 1,
   Food = 2,
@@ -103,7 +103,7 @@ function createCells(): Cell[][] {
         new StartCell(),
         new PropertyCell(
           'gastronomie',
-          new PrivateBusiness(BussinessGroups.Eat, 30_000, 25_000, [
+          new PrivateBusiness(BusinessGroups.Eat, 30_000, 25_000, [
             [900, 400],
             [15_000, 1_500],
             [54_000, 5_200],
@@ -112,7 +112,7 @@ function createCells(): Cell[][] {
         ),
         new PropertyCell(
           'conditerie_shop',
-          new PrivateBusiness(BussinessGroups.Eat, 32_000, 28_000, [
+          new PrivateBusiness(BusinessGroups.Eat, 32_000, 28_000, [
             [900, 800],
             [15_000, 1_500],
             [58_000, 6_000],
@@ -121,7 +121,7 @@ function createCells(): Cell[][] {
         ),
         new PropertyCell(
           'backer',
-          new PrivateBusiness(BussinessGroups.Eat, 34_000, 30_000, [
+          new PrivateBusiness(BusinessGroups.Eat, 34_000, 30_000, [
             [1_000, 300],
             [17_000, 1_600],
             [61_500, 6_100],
@@ -150,7 +150,7 @@ function createCells(): Cell[][] {
         ),
         new PropertyCell(
           'mercery',
-          new PrivateBusiness(BussinessGroups.Market, 29_000, 21_000, [
+          new PrivateBusiness(BusinessGroups.Market, 29_000, 21_000, [
             [3_800, 400],
             [14_500, 1_300],
             [52_000, 5_300],
@@ -159,7 +159,7 @@ function createCells(): Cell[][] {
         ),
         new PropertyCell(
           'children',
-          new PrivateBusiness(BussinessGroups.Market, 30_000, 22_000, [
+          new PrivateBusiness(BusinessGroups.Market, 30_000, 22_000, [
             [3_900, 400],
             [15_000, 1_500],
             [54_000, 5_500],
@@ -168,7 +168,7 @@ function createCells(): Cell[][] {
         ),
         new PropertyCell(
           'big',
-          new PrivateBusiness(BussinessGroups.Market, 28_000, 20_000, [
+          new PrivateBusiness(BusinessGroups.Market, 28_000, 20_000, [
             [3_700, 400],
             [14_000, 1_400],
             [50_400, 5_100],
@@ -180,7 +180,7 @@ function createCells(): Cell[][] {
         new PropertyCell('Site', new AreaSite(25000)),
         new PropertyCell(
           'diner',
-          new PrivateBusiness(BussinessGroups.Food, 14_000, 25_000, [
+          new PrivateBusiness(BusinessGroups.Food, 14_000, 25_000, [
             [1_800, 300],
             [7_000, 700],
             [25_200, 2_500],
@@ -189,7 +189,7 @@ function createCells(): Cell[][] {
         ),
         new PropertyCell(
           'cafe',
-          new PrivateBusiness(BussinessGroups.Food, 30_000, 22_000, [
+          new PrivateBusiness(BusinessGroups.Food, 30_000, 22_000, [
             [3_900, 400],
             [15_000, 1_500],
             [54_000, 5_500],
@@ -198,7 +198,7 @@ function createCells(): Cell[][] {
         ),
         new PropertyCell(
           'restorant',
-          new PrivateBusiness(BussinessGroups.Food, 28_000, 20_000, [
+          new PrivateBusiness(BusinessGroups.Food, 28_000, 20_000, [
             [3_700, 400],
             [14_000, 1_400],
             [50_400, 5_100],
@@ -218,7 +218,7 @@ function createCells(): Cell[][] {
         new InteractiveEventCell(ET.Raccito),
         new PropertyCell(
           'kiosk',
-          new PrivateBusiness(BussinessGroups.Farm, 41_000, 35_000, [
+          new PrivateBusiness(BusinessGroups.Farm, 41_000, 35_000, [
             [5_000, 500],
             [20_000, 2_000],
             [73_500, 7_000],
@@ -227,7 +227,7 @@ function createCells(): Cell[][] {
         ),
         new PropertyCell(
           'wegetables',
-          new PrivateBusiness(BussinessGroups.Farm, 49_000, 42_000, [
+          new PrivateBusiness(BusinessGroups.Farm, 49_000, 42_000, [
             [6_400, 600],
             [25_000, 2_500],
             [88_500, 8_700],
@@ -236,7 +236,7 @@ function createCells(): Cell[][] {
         ),
         new PropertyCell(
           'market',
-          new PrivateBusiness(BussinessGroups.Farm, 48_000, 40_000, [
+          new PrivateBusiness(BusinessGroups.Farm, 48_000, 40_000, [
             [6_200, 600],
             [24_000, 2_400],
             [86_000, 8_600],
@@ -261,7 +261,7 @@ function createCells(): Cell[][] {
         new InteractiveEventCell(ET.Raccito),
         new PropertyCell(
           'spartak',
-          new PrivateBusiness(BussinessGroups.Stadium, 15_000, 15_000, [
+          new PrivateBusiness(BusinessGroups.Stadium, 15_000, 15_000, [
             [1_900, 300],
             [7_600, 700],
             [15_200, 1_500],
@@ -270,7 +270,7 @@ function createCells(): Cell[][] {
         ),
         new PropertyCell(
           'torpedo',
-          new PrivateBusiness(BussinessGroups.Stadium, 18_000, 15_000, [
+          new PrivateBusiness(BusinessGroups.Stadium, 18_000, 15_000, [
             [2_300, 300],
             [9_000, 700],
             [32_000, 1_500],
@@ -279,7 +279,7 @@ function createCells(): Cell[][] {
         ),
         new PropertyCell(
           'luzhniki',
-          new PrivateBusiness(BussinessGroups.Stadium, 20_000, 20_000, [
+          new PrivateBusiness(BusinessGroups.Stadium, 20_000, 20_000, [
             [2_200, 300],
             [10_000, 1_000],
             [36_000, 3_600],
@@ -291,7 +291,7 @@ function createCells(): Cell[][] {
         new InteractiveEventCell(ET.MoveToCenter),
         new PropertyCell(
           'concerthall',
-          new PrivateBusiness(BussinessGroups.Arena, 31_000, 26_000, [
+          new PrivateBusiness(BusinessGroups.Arena, 31_000, 26_000, [
             [4_000, 400],
             [15_500, 1_500],
             [55_800, 5_600],
@@ -300,7 +300,7 @@ function createCells(): Cell[][] {
         ),
         new PropertyCell(
           'palaceofsport',
-          new PrivateBusiness(BussinessGroups.Arena, 18_000, 15_000, [
+          new PrivateBusiness(BusinessGroups.Arena, 18_000, 15_000, [
             [3_700, 300],
             [14_500, 1_500],
             [52_000, 5_200],
@@ -309,7 +309,7 @@ function createCells(): Cell[][] {
         ),
         new PropertyCell(
           'olympicstadium',
-          new PrivateBusiness(BussinessGroups.Arena, 30_000, 25_000, [
+          new PrivateBusiness(BusinessGroups.Arena, 30_000, 25_000, [
             [3_900, 400],
             [15_000, 1_500],
             [54_000, 5_400],
@@ -336,7 +336,7 @@ function createCells(): Cell[][] {
         ),
         new PropertyCell(
           'dolls',
-          new PrivateBusiness(BussinessGroups.Theater, 13_000, 10_000, [
+          new PrivateBusiness(BusinessGroups.Theater, 13_000, 10_000, [
             [1_600, 300],
             [7_500, 700],
             [23_500, 2_400],
@@ -345,7 +345,7 @@ function createCells(): Cell[][] {
         ),
         new PropertyCell(
           'children_theater',
-          new PrivateBusiness(BussinessGroups.Theater, 19_000, 16_000, [
+          new PrivateBusiness(BusinessGroups.Theater, 19_000, 16_000, [
             [2_400, 300],
             [10_000, 1_000],
             [34_000, 3_500],
@@ -354,7 +354,7 @@ function createCells(): Cell[][] {
         ),
         new PropertyCell(
           'ballet',
-          new PrivateBusiness(BussinessGroups.Theater, 18_000, 15_000, [
+          new PrivateBusiness(BusinessGroups.Theater, 18_000, 15_000, [
             [2_600, 300],
             [9_000, 900],
             [32_400, 3_200],
@@ -381,7 +381,7 @@ function createCells(): Cell[][] {
         ),
         new PropertyCell(
           'vegetables',
-          new PrivateBusiness(BussinessGroups.Storage, 46_000, 35_000, [
+          new PrivateBusiness(BusinessGroups.Storage, 46_000, 35_000, [
             [5_900, 900],
             [23_000, 2_400],
             [82_500, 8_100],
@@ -390,7 +390,7 @@ function createCells(): Cell[][] {
         ),
         new PropertyCell(
           'production',
-          new PrivateBusiness(BussinessGroups.Storage, 49_000, 38_000, [
+          new PrivateBusiness(BusinessGroups.Storage, 49_000, 38_000, [
             [6_300, 600],
             [24_000, 2_400],
             [88_000, 8_700],
@@ -399,7 +399,7 @@ function createCells(): Cell[][] {
         ),
         new PropertyCell(
           'food',
-          new PrivateBusiness(BussinessGroups.Storage, 52_000, 40_000, [
+          new PrivateBusiness(BusinessGroups.Storage, 52_000, 40_000, [
             [6_600, 600],
             [26_000, 2_500],
             [93_600, 9_300],

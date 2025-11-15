@@ -1,14 +1,14 @@
 import { Socket } from 'socket.io';
 
 // Type guard for gameId validation
-export function isValidGameId(gameId: unknown): gameId is string {
+export function isValidGameIdOrName(gameId: unknown): gameId is string {
   return typeof gameId === 'string' && gameId.length > 0;
 }
 
 // Helper function to extract validated gameId from socket
 export function getValidatedGameId(client: Socket): string {
   const gameId = client.handshake.query.gameId;
-  if (!isValidGameId(gameId)) {
+  if (!isValidGameIdOrName(gameId)) {
     throw new Error('Game ID is required and must be a non-empty string');
   }
   return gameId;
@@ -16,7 +16,7 @@ export function getValidatedGameId(client: Socket): string {
 
 export function getValidatedUserName(client: Socket): string {
   const userName = client.handshake.query.userName;
-  if (!isValidGameId(userName)) {
+  if (!isValidGameIdOrName(userName)) {
     throw new Error('userName is required and must be a non-empty string');
   }
   return userName;

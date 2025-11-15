@@ -1,4 +1,4 @@
-import { BussinessGrade } from '../GameModels/properties';
+import { BusinessGrade } from '../GameModels/properties';
 import { GameEvent, EventItem, EventType } from './../events';
 import { CardEventCellTypes } from './cells';
 
@@ -506,11 +506,11 @@ export const Risk: Cards = {
   lostProp: {
     msg: 'Одна из ваших организаций признана банкротом',
     type: EventType.PropertyLoss,
-    grade: BussinessGrade.Enterprise,
+    grade: BusinessGrade.Enterprise,
   },
   lostProp2: {
     msg: 'Сгорел один из ваших фелиалов',
     type: EventType.PropertyLoss,
-    grade: BussinessGrade.Office,
+    grade: BusinessGrade.Office,
   },
 };

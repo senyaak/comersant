@@ -12,7 +12,7 @@ import { IDiceResult, IEventResult, ITurnResult, PropertyBoughtResultSuccess, Ro
 import { IGame } from './igame';
 import { ItemType } from './items';
 import { Player, PlayerColor } from './player';
-import { Business, BussinessGrade, GovBusiness } from './properties';
+import { Business, BusinessGrade, GovBusiness } from './properties';
 import { GameStateType, StateManager } from './state-manager';
 import { Turn } from './turn';
 
@@ -277,9 +277,8 @@ export class Game extends IGame {
 
   @RequireGameState(GameStateType.Active)
   @ValidateActivePlayer
-  handlePlayerMoved(playerId: string): [IEventResult[]] {
-    const results: [IEventResult[]] = [[]];
-    const result = results[0];
+  handlePlayerMoved(playerId: string): IEventResult[] {
+    const results: IEventResult[] = [];
     const position = this.players[this.CurrentPlayer].Position;
     const cell = this.board.flatCells[position];
     if (PropertyCell.isPropertyCell(cell) && cell.object.owner && cell.object.owner !== playerId) {
@@ -291,13 +290,13 @@ export class Game extends IGame {
         throw new Error('Owner not found');
       }
       owner.changeMoney(tax);
-      result.push({taxPaid: { amount: tax, toPlayerId: cell.object.owner }});
+      results.push({taxPaid: { amount: tax, toPlayerId: cell.object.owner }});
     } else if (PropertyCell.isPropertyCell(cell) &&
       GovBusiness.isGovBusiness(cell.object) &&
       cell.object.owner === null) {
       // Gov business - give 'G' to player
     } else if(cell instanceof EventCell) {
-      result.push(...this.handleEvent(cell));
+      results.push(...this.handleEvent(cell));
     } else {
       console.log('nothing to do', cell.name);
     }
@@ -316,7 +315,7 @@ export class Game extends IGame {
   }
 
   @RequireGameState(GameStateType.Active)
-  loseProperty(grade: BussinessGrade.Enterprise | BussinessGrade.Office): IEventResult[] {
+  loseProperty(grade: BusinessGrade.Enterprise | BusinessGrade.Office): IEventResult[] {
     const results: IEventResult[] = [];
     const validPropsToLose = this.board.flatCells
       .filter((cell) => PropertyCell.isPropertyCell(cell))
@@ -387,7 +386,7 @@ export class Game extends IGame {
       };
       result.turn_progress = [turnProgressData];
       const eventResults = this.handlePlayerMoved(playerId);
-      result.event_result = eventResults;
+      result.event_result = [eventResults];
     } else if (this.currentTurnState === Turn.Event) {
       result.turn_finished = [{
         success: true,
