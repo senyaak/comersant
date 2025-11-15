@@ -25,13 +25,13 @@ function ValidateActivePlayer<T extends unknown[], R>(
   propertyKey: string,
   descriptor: TypedPropertyDescriptor<MethodWithPlayerId<T, R>>,
 ): TypedPropertyDescriptor<MethodWithPlayerId<T, R>> {
-  const originalMethod = descriptor.value!;
+  const originalMethod = descriptor.value;
 
   descriptor.value = function(this: Game, playerId: string, ...args: T): R {
     if (!this.isPlayerActive(playerId)) {
       throw new Error(`It's not player ${playerId} turn`);
     }
-    return originalMethod.apply(this, [playerId, ...args]);
+    return originalMethod?.apply(this, [playerId, ...args]);
   };
 
   return descriptor;
@@ -44,7 +44,7 @@ function RequireGameState(requiredState: GameStateType) {
     propertyKey: string,
     descriptor: PropertyDescriptor,
   ): PropertyDescriptor {
-    const originalMethod = descriptor.value!;
+    const originalMethod = descriptor.value;
 
     descriptor.value = function(this: Game, ...args: unknown[]): unknown {
       if (!this.stateManager.isStateValid(requiredState)) {
@@ -112,7 +112,10 @@ export class Game extends IGame {
       propertyIndex = this.players[this.currentPlayer].Position;
       oldOwnerId = null;
     }
-    const newOwner = this.players.find(player => player.Id === playerId)!;
+    const newOwner = this.players.find(player => player.Id === playerId);
+    if(!newOwner) {
+      throw new Error('Player not found');
+    }
     const property = this.board.cells.flat()[propertyIndex];
 
     if (PropertyCell.isPropertyCell(property) === false) {
@@ -138,7 +141,7 @@ export class Game extends IGame {
 
     if (property.object.owner && property.object.owner !== playerId) {
       // we have to sell property from previous owner
-      const prevOwner = this.players.find(player => player.Id === property.object.owner)!;
+      const prevOwner = this.players.find(player => player.Id === property.object.owner);
       if(!prevOwner) {
         throw new Error('Previous owner not found! CRITICAL ERROR');
       }
@@ -283,7 +286,11 @@ export class Game extends IGame {
       // pay tax to the owner
       const { tax } = cell.object;
       this.players[this.CurrentPlayer].changeMoney(-tax);
-      this.players.find(p => p.Id === cell.object.owner)!.changeMoney(tax);
+      const owner = this.players.find(p => p.Id === cell.object.owner);
+      if(!owner) {
+        throw new Error('Owner not found');
+      }
+      owner.changeMoney(tax);
       result.push({taxPaid: { amount: tax, toPlayerId: cell.object.owner }});
     } else if (PropertyCell.isPropertyCell(cell) &&
       GovBusiness.isGovBusiness(cell.object) &&
@@ -336,7 +343,10 @@ export class Game extends IGame {
     if(!isPosition) {
       throw new Error('Invalid cell index for move to center');
     }
-    const player = this.players.find(p => p.Id === playerId)!;
+    const player = this.players.find(p => p.Id === playerId);
+    if(!player) {
+      throw new Error('Player not found');
+    }
     this.moveTo(player, newPosition);
     return [];
   }
