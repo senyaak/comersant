@@ -25,35 +25,25 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer() private server!: Namespace;
   constructor(private gamesService: GamesService) {}
 
-  async handleConnection() {}
-  async handleDisconnect(@ConnectedSocket() socket: Socket) {
-    if (socket.data.room) {
-      this.server.in(socket.data.room).emit(ServerEvents.LeaveRoom);
-      this.server.emit(ServerEvents.UpdateRoomsList, await this.rooms);
-    } else if (socket.rooms.has(Rooms.Lobby)) {
-      this.lobby.emit(
-        ServerEvents.UpdateConnectedUsers,
-        await this.usersInlobby,
-      );
-    }
+  private get lobby() {
+    return this.server.in(Rooms.Lobby);
   }
 
-  @SubscribeMessage(ClientEvents.SetName)
-  async setName(
-    @MessageBody() newName: string,
-    @ConnectedSocket() socket: Socket,
-  ) {
-    if (socket.data.name) {
-      throw new Error('Can\'t set already set name');
-    }
-    socket.data.name = newName;
-    this.lobby.emit(ServerEvents.UpdateConnectedUsers, await this.usersInlobby);
+  public get rooms(): Promise<Room[]> {
+    const rooms = Promise.all(
+      Array.from(this.server.adapter.rooms.keys())
+        .filter(room => room.includes(RoomsPrefix))
+        .map(roomId => this.getRoom(roomId)),
+    );
+    return rooms;
   }
 
-  @SubscribeMessage(ClientEvents.Join)
-  async join(@ConnectedSocket() socket: Socket) {
-    socket.join(Rooms.Lobby);
-    this.lobby.emit(ServerEvents.UpdateConnectedUsers, await this.usersInlobby);
+  get usersInlobby(): Promise<UserIdentity[]> {
+    // console.log('usersInlobby');
+    return this.lobby.fetchSockets().then(sockets => {
+      // console.log('usersInlobby2', sockets);
+      return sockets.map(({ id, data }) => ({ id, data }));
+    });
   }
 
   @SubscribeMessage(ClientEvents.CreateRoom)
@@ -95,6 +85,44 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.updateRoomUsers(roomName);
   }
 
+  async getPlayersSettings(roomName: string): Promise<PlayersSettings[]> {
+    return await this.server
+      .in(roomName)
+      .fetchSockets()
+      .then(sockets => sockets.map(({ data: { name}, id }) => ({ name, id })));
+  }
+
+  async getRoom(roomId: string): Promise<Room> {
+    const users = (await this.server.in(roomId).fetchSockets()).map(
+      ({ id, data }) => ({
+        id,
+        name: data.name,
+        owner: roomId === data.room,
+      }),
+    );
+    return { id: roomId, users };
+  }
+
+  async handleConnection() {}
+
+  async handleDisconnect(@ConnectedSocket() socket: Socket) {
+    if (socket.data.room) {
+      this.server.in(socket.data.room).emit(ServerEvents.LeaveRoom);
+      this.server.emit(ServerEvents.UpdateRoomsList, await this.rooms);
+    } else if (socket.rooms.has(Rooms.Lobby)) {
+      this.lobby.emit(
+        ServerEvents.UpdateConnectedUsers,
+        await this.usersInlobby,
+      );
+    }
+  }
+
+  @SubscribeMessage(ClientEvents.Join)
+  async join(@ConnectedSocket() socket: Socket) {
+    socket.join(Rooms.Lobby);
+    this.lobby.emit(ServerEvents.UpdateConnectedUsers, await this.usersInlobby);
+  }
+
   @SubscribeMessage(ClientEvents.LeaveRoom)
   async leaveRoom(@ConnectedSocket() socket: Socket) {
     const roomToLeave = Array.from(socket.rooms).find(room =>
@@ -113,56 +141,16 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.server.emit(ServerEvents.UpdateRoomsList, await this.rooms);
   }
 
-  async getRoom(roomId: string): Promise<Room> {
-    const users = (await this.server.in(roomId).fetchSockets()).map(
-      ({ id, data }) => ({
-        id,
-        name: data.name,
-        owner: roomId === data.room,
-      }),
-    );
-    return { id: roomId, users };
-  }
-
-  async getPlayersSettings(roomName: string): Promise<PlayersSettings[]> {
-    return await this.server
-      .in(roomName)
-      .fetchSockets()
-      .then(sockets => sockets.map(({ data: { name}, id }) => ({ name, id })));
-  }
-
-  private get lobby() {
-    return this.server.in(Rooms.Lobby);
-  }
-
-  get usersInlobby(): Promise<UserIdentity[]> {
-    // console.log('usersInlobby');
-    return this.lobby.fetchSockets().then(sockets => {
-      // console.log('usersInlobby2', sockets);
-      return sockets.map(({ id, data }) => ({ id, data }));
-    });
-  }
-
-  public get rooms(): Promise<Room[]> {
-    const rooms = Promise.all(
-      Array.from(this.server.adapter.rooms.keys())
-        .filter(room => room.includes(RoomsPrefix))
-        .map(roomId => this.getRoom(roomId)),
-    );
-    return rooms;
-  }
-
-  async updateRoomUsers(room: string) {
-    const users: Room['users'] = (
-      await this.server.in(room).fetchSockets()
-    ).map(socket => ({
-      id: socket.id,
-      name: socket.data.name,
-      owner: socket.data.room === room,
-    }));
-    this.server
-      .in(room)
-      .emit(ServerEvents.UpdateRoomUsers, { id: room, users });
+  @SubscribeMessage(ClientEvents.SetName)
+  async setName(
+    @MessageBody() newName: string,
+    @ConnectedSocket() socket: Socket,
+  ) {
+    if (socket.data.name) {
+      throw new Error('Can\'t set already set name');
+    }
+    socket.data.name = newName;
+    this.lobby.emit(ServerEvents.UpdateConnectedUsers, await this.usersInlobby);
   }
 
   @SubscribeMessage(ClientEvents.StartGame)
@@ -179,5 +167,18 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
         socket.emit(ServerEvents.Error, error.message);
       }
     }
+  }
+
+  async updateRoomUsers(room: string) {
+    const users: Room['users'] = (
+      await this.server.in(room).fetchSockets()
+    ).map(socket => ({
+      id: socket.id,
+      name: socket.data.name,
+      owner: socket.data.room === room,
+    }));
+    this.server
+      .in(room)
+      .emit(ServerEvents.UpdateRoomUsers, { id: room, users });
   }
 }

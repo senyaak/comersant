@@ -21,6 +21,7 @@ export default tseslint.config(
       // 'no-unused-vars': noVarsConfig,
       'no-unused-vars': 'off',
       '@typescript-eslint/no-unused-vars': ['error'],
+      '@typescript-eslint/no-non-null-assertion': 'error',
       'perfectionist/sort-imports': 'error',
       'perfectionist/sort-classes': ['error', {
         type: 'natural',
