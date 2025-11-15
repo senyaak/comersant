@@ -209,7 +209,7 @@ This is part of a monorepo. See the [main README](../README.md) for contribution
 
 ## 📄 License
 
-UNLICENSED
+MIT License
 
 ---
 
