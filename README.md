@@ -293,7 +293,7 @@ Please read [CONTRIBUTING.md](./CONTRIBUTING.md) *(coming soon)* for details.
 
 ## 📄 License
 
-This project is licensed under the MIT License.
+MIT License. See [LICENSE](./LICENSE) for details.
 
 ## 👨‍💻 Author
 
