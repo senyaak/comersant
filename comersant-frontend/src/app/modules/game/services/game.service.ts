@@ -73,7 +73,11 @@ export class GameService {
   }
 
   get Player() {
-    return this.Game.players.find(player => player.Id === this.socket.id)!;
+    const player = this.Game.players.find(player => player.Id === this.socket.id);
+    if (!player) {
+      throw new Error('Player not found');
+    }
+    return player;
   }
 
   get Socket() {

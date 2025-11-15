@@ -76,7 +76,7 @@ export class BoardComponent implements OnInit, OnChanges {
       item instanceof StaticEventCell &&
       item.type === EventType.BalanceChange
     ) {
-      if (item.amount! > 0) {
+      if (item.amount !== undefined) {
         return 'IncomeCell';
       } else {
         return 'TaxCell';
@@ -97,7 +97,7 @@ export class BoardComponent implements OnInit, OnChanges {
     }
 
     console.log('item', item);
-    throw new Error('dmb');
+    throw new Error('the cell type is not recognized');
     return 'unknown';
   }
 }
