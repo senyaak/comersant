@@ -1,6 +1,7 @@
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { Board } from '$server/modules/game/models/FieldModels/board';
 import { Player } from '$server/modules/game/models/GameModels/player';
+import { Subscription } from 'rxjs';
 import { GameService } from 'src/app/modules/game/services/game.service';
 
 import {
@@ -16,6 +17,7 @@ import {
 })
 export class PawnComponent implements OnInit, OnDestroy {
 
+  private $turnProgress?: Subscription;
   private animationTimeout?: number;
   private lastCheckedPosition: number = 0;
 
@@ -34,10 +36,12 @@ export class PawnComponent implements OnInit, OnDestroy {
     if (this.animationTimeout) {
       clearTimeout(this.animationTimeout);
     }
+    // Unsubscribe from turn progress updates
+    this.$turnProgress?.unsubscribe();
   }
 
   ngOnInit() {
-    this.gameService.turnProgress$.subscribe(() => {
+    this.$turnProgress = this.gameService.turnProgress$.subscribe(() => {
       const targetPosition = this.PlayerPosition;
 
       // Detect position change and animate

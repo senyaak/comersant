@@ -1,5 +1,6 @@
-import { Component, OnInit, ViewEncapsulation } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewEncapsulation } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { Subscription } from 'rxjs';
 
 import { GameService } from '../../services/game.service';
 
@@ -10,7 +11,10 @@ import { GameService } from '../../services/game.service';
   standalone: false,
   encapsulation: ViewEncapsulation.None,
 })
-export class MainComponent implements OnInit {
+export class MainComponent implements OnInit, OnDestroy {
+  private gameReady$?: Subscription;
+  private paramMap$?: Subscription;
+
   initialized = false;
 
   constructor(
@@ -18,8 +22,13 @@ export class MainComponent implements OnInit {
     private readonly gameService: GameService,
   ) {}
 
+  ngOnDestroy() {
+    this.paramMap$?.unsubscribe();
+    this.gameReady$?.unsubscribe();
+  }
+
   ngOnInit() {
-    this.route.paramMap.subscribe((params) => {
+    this.paramMap$ = this.route.paramMap.subscribe((params) => {
       const gameId = params.get('gameId');
       if (!gameId || gameId === this.gameService.Game.id) {
         return;
@@ -29,10 +38,9 @@ export class MainComponent implements OnInit {
     });
 
     console.log('init subscribe to gameReady$');
-    this.gameService.gameReady$.subscribe((ready) => {
+    this.gameReady$ = this.gameService.gameReady$.subscribe((ready) => {
       this.initialized = ready;
       console.log('gameReady$', ready);
     });
-
   }
 }

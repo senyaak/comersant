@@ -1,4 +1,5 @@
-import { Component, HostListener, OnInit } from '@angular/core';
+import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { GameEventsService } from 'src/app/modules/game/services/game-events.service';
 import { GameNotificationService } from 'src/app/modules/game/services/game-notification.service';
 import { GameService } from 'src/app/modules/game/services/game.service';
@@ -9,7 +10,9 @@ import { GameService } from 'src/app/modules/game/services/game.service';
   templateUrl: './control-actions.component.html',
   styleUrl: './control-actions.component.scss',
 })
-export class ControlActionsComponent implements OnInit {
+export class ControlActionsComponent implements OnInit, OnDestroy {
+  private turnFinished$?: Subscription;
+  private turnProgress$?: Subscription;
   isProcessingTurn = false;
 
   constructor(
@@ -18,8 +21,13 @@ export class ControlActionsComponent implements OnInit {
     private gameNotificationService: GameNotificationService,
   ) {}
 
+  ngOnDestroy(): void {
+    this.turnProgress$?.unsubscribe();
+    this.turnFinished$?.unsubscribe();
+  }
+
   ngOnInit() {
-    this.gameService.turnProgress$.subscribe((result) => {
+    this.turnProgress$ = this.gameService.turnProgress$.subscribe((result) => {
       if (result.success && result.data.diceResult.diceRoll) {
         const rolls = result.data.diceResult.diceRoll?.join(', ');
         const total = result.data.diceResult.diceRoll?.reduce((a, b) => a + b, 0);
@@ -28,7 +36,7 @@ export class ControlActionsComponent implements OnInit {
       }
       this.isProcessingTurn = false;
     });
-    this.gameService.turnFinished$.subscribe((result) => {
+    this.turnFinished$ = this.gameService.turnFinished$.subscribe((result) => {
       if (result.success) {
         this.gameNotificationService.toast('Turn finished successfully');
       }

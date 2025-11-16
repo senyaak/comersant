@@ -15,6 +15,7 @@ export class LobbyService {
   private roomsSubject = new Subject<Room[]>();
   private selectedRoom = new Subject<Room>();
   private socket: Socket;
+
   createdRoom = (roomName: string) => {
     this.roomName = roomName;
     this.router.navigate(['lobby', roomName]);
@@ -70,12 +71,7 @@ export class LobbyService {
   ) {
     /** setup connection to the lobby module */
     this.socket = io('/lobby');
-    if (!this.socket.id) {
-      console.log('SOCKET ID NOW PROVIDED');
-      // throw new Error('SOCKET ID NOW PROVIDED');
-    }
 
-    this.name = this.socket.id!;
     /** subscribe to lobby events */
     this.socket.on(ServerEvents.CreatedRoom, this.createdRoom);
     this.socket.on(ServerEvents.EnteredRoom, this.enteredRoom);
@@ -103,7 +99,7 @@ export class LobbyService {
   }
 
   get LobbyList(): Observable<UserIdentity[]> {
-    return this.lobbySubject.asObservable();
+    return this.lobbySubject;
   }
 
   get Name() {
@@ -115,11 +111,11 @@ export class LobbyService {
   }
 
   get RoomsList() {
-    return this.roomsSubject.asObservable();
+    return this.roomsSubject;
   }
 
   get SelectedRoom() {
-    return this.selectedRoom.asObservable();
+    return this.selectedRoom;
   }
 
   createRoom(roomName: string) {
