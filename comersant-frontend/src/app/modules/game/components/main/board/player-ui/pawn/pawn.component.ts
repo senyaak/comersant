@@ -17,11 +17,11 @@ import {
   styleUrl: './pawn.component.scss',
 })
 export class PawnComponent implements OnInit, DoCheck, OnDestroy {
-  private animationTimeout?: number;
+  @Input({required: true}) playerId!: Player['Id'];
 
-  private lastCheckedPosition: number = 0;
-  @Input({required: true }) player!: Player;
   visualPosition: number = 0;
+  private lastCheckedPosition: number = 0;
+  private animationTimeout?: number;
 
   constructor(private gameService: GameService) {}
 
@@ -47,8 +47,12 @@ export class PawnComponent implements OnInit, DoCheck, OnDestroy {
     this.lastCheckedPosition = this.PlayerPosition;
   }
 
-  get Player(): Player {
-    return this.player;
+  get player(): Player {
+    const player = this.gameService.Game.players.find(p => p.Id === this.playerId);
+    if (!player) {
+      throw new Error(`Player with ID ${this.playerId} not found in game`);
+    }
+    return player;
   }
 
   get PlayerColor(): string {
@@ -56,7 +60,7 @@ export class PawnComponent implements OnInit, DoCheck, OnDestroy {
   }
 
   get PlayerIndex(): number {
-    const result = this.gameService.Game.players.findIndex(p => p.Id === this.player.Id);
+    const result = this.gameService.Game.players.findIndex(p => p.Id === this.playerId);
     if (result === -1) {
       throw new Error('Player not found in game');
     }
