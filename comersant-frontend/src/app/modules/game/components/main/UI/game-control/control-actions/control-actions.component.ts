@@ -58,8 +58,8 @@ export class ControlActionsComponent implements OnInit {
 
   @HostListener('document:keydown', ['$event'])
   handleKeyE(event: KeyboardEvent) {
-    if (event.key.toLowerCase() === 'e') {
-      console.log('Нажата клавиша E');
+    if (event.code === 'KeyE') {
+      console.log('Нажата клавиша E', event);
       event.preventDefault();
       this.onNextTurn();
     }
