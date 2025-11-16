@@ -1,4 +1,4 @@
-import { Component, DoCheck, Input, OnDestroy, OnInit } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { Board } from '$server/modules/game/models/FieldModels/board';
 import { Player } from '$server/modules/game/models/GameModels/player';
 import { GameService } from 'src/app/modules/game/services/game.service';
@@ -14,30 +14,20 @@ import {
   templateUrl: './pawn.component.html',
   styleUrl: './pawn.component.scss',
 })
-export class PawnComponent implements OnInit, DoCheck, OnDestroy {
+export class PawnComponent implements OnInit, OnDestroy {
 
   private animationTimeout?: number;
   private lastCheckedPosition: number = 0;
 
-  @Input({required: true})
-  private playerId!: Player['Id'];
-
   AnimationStepMs = 150;
+  @Input({required: true})
+    playerId!: Player['Id'];
+
   PlayerOffsetPx = 10;
 
   public visualPosition: number = 0;
 
   constructor(private gameService: GameService) {}
-
-  ngDoCheck() {
-    const targetPosition = this.PlayerPosition;
-
-    // Detect position change and animate
-    if (targetPosition !== this.lastCheckedPosition) {
-      this.lastCheckedPosition = targetPosition;
-      this.animateToPosition(targetPosition);
-    }
-  }
 
   ngOnDestroy() {
     // Clean up timeout to prevent memory leak
@@ -47,6 +37,15 @@ export class PawnComponent implements OnInit, DoCheck, OnDestroy {
   }
 
   ngOnInit() {
+    this.gameService.turnProgress$.subscribe(() => {
+      const targetPosition = this.PlayerPosition;
+
+      // Detect position change and animate
+      if (targetPosition !== this.lastCheckedPosition) {
+        this.lastCheckedPosition = targetPosition;
+        this.animateToPosition(targetPosition);
+      }
+    });
     this.visualPosition = this.PlayerPosition;
     this.lastCheckedPosition = this.PlayerPosition;
   }
