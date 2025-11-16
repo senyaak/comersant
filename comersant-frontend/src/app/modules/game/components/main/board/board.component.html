@@ -1,5 +1,5 @@
 <div #svgContainer id="svgContainer">
-  <svg:svg id="board" [attr.viewBox]="viewBox">
+  <svg:svg #boardSvg id="board" [attr.viewBox]="viewBox">
     <svg:g>
       @for (item of flatCells; track $index) {
       <svg:g>

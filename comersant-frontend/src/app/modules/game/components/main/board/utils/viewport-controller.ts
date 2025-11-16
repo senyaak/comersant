@@ -2,16 +2,22 @@ import { BoardCenter } from '../cell/abstract/base';
 
 /**
  * Manages viewport transformations (zoom and pan) for the board
+ * Handles its own event listeners lifecycle
  */
 export class ViewportController {
+  private element: SVGSVGElement | null = null;
   private isPanning = false;
   private lastMouseX = 0;
   private lastMouseY = 0;
   private readonly MaxZoom = 3;
   private readonly MinZoom = 0.5;
+  private mouseDownListener: ((event: MouseEvent) => void) | null = null;
+  private mouseMoveListener: ((event: MouseEvent) => void) | null = null;
+  private mouseUpListener: (() => void) | null = null;
   private panX = 0;
   private panY = 0;
   private readonly ViewportEstimatePx = 800;
+  private wheelListener: ((event: WheelEvent) => void) | null = null;
   private readonly ZoomFactor = 0.9;
   private zoomLevel = 1;
 
@@ -91,5 +97,93 @@ export class ViewportController {
 
     this.lastMouseX = mouseX;
     this.lastMouseY = mouseY;
+  }
+
+  /**
+   * Initialize viewport controller with SVG element
+   * Sets up all event listeners
+   */
+  init(element: SVGSVGElement): void {
+    this.element = element;
+
+    // Set up document-level event listeners for mouse move and up
+    this.mouseMoveListener = this.onMouseMove.bind(this);
+    this.mouseUpListener = this.onMouseUp.bind(this);
+
+    document.addEventListener('mousemove', this.mouseMoveListener);
+    document.addEventListener('mouseup', this.mouseUpListener);
+
+    // Set up element-level event listeners for mouse down and wheel
+    this.mouseDownListener = this.onMouseDown.bind(this);
+    this.wheelListener = this.onWheel.bind(this);
+
+    element.addEventListener('mousedown', this.mouseDownListener);
+    element.addEventListener('wheel', this.wheelListener);
+  }
+
+  /**
+   * Clean up all event listeners
+   * Should be called when component is destroyed
+   */
+  destroy(): void {
+    // Remove element-level listeners
+    if (this.element) {
+      if (this.mouseDownListener) {
+        this.element.removeEventListener('mousedown', this.mouseDownListener);
+        this.mouseDownListener = null;
+      }
+      if (this.wheelListener) {
+        this.element.removeEventListener('wheel', this.wheelListener);
+        this.wheelListener = null;
+      }
+    }
+
+    // Remove document-level listeners
+    if (this.mouseMoveListener) {
+      document.removeEventListener('mousemove', this.mouseMoveListener);
+      this.mouseMoveListener = null;
+    }
+    if (this.mouseUpListener) {
+      document.removeEventListener('mouseup', this.mouseUpListener);
+      this.mouseUpListener = null;
+    }
+
+    // Clear element reference
+    this.element = null;
+  }
+
+  /**
+   * Handle mouse down event to start panning
+   */
+  private onMouseDown(event: MouseEvent): void {
+    // Only pan with left mouse button
+    if (event.button === 0) {
+      this.startPan(event.clientX, event.clientY);
+      event.preventDefault();
+    }
+  }
+
+  /**
+   * Handle mouse move event for panning
+   */
+  private onMouseMove(event: MouseEvent): void {
+    this.updatePan(event.clientX, event.clientY);
+  }
+
+  /**
+   * Handle mouse up event to end panning
+   */
+  private onMouseUp(): void {
+    this.endPan();
+  }
+
+  /**
+   * Handle wheel event for zooming
+   */
+  private onWheel(event: WheelEvent): void {
+    // Only prevent default if zoom actually changes (allows page scroll when at zoom limits)
+    if (this.handleWheel(event.deltaY)) {
+      event.preventDefault();
+    }
   }
 }

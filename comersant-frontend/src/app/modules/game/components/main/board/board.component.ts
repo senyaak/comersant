@@ -1,4 +1,4 @@
-import { Component, HostListener, OnChanges, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnChanges, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { EventType } from '$server/modules/game/models/events';
 import { Board } from '$server/modules/game/models/FieldModels/board';
 import {
@@ -23,10 +23,8 @@ import { ViewportController } from './utils/viewport-controller';
   styleUrls: ['./board.component.scss'],
   standalone: false,
 })
-export class BoardComponent implements OnInit, OnChanges, OnDestroy {
-  // Event listener references for cleanup
-  private mouseMoveListener: ((event: MouseEvent) => void) | null = null;
-  private mouseUpListener: (() => void) | null = null;
+export class BoardComponent implements OnInit, AfterViewInit, OnChanges, OnDestroy {
+  @ViewChild('boardSvg', { static: false }) boardSvgRef!: ElementRef<SVGSVGElement>;
 
   private readonly viewport = new ViewportController();
   public board!: Board;
@@ -37,27 +35,20 @@ export class BoardComponent implements OnInit, OnChanges, OnDestroy {
     console.log('BoardComponent changes detected');
   }
 
+  ngAfterViewInit() {
+    // Initialize viewport controller with SVG element
+    this.viewport.init(this.boardSvgRef.nativeElement);
+  }
+
   ngOnDestroy() {
-    // Clean up document event listeners
-    if (this.mouseMoveListener) {
-      document.removeEventListener('mousemove', this.mouseMoveListener);
-    }
-    if (this.mouseUpListener) {
-      document.removeEventListener('mouseup', this.mouseUpListener);
-    }
+    // Clean up viewport controller
+    this.viewport.destroy();
   }
 
   ngOnInit() {
     this.board = this.gameService.Game.board;
     // TODO: restore board state if needed
     console.log('2board', this.flatCells);
-
-    // Manually add document listeners to ensure proper cleanup
-    this.mouseMoveListener = this.onMouseMove.bind(this);
-    this.mouseUpListener = this.onMouseUp.bind(this);
-
-    document.addEventListener('mousemove', this.mouseMoveListener);
-    document.addEventListener('mouseup', this.mouseUpListener);
   }
 
   get Board() {
@@ -122,30 +113,5 @@ export class BoardComponent implements OnInit, OnChanges, OnDestroy {
     console.log('item', item);
     throw new Error('the cell type is not recognized');
     return 'unknown';
-  }
-
-  @HostListener('mousedown', ['$event'])
-  onMouseDown(event: MouseEvent): void {
-    // Only pan with left mouse button
-    if (event.button === 0) {
-      this.viewport.startPan(event.clientX, event.clientY);
-      event.preventDefault();
-    }
-  }
-
-  onMouseMove(event: MouseEvent): void {
-    this.viewport.updatePan(event.clientX, event.clientY);
-  }
-
-  onMouseUp(): void {
-    this.viewport.endPan();
-  }
-
-  @HostListener('wheel', ['$event'])
-  onWheel(event: WheelEvent): void {
-    // Only prevent default if zoom actually changes (allows page scroll when at zoom limits)
-    if (this.viewport.handleWheel(event.deltaY)) {
-      event.preventDefault();
-    }
   }
 }
