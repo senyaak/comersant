@@ -1,21 +1,21 @@
 <svg:g app-cell-wrapper [orderNumber]="orderNumber" [fill]="cellColor">
   <svg:g>
     <!-- label -->
-    <svg:text [attr.x]="x + width / 2" [attr.y]="textTopPadding + extraPadding" [attr.font-size]="fontSize"
+    <svg:text [attr.x]="localX + width / 2" [attr.y]="textTopPadding + extraPadding" [attr.font-size]="fontSize"
       [attr.font-family]="font" [attr.stroke-width]="lineWidth" dominant-baseline="hanging" text-anchor="middle">
       <!-- TODO: handle case when title is too long(split+push(price)+ngForloop) -->
       {{ label }}
     </svg:text>
     <!-- price -->
-    <svg:text [attr.x]="x + width / 2" [attr.y]="textTopPadding + extraPadding + fontSize" [attr.font-size]="fontSize"
+    <svg:text [attr.x]="localX + width / 2" [attr.y]="textTopPadding + extraPadding + fontSize" [attr.font-size]="fontSize"
       [attr.font-family]="font" [attr.stroke-width]="lineWidth" dominant-baseline="hanging" text-anchor="middle">
       {{ cell.object.price }}
     </svg:text>
     <!-- top separator -->
-    <svg:line [attr.x1]="x" [attr.y1]="topSeparatorY" [attr.x2]="x + width" [attr.y2]="topSeparatorY"
+    <svg:line [attr.x1]="localX" [attr.y1]="topSeparatorY" [attr.x2]="localX + width" [attr.y2]="topSeparatorY"
       [attr.stroke-width]="lineWidth" [attr.stroke]="black"></svg:line>
     <!-- bot separator -->
-    <svg:line [attr.x1]="x" [attr.y1]="botSeparatorY" [attr.x2]="x + width" [attr.y2]="botSeparatorY"
+    <svg:line [attr.x1]="localX" [attr.y1]="botSeparatorY" [attr.x2]="localX + width" [attr.y2]="botSeparatorY"
       [attr.stroke-width]="lineWidth" [attr.stroke]="black"></svg:line>
     <!-- vertical separator -->
     <svg:line [attr.x1]="splitterX" [attr.y1]="topSeparatorY" [attr.x2]="splitterX" [attr.y2]="botSeparatorY"
@@ -42,12 +42,12 @@
       </svg:g>
 
       <!-- upgradePrice -->
-      <svg:text [attr.x]="x + width / 2" [attr.y]="botSeparatorY + extraPadding" [attr.font-size]="fontSize"
+      <svg:text [attr.x]="localX + width / 2" [attr.y]="botSeparatorY + extraPadding" [attr.font-size]="fontSize"
         [attr.font-family]="font" [attr.stroke-width]="lineWidth" dominant-baseline="hanging" text-anchor="middle"
         i18n="@@upgradePrice">
         Upgrade
       </svg:text>
-      <svg:text [attr.x]="x + width / 2" [attr.y]="botSeparatorY + extraPadding + fontSize" [attr.font-size]="fontSize"
+      <svg:text [attr.x]="localX + width / 2" [attr.y]="botSeparatorY + extraPadding + fontSize" [attr.font-size]="fontSize"
         [attr.font-family]="font" [attr.stroke-width]="lineWidth" dominant-baseline="hanging" text-anchor="middle">
         {{ cell.object.upgradePrice }}
       </svg:text>

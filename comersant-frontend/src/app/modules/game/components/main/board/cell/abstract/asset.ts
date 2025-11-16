@@ -30,7 +30,7 @@ export abstract class Asset extends BaseComponent {
   }
 
   get ownerX(): number {
-    return this.x + this.width - this.ownerMarkRadius - this.extraPadding;
+    return this.localX + this.width - this.ownerMarkRadius - this.extraPadding;
   }
 
   get ownerY(): number {

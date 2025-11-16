@@ -1,44 +1,106 @@
-import { AfterViewInit, Component, DoCheck, ElementRef, Input, ViewChild } from '@angular/core';
+import { Component, DoCheck, Input, OnDestroy, OnInit } from '@angular/core';
+import { Board } from '$server/modules/game/models/FieldModels/board';
 import { Player } from '$server/modules/game/models/GameModels/player';
 import { GameService } from 'src/app/modules/game/services/game.service';
 
-import { CellOffset, CellWidth } from '../../cell/abstract/base';
+import {
+  AnimationStepMs,
+  calculateCircularPosition,
+  PlayerOffsetPx,
+  Position
+} from '../../utils/board-layout.utils';
 
 @Component({
   selector: '[app-pawn]',
   standalone: false,
   templateUrl: './pawn.component.html',
-  styleUrl: './pawn.component.scss',
+  styleUrl: './pawn.component.scss'
 })
-export class PawnComponent implements AfterViewInit, DoCheck {
-  @ViewChild('cxAnim', { static: true }) cxAnim!: ElementRef<SVGAnimateElement>;
-  lastCx = 0;
+export class PawnComponent implements OnInit, DoCheck, OnDestroy {
   @Input({required: true }) player!: Player;
+
+  visualPosition: number = 0;
+  private lastCheckedPosition: number = 0;
+  private animationTimeout?: number;
+  private playerIndex: number = -1;
 
   constructor(private gameService: GameService) {}
 
-  ngAfterViewInit() {
-    this.lastCx = this.cx;
+  ngOnInit() {
+    this.visualPosition = this.PlayerPosition;
+    this.lastCheckedPosition = this.PlayerPosition;
+    this.cachePlayerIndex();
   }
 
   ngDoCheck() {
-    const next = this.cx;
-    if (next !== this.lastCx) {
-      const anim = this.cxAnim.nativeElement;
-      anim.setAttribute('from', this.lastCx.toString());
-      anim.setAttribute('to', next.toString());
-      anim.beginElement();
-      this.lastCx = next;
+    const targetPosition = this.PlayerPosition;
+
+    // Detect position change and animate
+    if (targetPosition !== this.lastCheckedPosition) {
+      this.lastCheckedPosition = targetPosition;
+      this.animateToPosition(targetPosition);
     }
   }
 
-  get cx(): number {
-    return this.PlayerPosition * (CellWidth + CellOffset) + 40;
+  ngOnDestroy() {
+    // Clean up timeout to prevent memory leak
+    if (this.animationTimeout) {
+      clearTimeout(this.animationTimeout);
+    }
   }
 
-  get cy(): number {
-    const pIndex = this.gameService.Game.players.findIndex(p => p.Id === this.player.Id);
-    return 50 + pIndex * 20;
+  private cachePlayerIndex() {
+    this.playerIndex = this.gameService.Game.players.findIndex(p => p.Id === this.player.Id);
+  }
+
+  private animateToPosition(targetPosition: number) {
+    // Clear any ongoing animation
+    if (this.animationTimeout) {
+      clearTimeout(this.animationTimeout);
+    }
+
+    const totalCells = Board.CellsCounter;
+
+    // Validate target position
+    if (targetPosition < 0 || targetPosition >= totalCells) {
+      console.warn('Invalid target position:', targetPosition);
+      return;
+    }
+
+    const step = () => {
+      if (this.visualPosition === targetPosition) {
+        return;
+      }
+
+      // Always move forward (wrapping around the board)
+      this.visualPosition = (this.visualPosition + 1) % totalCells;
+
+      // Continue if not yet at target
+      if (this.visualPosition !== targetPosition) {
+        this.animationTimeout = window.setTimeout(step, AnimationStepMs);
+      }
+    };
+
+    step();
+  }
+
+  get position(): Position {
+    return this.calculatePosition(this.visualPosition);
+  }
+
+  private calculatePosition(cellIndex: number): Position {
+    const pos = calculateCircularPosition(cellIndex);
+
+    // Cache player index if not yet cached
+    if (this.playerIndex === -1) {
+      this.cachePlayerIndex();
+    }
+
+    const offset = (this.playerIndex - this.gameService.Game.players.length / 2) * PlayerOffsetPx;
+    return {
+      x: pos.x + offset,
+      y: pos.y + offset
+    };
   }
 
   get Player(): Player {
