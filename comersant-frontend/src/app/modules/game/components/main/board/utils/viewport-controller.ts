@@ -107,15 +107,32 @@ export class ViewportController {
     this.element = element;
 
     // Set up document-level event listeners for mouse move and up
-    this.mouseMoveListener = this.onMouseMove.bind(this);
-    this.mouseUpListener = this.onMouseUp.bind(this);
+    this.mouseMoveListener = (event: MouseEvent) => {
+      this.updatePan(event.clientX, event.clientY);
+    };
+
+    this.mouseUpListener = () => {
+      this.endPan();
+    };
 
     document.addEventListener('mousemove', this.mouseMoveListener);
     document.addEventListener('mouseup', this.mouseUpListener);
 
     // Set up element-level event listeners for mouse down and wheel
-    this.mouseDownListener = this.onMouseDown.bind(this);
-    this.wheelListener = this.onWheel.bind(this);
+    this.mouseDownListener = (event: MouseEvent) => {
+      // Only pan with left mouse button
+      if (event.button === 0) {
+        this.startPan(event.clientX, event.clientY);
+        event.preventDefault();
+      }
+    };
+
+    this.wheelListener = (event: WheelEvent) => {
+      // Only prevent default if zoom actually changes (allows page scroll when at zoom limits)
+      if (this.handleWheel(event.deltaY)) {
+        event.preventDefault();
+      }
+    };
 
     element.addEventListener('mousedown', this.mouseDownListener);
     element.addEventListener('wheel', this.wheelListener);
@@ -150,40 +167,5 @@ export class ViewportController {
 
     // Clear element reference
     this.element = null;
-  }
-
-  /**
-   * Handle mouse down event to start panning
-   */
-  private onMouseDown(event: MouseEvent): void {
-    // Only pan with left mouse button
-    if (event.button === 0) {
-      this.startPan(event.clientX, event.clientY);
-      event.preventDefault();
-    }
-  }
-
-  /**
-   * Handle mouse move event for panning
-   */
-  private onMouseMove(event: MouseEvent): void {
-    this.updatePan(event.clientX, event.clientY);
-  }
-
-  /**
-   * Handle mouse up event to end panning
-   */
-  private onMouseUp(): void {
-    this.endPan();
-  }
-
-  /**
-   * Handle wheel event for zooming
-   */
-  private onWheel(event: WheelEvent): void {
-    // Only prevent default if zoom actually changes (allows page scroll when at zoom limits)
-    if (this.handleWheel(event.deltaY)) {
-      event.preventDefault();
-    }
   }
 }
