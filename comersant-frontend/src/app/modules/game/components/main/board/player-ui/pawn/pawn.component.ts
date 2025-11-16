@@ -11,9 +11,10 @@ import { CellOffset, CellWidth } from '../../cell/abstract/base';
   styleUrl: './pawn.component.scss',
 })
 export class PawnComponent implements AfterViewInit, DoCheck {
+  @Input({required: true}) playerId!: Player['Id'];
+
   @ViewChild('cxAnim', { static: true }) cxAnim!: ElementRef<SVGAnimateElement>;
   lastCx = 0;
-  @Input({required: true }) player!: Player;
 
   constructor(private gameService: GameService) {}
 
@@ -37,12 +38,16 @@ export class PawnComponent implements AfterViewInit, DoCheck {
   }
 
   get cy(): number {
-    const pIndex = this.gameService.Game.players.findIndex(p => p.Id === this.player.Id);
+    const pIndex = this.gameService.Game.players.findIndex(p => p.Id === this.playerId);
     return 50 + pIndex * 20;
   }
 
-  get Player(): Player {
-    return this.player;
+  get player(): Player {
+    const player = this.gameService.Game.players.find(p => p.Id === this.playerId);
+    if (!player) {
+      throw new Error(`Player with ID ${this.playerId} not found in game`);
+    }
+    return player;
   }
 
   get PlayerColor(): string {

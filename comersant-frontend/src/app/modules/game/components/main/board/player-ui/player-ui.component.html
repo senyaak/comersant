@@ -1,7 +1,7 @@
 <svg:g>
   @for (player of Players; track player.Id) {
   <svg:g>
-    <svg:g app-pawn [player]="player"></svg:g>
+    <svg:g app-pawn [playerId]="player.Id"></svg:g>
   </svg:g>
   }
 </svg:g>
