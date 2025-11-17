@@ -75,7 +75,7 @@ export class LobbyService {
     /** subscribe to lobby events */
     this.socket.on('create-room', this.createdRoom);
     this.socket.on('enter-room', this.enteredRoom);
-    this.socket.on('rooms-updated', this.updatePlayersList);
+    this.socket.on('rooms-updated', this.updateRoomsList);
     this.socket.on('update-connected-users', this.updatePlayersList);
     this.socket.on('update-rooms-list', this.updateRoomsList);
     this.socket.on('update-room-users', this.updateSelectedRoom);
