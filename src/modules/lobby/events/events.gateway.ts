@@ -11,34 +11,34 @@ import { Namespace, Socket } from 'socket.io';
 import { PlayersSettings } from 'src/modules/game/models/GameModels/game';
 import { DuplicateNamesError, GamesService } from 'src/modules/game/services/games/games.service';
 
-import { UserIdentity } from '../types';
 import {
-  ClientEvents,
+  ClientToServerEvents,
   Room,
   Rooms,
   RoomsPrefix,
-  ServerEvents,
+  ServerToClientEvents,
+  UserIdentity,
 } from './../types';
 
 @WebSocketGateway({ namespace: 'lobby' })
 export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
-  @WebSocketServer() private server!: Namespace;
+  @WebSocketServer() private server!: Namespace<ClientToServerEvents, ServerToClientEvents>;
   constructor(private gamesService: GamesService) {}
 
   async handleConnection() {}
   async handleDisconnect(@ConnectedSocket() socket: Socket) {
     if (socket.data.room) {
-      this.server.in(socket.data.room).emit(ServerEvents.LeaveRoom);
-      this.server.emit(ServerEvents.UpdateRoomsList, await this.rooms);
+      this.server.in(socket.data.room).emit('leave-room');
+      this.server.emit('update-rooms-list', await this.rooms);
     } else if (socket.rooms.has(Rooms.Lobby)) {
       this.lobby.emit(
-        ServerEvents.UpdateConnectedUsers,
+        'update-connected-users',
         await this.usersInlobby,
       );
     }
   }
 
-  @SubscribeMessage(ClientEvents.SetName)
+  @SubscribeMessage('set-name')
   async setName(
     @MessageBody() newName: string,
     @ConnectedSocket() socket: Socket,
@@ -47,16 +47,16 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       throw new Error('Can\'t set already set name');
     }
     socket.data.name = newName;
-    this.lobby.emit(ServerEvents.UpdateConnectedUsers, await this.usersInlobby);
+    this.lobby.emit('update-connected-users', await this.usersInlobby);
   }
 
-  @SubscribeMessage(ClientEvents.Join)
+  @SubscribeMessage('join')
   async join(@ConnectedSocket() socket: Socket) {
     socket.join(Rooms.Lobby);
-    this.lobby.emit(ServerEvents.UpdateConnectedUsers, await this.usersInlobby);
+    this.lobby.emit('update-connected-users', await this.usersInlobby);
   }
 
-  @SubscribeMessage(ClientEvents.CreateRoom)
+  @SubscribeMessage('create-room')
   async createRoom(
     @MessageBody() roomName: string,
     @ConnectedSocket() socket: Socket,
@@ -66,56 +66,56 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     socket.leave(Rooms.Lobby);
     await socket.join(room);
 
-    socket.emit(ServerEvents.CreatedRoom, room);
-    this.server.emit(ServerEvents.UpdateRoomsList, await this.rooms);
+    socket.emit('create-room', room);
+    this.server.emit('update-rooms-list', await this.rooms);
     this.server.emit(
-      ServerEvents.UpdateConnectedUsers,
+      'update-connected-users',
       await this.usersInlobby,
     );
   }
 
-  @SubscribeMessage(ClientEvents.EnterRoom)
+  @SubscribeMessage('enter-room')
   async enterRoom(
     @MessageBody() roomName: string,
     @ConnectedSocket() socket: Socket,
   ) {
     if ((await this.server.in(roomName).fetchSockets()).length >= 2) {
-      socket.emit(ServerEvents.RoomIsFull);
+      socket.emit('room-is-full');
       return;
     }
     socket.join(roomName);
     socket.leave(Rooms.Lobby);
 
-    socket.emit(ServerEvents.EnteredRoom, roomName);
+    socket.emit('enter-room', roomName);
     this.server.emit(
-      ServerEvents.UpdateConnectedUsers,
+      'update-connected-users',
       await this.usersInlobby,
     );
-    this.server.emit(ServerEvents.UpdateRoomsList, await this.rooms);
+    this.server.emit('update-rooms-list', await this.rooms);
     this.updateRoomUsers(roomName);
   }
 
-  @SubscribeMessage(ClientEvents.LeaveRoom)
+  @SubscribeMessage('leave-room')
   async leaveRoom(@ConnectedSocket() socket: Socket) {
-    const roomToLeave = Array.from(socket.rooms).find(room =>
+    const roomToLeave = Array.from(socket.rooms).find((room: string) =>
       room.startsWith(RoomsPrefix),
     );
     if (!roomToLeave) {
       return;
     }
     if (socket.data.room) {
-      this.server.in(socket.data.room).emit(ServerEvents.RoomRemoved);
+      this.server.in(socket.data.room).emit('room-removed');
       this.server.in(socket.data.room).socketsLeave(socket.data.room);
     } else {
       socket.leave(roomToLeave);
       this.updateRoomUsers(roomToLeave);
     }
-    this.server.emit(ServerEvents.UpdateRoomsList, await this.rooms);
+    this.server.emit('update-rooms-list', await this.rooms);
   }
 
   async getRoom(roomId: string): Promise<Room> {
     const users = (await this.server.in(roomId).fetchSockets()).map(
-      ({ id, data }) => ({
+      ({ id, data }: { id: string; data: { name?: string; room?: string } }) => ({
         id,
         name: data.name,
         owner: roomId === data.room,
@@ -128,7 +128,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     return await this.server
       .in(roomName)
       .fetchSockets()
-      .then(sockets => sockets.map(({ data: { name}, id }) => ({ name, id })));
+      .then(sockets => sockets.map(({ data: { name }, id }: { data: { name?: string }; id: string }) => ({ name, id })));
   }
 
   private get lobby() {
@@ -139,7 +139,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     // console.log('usersInlobby');
     return this.lobby.fetchSockets().then(sockets => {
       // console.log('usersInlobby2', sockets);
-      return sockets.map(({ id, data }) => ({ id, data }));
+      return sockets.map(({ id, data }: { id: string; data: { name?: string } }) => ({ id, data }));
     });
   }
 
@@ -155,28 +155,28 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   async updateRoomUsers(room: string) {
     const users: Room['users'] = (
       await this.server.in(room).fetchSockets()
-    ).map(socket => ({
+    ).map((socket: { id: string; data: { name?: string; room?: string } }) => ({
       id: socket.id,
-      name: socket.data.name,
+      name: socket.data.name || '',
       owner: socket.data.room === room,
     }));
     this.server
       .in(room)
-      .emit(ServerEvents.UpdateRoomUsers, { id: room, users });
+      .emit('update-room-users', { id: room, users });
   }
 
-  @SubscribeMessage(ClientEvents.StartGame)
+  @SubscribeMessage('start-game')
   async startGame(@ConnectedSocket() socket: Socket) {
     try {
       const gameId = this.gamesService.createGame(
         await this.getPlayersSettings(socket.data.room),
       );
 
-      this.server.in(socket.data.room).emit(ServerEvents.StartGame, gameId);
-      this.server.emit(ServerEvents.UpdateRoomsList, await this.rooms);
+      this.server.in(socket.data.room).emit('start-game', gameId);
+      this.server.emit('update-rooms-list', await this.rooms);
     } catch (error) {
       if(error instanceof DuplicateNamesError) {
-        socket.emit(ServerEvents.Error, error.message);
+        socket.emit('error', error.message);
       }
     }
   }
