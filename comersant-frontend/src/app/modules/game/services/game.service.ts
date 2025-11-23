@@ -168,6 +168,7 @@ export class GameService {
     switch(card.type) {
       case EventType.BalanceChange: {
         this.Game.players[this.Game.CurrentPlayer].changeMoney(card.amount);
+        this.gameNotificationService.toast(`Balance changed by ${card.amount}`);
         break;
       }
       case EventType.GetEvent: {

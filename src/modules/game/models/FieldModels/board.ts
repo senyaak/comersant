@@ -87,6 +87,7 @@ export type SpecialCells =
   | 'InnerStart';
 
 export const PropertyGroupsColors: `#${string}`[] = [
+  '#000', // placeholder for index 0
   '#00ca39ff',
   '#ff2727ff',
   '#e4f616ff',
