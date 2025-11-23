@@ -1,5 +1,10 @@
 import type { IRawGame } from '$server/modules/game/models/GameModels/types';
-import type { RollTurnResult, PropertyBoughtResult, TurnFinishedResult } from '$server/modules/game/models/types';
+import type {
+  RollTurnResult,
+  PropertyBoughtResult,
+  TurnFinishedResult,
+  IEventResult,
+} from '$server/modules/game/models/types';
 import type { ClientToServerEvents, ServerToClientEvents } from '$server/modules/game/services/events/types';
 import type { Observable } from 'rxjs';
 import type { Socket } from 'socket.io-client';
@@ -27,9 +32,13 @@ import { GameStateService } from './game-state.service';
 })
 export class GameService {
   private game: BehaviorSubject<ICGame> = new BehaviorSubject<ICGame>(new ICGame());
+
   private socket!: Socket<ServerToClientEvents, ClientToServerEvents>;
+
   public gameReady$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+
   public propertyBought$ = new BehaviorSubject<PropertyBoughtResult>({ success: false });
+
   public turnFinished$ = new BehaviorSubject<TurnFinishedResult>(
     { message: 'Unknown error finishing turn', success: false },
   );
@@ -99,75 +108,15 @@ export class GameService {
       }, forceNew: true },
     );
 
-    this.socket.on('connect', (...rest) => {
-      console.log('Connected with query params:', this.socket.io.opts.query);
-      console.log('rest', rest);
-    });
-
-    this.socket.on('user_connected', ({ id , name }) => {
-      console.log('user_connected', id,name);
-      this.Game.updatePlayerIdByName(name, id);
-      this.checkIfReady();
-      // this.socket.id = newId;
-    });
-
-    this.socket.on('disconnect', () => {
-      console.log('disconnected');
-      this.socket.disconnect();
-      this.router.navigate(['/']);
-    });
-    // this.socket.on('connect_error', () => {
-    //   console.log('connect_error');
-    //   this.router.navigate(['/']);
-    // });
-    // this.socket.on('message', () => {
-    //   console.log('message');
-    //   this.router.navigate(['/']);
-    // });
-    this.socket.onAny((...rest) => {
-      console.log('@#socket on any', rest);
-    });
-    this.socket.on('turn_progress', (result: RollTurnResult) => {
-      if(result.success !== true) {
-        throw new Error('Turn processing failed');
-      }
-
-      this.game.getValue().nextTurn(result.data.diceResult);
-      this.turnProgress$.next(result);
-    });
-    this.socket.on('turn_finished', (result: TurnFinishedResult) => {
-      this.game.getValue().nextTurn();
-      this.turnFinished$.next(result);
-    });
-    this.socket.on('event_result', (results) => {
-      for(const result of results) {
-        if(result.taxPaid) {
-          // result.taxPaid.toPlayerId;
-          this.Game.players.find(player => player.Id === result.taxPaid?.toPlayerId)
-            ?.changeMoney(result.taxPaid.amount);
-          this.Game.players[this.Game.CurrentPlayer].changeMoney(-result.taxPaid.amount);
-        }
-        if(result.cardDrawn) {
-          this.gameNotificationService.showCard(result.cardDrawn);
-        }
-        // TODO:!!
-        // if() {}
-      }
-      // this.gameStateService.handleEventResult(result);
-    });
-    this.socket.on('propertyBought', (result: PropertyBoughtResult) => {
-      if(result.success !== true) {
-        throw new Error('Property purchase failed');
-      }
-      if(result.oldOwnerId) {
-        this.Game.players.find(player => player.Id === result.oldOwnerId)?.changeMoney(result.price);
-      }
-
-      const propertyCell = this.Game.board.flatCells[result.propertyIndex] as PropertyCell;
-      this.Game.players[this.Game.CurrentPlayer].changeMoney(-result.price);
-      propertyCell.object.owner = result.newOwnerId;
-      this.propertyBought$.next(result);
-    });
+    this.socket.onAny(this.onAny);
+    this.socket.on('connect', this.onConnect);
+    this.socket.on('disconnect', this.onDisconnect);
+    this.socket.on('user_connected', this.onUserConnected);
+    this.socket.on('turn_progress', this.onTurnProgress);
+    this.socket.on('turn_finished', this.onTurnFinished);
+    this.socket.on('event_result', this.onEventResult);
+    this.socket.on('propertyBought', this.onPropertyBought);
+    // this.socket.on('connect_error', this.onConnectError);
   }
 
   private loadGame(gameId: string): Observable<IRawGame> {
@@ -205,4 +154,77 @@ export class GameService {
       console.log('Game initialized:', this.Game);
     });
   }
+
+  //#region Event Handlers
+  private onAny = (...rest: unknown[]) => {
+    console.log('@#socket on any', rest);
+  };
+
+  private onConnect = (...rest: unknown[]) => {
+    console.log('Connected with query params:', this.socket.io.opts.query);
+    console.log('rest', rest);
+  };
+
+  // private onConnectError = () => {
+  //   console.log('connect_error');
+  //   this.router.navigate(['/']);
+  // };
+
+  private onDisconnect = () => {
+    console.log('disconnected');
+    this.socket.disconnect();
+    this.router.navigate(['/']);
+  };
+
+  private onEventResult = (results: Parameters<ServerToClientEvents['event_result']>[0]) => {
+    const handler = (result: IEventResult) => {
+      if(result.taxPaid) {
+        this.Game.players.find(player => player.Id === result.taxPaid?.toPlayerId)
+          ?.changeMoney(result.taxPaid.amount);
+        this.Game.players[this.Game.CurrentPlayer].changeMoney(-result.taxPaid.amount);
+      }
+      if(result.cardDrawn) {
+        this.gameNotificationService.showCard(result.cardDrawn);
+      }
+    };
+
+    results.forEach((result, i) => {
+      setTimeout(() => handler(result), i * 1500);
+    });
+  };
+
+  private onPropertyBought = (result: Parameters<ServerToClientEvents['propertyBought']>[0]) => {
+    if(result.success !== true) {
+      throw new Error('Property purchase failed');
+    }
+    if(result.oldOwnerId) {
+      this.Game.players.find(player => player.Id === result.oldOwnerId)?.changeMoney(result.price);
+    }
+
+    const propertyCell = this.Game.board.flatCells[result.propertyIndex] as PropertyCell;
+    this.Game.players[this.Game.CurrentPlayer].changeMoney(-result.price);
+    propertyCell.object.owner = result.newOwnerId;
+    this.propertyBought$.next(result);
+  };
+
+  private onTurnFinished = (result: Parameters<ServerToClientEvents['turn_finished']>[0]) => {
+    this.game.getValue().nextTurn();
+    this.turnFinished$.next(result);
+  };
+
+  private onTurnProgress = (result: Parameters<ServerToClientEvents['turn_progress']>[0]) => {
+    if(result.success !== true) {
+      throw new Error('Turn processing failed');
+    }
+
+    this.game.getValue().nextTurn(result.data.diceResult);
+    this.turnProgress$.next(result);
+  };
+
+  private onUserConnected = ({ id , name }: Parameters<ServerToClientEvents['user_connected']>[0]) => {
+    console.log('user_connected', id, name);
+    this.Game.updatePlayerIdByName(name, id);
+    this.checkIfReady();
+  };
+  //#endregion
 }

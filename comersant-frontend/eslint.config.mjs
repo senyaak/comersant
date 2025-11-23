@@ -36,14 +36,21 @@ export default tseslint.config(
           ['get-method', 'set-method'],
           'private-method',
           'method',
+          'event-handlers',
         ],
         customGroups: [
           {
             groupName: 'angular-lifecycle',
             selector: 'method',
             elementNamePattern:
-              '^ng(OnInit|OnDestroy|OnChanges|DoCheck|AfterContentInit|' +
-              'AfterContentChecked|AfterViewInit|AfterViewChecked)$',
+              '^ng(OnInit|OnDestroy|OnChanges|DoCheck|AfterContentInit|'
+              + 'AfterContentChecked|AfterViewInit|AfterViewChecked)$',
+          },
+          {
+            groupName: 'event-handlers',
+            selector: 'property',
+            modifiers: ['private'],
+            elementNamePattern: '^on[A-Z]',
           },
         ],
       }],
