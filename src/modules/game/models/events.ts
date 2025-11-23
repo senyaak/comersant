@@ -2,7 +2,7 @@ import { Cell } from './FieldModels/cells';
 import { BusinessGrade } from './GameModels/properties';
 
 export enum EventType {
-  BalanceChange,
+  BalanceChange = 1,
   GetEvent,
   MoneyTransfer,
   SkipTurn,
@@ -24,7 +24,7 @@ export function convertToEventType(value: unknown): EventType {
 }
 
 export enum EventItem {
-  Mail,
+  Mail = 1,
   Risk,
   Surprise,
   TaxFree,

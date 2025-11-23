@@ -7,6 +7,7 @@ import {
 import {
   CardEventCell,
   Cell,
+  CellName,
   InnerStartCell,
   InteractiveEventCell,
   PropertyCell,
@@ -17,14 +18,14 @@ import {
 } from './cells';
 
 export enum BusinessGroups {
-  Eat = 0,
-  Market = 1,
-  Food = 2,
-  Farm = 3,
-  Stadium = 4,
-  Arena = 5,
-  Theater = 6,
-  Storage = 7,
+  Eat = 1,
+  Market = 2,
+  Food = 3,
+  Farm = 4,
+  Stadium = 5,
+  Arena = 6,
+  Theater = 7,
+  Storage = 8,
 }
 
 // Cell names organized by business groups for PrivateBusiness
@@ -529,12 +530,20 @@ const restoreCells = (_cells: object[][]): Cell[][] => {
 };
 
 export class Board {
+  public static getTargetPosition(to: CellName): number {
+    const targetPosition = Board._cells.flat().findIndex((cell) => {
+      return cell.name === to;
+    });
+    return targetPosition;
+  }
+
   /** use as default board to calculate something, DO NOT MODIFY */
   private static readonly _cells: Readonly<Cell>[][] = createCells();
   cells: Cell[][] = createCells();
   constructor();
 
   constructor(board: Board);
+
   constructor(board?: Board) {
     if(board) {
       this.cells = restoreCells(board.cells);
@@ -544,6 +553,7 @@ export class Board {
   }
 
   static get Cells() { return Board._cells; }
+
   static get CellsCounter(){
     return Board._cells.flat().length;
   }

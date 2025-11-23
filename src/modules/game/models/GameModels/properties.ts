@@ -4,10 +4,10 @@ import { BusinessGroups as BusinessGroups } from '../FieldModels/board';
 import { Player } from './player';
 
 export enum BusinessGrade {
-  Area = 0,
-  Office = 1,
-  Department = 2,
-  Enterprise = 3,
+  Area = 1,
+  Office = 2,
+  Department = 3,
+  Enterprise = 4,
 }
 
 type Grades = [
@@ -127,7 +127,7 @@ export class PrivateBusiness extends Business {
     upgradePrice: number,
     grades: Grades,
     owner: Player['id'] | null = null,
-    grade: BusinessGrade = 0,
+    grade: BusinessGrade = BusinessGrade.Area,
   ) {
     super(price, upgradePrice, grades, owner, grade);
   }

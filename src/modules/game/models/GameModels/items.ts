@@ -1,5 +1,5 @@
 export enum ItemType {
-  TaxFree,
+  TaxFree = 1,
   Security,
   G,
 }

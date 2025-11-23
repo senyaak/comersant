@@ -84,10 +84,18 @@ export class Game extends IGame {
 
   private moveTo(player: Player, targetPosition: number): void {
     const currentPosition = player.Position;
-    const movesCounter = currentPosition < targetPosition ?
-      targetPosition - currentPosition :
-      this.board.flatCells.length - currentPosition + targetPosition;
+    const movesCounter = Math.abs(targetPosition - currentPosition);
     player.move(movesCounter);
+  }
+
+  private moveToTaxService(): void {
+    const currPos = this.players[this.CurrentPlayer].Position;
+    const newPos = this.board.flatCells.findIndex((cell) => {
+      return StaticEventCell.isStaticEventCell(cell) && cell.type === EventType.TaxService;
+    });
+    const moves = +(newPos - currPos);
+    this.players[this.CurrentPlayer].move(moves);
+    console.log('move player', this.CurrentPlayer, 'to', newPos);
   }
 
   /** transfer money from other player to current player (eg birthday) */
@@ -174,9 +182,7 @@ export class Game extends IGame {
         // TODO: set game to waiting for action to select player to move
         break;
       case EventType.MoveTo: {
-        const targetPosition = this.board.flatCells.findIndex((cell) => {
-          return cell.name === card.to;
-        });
+        const targetPosition = Board.getTargetPosition(card.to);
         this.moveTo(this.players[this.CurrentPlayer], targetPosition);
         break;
       }
@@ -218,13 +224,7 @@ export class Game extends IGame {
         this.loseProperty(card.grade);
         break;
       case EventType.TaxService: {
-        const currPos = this.players[this.CurrentPlayer].Position;
-        const newPos = this.board.flatCells.findIndex((cell) => {
-          return StaticEventCell.isStaticEventCell(cell) && cell.type === EventType.TaxService;
-        });
-        const moves = +(newPos - currPos);
-        this.players[this.CurrentPlayer].move(moves);
-        console.log('move player', this.CurrentPlayer, 'to', newPos);
+        this.moveToTaxService();
         break;
       }
 
@@ -243,21 +243,25 @@ export class Game extends IGame {
       result.push(...this.prepareCard(cell.type));
     } else if(cell instanceof StaticEventCell) {
       console.log('static event cell');
+      let staticEvent: IEventResult['staticEvent'];
       switch(cell.type) {
-        // nothing to do, handled when player tries to move
         case EventType.TaxService:
+          this.moveToTaxService();
+          staticEvent = {eventType: EventType.TaxService};
           break;
         case EventType.BalanceChange:
           this.players[this.CurrentPlayer].changeMoney(cell.amount ?? 0);
+          staticEvent = {eventType: EventType.BalanceChange, amount: cell.amount};
           break;
         case EventType.SkipTurn:
           this.players[this.CurrentPlayer].skipTurn();
+          staticEvent = {eventType: EventType.SkipTurn};
           break;
         default:
           throw new Error('Unknown static event cell type');
       }
 
-      result.push({staticEvent: cell.type});
+      result.push({ staticEvent });
     } else if(cell instanceof InteractiveEventCell) {
       // TODO: Set game state to waiting for player action?
       switch(cell.type) {

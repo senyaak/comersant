@@ -44,7 +44,8 @@ export interface IDiceResult {
 export interface IEventResult {
   taxPaid?: { amount: number, toPlayerId: Player['id'] };
   cardDrawn?: { cardType: CardEventCellTypes, card: Cards[keyof Cards] };
-  staticEvent?: EventType.BalanceChange | EventType.SkipTurn | EventType.TaxService;
+  staticEvent?: {eventType: EventType.SkipTurn} | {eventType: EventType.TaxService}
+  | {eventType: EventType.BalanceChange, amount?: number};
   interactiveEvent?: EventType.MoveToCenter | EventType.Raccito;
   itemReceived?: ItemType;
   propertyLost?: { propertyIndex: number | null };

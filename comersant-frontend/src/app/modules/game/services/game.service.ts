@@ -14,7 +14,11 @@ import { Injectable } from '@angular/core';
 import {
   Router,
 } from '@angular/router';
+import { EventItem, EventType } from '$server/modules/game/models/events';
+import { Board } from '$server/modules/game/models/FieldModels/board';
+import { Cards } from '$server/modules/game/models/FieldModels/cards';
 import { PropertyCell } from '$server/modules/game/models/FieldModels/cells';
+import { ItemType } from '$server/modules/game/models/GameModels/items';
 import { Player } from '$server/modules/game/models/GameModels/player';
 import { Routes } from '$server/types/routes';
 import { BehaviorSubject, tap } from 'rxjs';
@@ -160,6 +164,34 @@ export class GameService {
     console.log('@#socket on any', rest);
   };
 
+  private onCardEvent = (card: Cards[keyof Cards]) => {
+    switch(card.type) {
+      case EventType.BalanceChange: {
+        this.Game.players[this.Game.CurrentPlayer].changeMoney(card.amount);
+        break;
+      }
+      case EventType.GetEvent: {
+        this.onHandleGetEvent(card.item);
+        break;
+      }
+      case EventType.MoneyTransfer: {break;}
+      case EventType.Move: {break;}
+      case EventType.MovePlayer: {break;}
+      case EventType.MoveTo: {
+        const newPostition = Board.getTargetPosition(card.to);
+        const currentPosition = this.Game.players[this.Game.CurrentPlayer].Position;
+        const steps = Math.abs(newPostition - currentPosition);
+        this.Game.players[this.Game.CurrentPlayer].move(steps);
+        this.gameNotificationService.toast(`Moved to ${card.to}`);
+        break;
+      }
+      case EventType.MoveToCenter: {break;}
+      case EventType.PropertyLoss: {break;}
+      case EventType.SkipTurn: {break;}
+      case EventType.TaxService: {break;}
+    }
+  };
+
   private onConnect = (...rest: unknown[]) => {
     console.log('Connected with query params:', this.socket.io.opts.query);
     console.log('rest', rest);
@@ -177,20 +209,61 @@ export class GameService {
   };
 
   private onEventResult = (results: Parameters<ServerToClientEvents['event_result']>[0]) => {
+    console.log('Event results received:', results);
     const handler = (result: IEventResult) => {
+      let i = 0;
       if(result.taxPaid) {
-        this.Game.players.find(player => player.Id === result.taxPaid?.toPlayerId)
-          ?.changeMoney(result.taxPaid.amount);
-        this.Game.players[this.Game.CurrentPlayer].changeMoney(-result.taxPaid.amount);
+        const taxPaid = result.taxPaid;
+        setTimeout(() => {
+          this.Game.players.find(player => player.Id === taxPaid.toPlayerId)
+            ?.changeMoney(taxPaid.amount);
+          this.Game.players[this.Game.CurrentPlayer].changeMoney(-taxPaid.amount);
+        }, i++ * 1500);
       }
       if(result.cardDrawn) {
-        this.gameNotificationService.showCard(result.cardDrawn);
+        const cardDrawn = result.cardDrawn;
+        setTimeout(() => {
+          this.onCardEvent(cardDrawn.card);
+          this.gameNotificationService.showCard(cardDrawn);
+        }, i++ * 1500);
       }
+      if(result.staticEvent) {
+        const staticEvent = result.staticEvent;
+        setTimeout(() => {
+          this.onStaticEvent(staticEvent);
+        }, i++ * 1500);
+      }
+      return i;
     };
 
-    results.forEach((result, i) => {
-      setTimeout(() => handler(result), i * 1500);
+    // use global index since a single handler call can have multiple events
+    let i = 0;
+    results.forEach((result) => {
+      setTimeout(() => i += handler(result), i * 1500);
     });
+  };
+
+  private onHandleGetEvent = (item: EventItem) => {
+    switch(item) {
+      case EventItem.TaxFree: {
+        this.Game.players[this.Game.CurrentPlayer].giveItem(ItemType.TaxFree);
+        this.gameNotificationService.toast('Tax Free item received');
+        break;
+      }
+      case EventItem.Security: {
+        this.Game.players[this.Game.CurrentPlayer].giveItem(ItemType.Security);
+        this.gameNotificationService.toast('Security item received');
+        break;
+      }
+      case EventItem.Mail:
+      case EventItem.Risk:
+      case EventItem.Surprise:
+        this.gameNotificationService.toast('Draw new card');
+        break;
+      default:
+        throw new Error('Unknown event item type');
+    }
+
   };
 
   private onPropertyBought = (result: Parameters<ServerToClientEvents['propertyBought']>[0]) => {
@@ -205,6 +278,24 @@ export class GameService {
     this.Game.players[this.Game.CurrentPlayer].changeMoney(-result.price);
     propertyCell.object.owner = result.newOwnerId;
     this.propertyBought$.next(result);
+  };
+
+  private onStaticEvent = (staticEvent: NonNullable<IEventResult['staticEvent']>) => {
+    switch(staticEvent.eventType) {
+      case EventType.BalanceChange: {
+        this.gameNotificationService.toast(`Balance changed by ${staticEvent.amount || 0}`);
+        break;
+      }
+      case EventType.SkipTurn: {
+        this.gameNotificationService.toast('Player will skip next turn');
+        break;
+      }
+      case EventType.TaxService: {
+        this.gameNotificationService.toast('Player moved to tax service');
+        break;
+      }
+      default: throw new Error('Unknown static event type');
+    }
   };
 
   private onTurnFinished = (result: Parameters<ServerToClientEvents['turn_finished']>[0]) => {
