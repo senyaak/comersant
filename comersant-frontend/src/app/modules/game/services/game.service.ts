@@ -1,9 +1,9 @@
 import type { IRawGame } from '$server/modules/game/models/GameModels/types';
 import type {
-  RollTurnResult,
-  PropertyBoughtResult,
-  TurnFinishedResult,
   IEventResult,
+  PropertyBoughtResult,
+  RollTurnResult,
+  TurnFinishedResult,
 } from '$server/modules/game/models/types';
 import type { ClientToServerEvents, ServerToClientEvents } from '$server/modules/game/services/events/types';
 import type { Observable } from 'rxjs';
@@ -15,7 +15,6 @@ import {
   Router,
 } from '@angular/router';
 import { EventItem, EventType } from '$server/modules/game/models/events';
-import { Board } from '$server/modules/game/models/FieldModels/board';
 import { Cards } from '$server/modules/game/models/FieldModels/cards';
 import { PropertyCell } from '$server/modules/game/models/FieldModels/cells';
 import { ItemType } from '$server/modules/game/models/GameModels/items';
@@ -175,21 +174,55 @@ export class GameService {
         this.onHandleGetEvent(card.item);
         break;
       }
-      case EventType.MoneyTransfer: {break;}
-      case EventType.Move: {break;}
-      case EventType.MovePlayer: {break;}
+      case EventType.MoneyTransfer: {
+        let amount = 0;
+        for(let i = 0; i < this.Game.players.length; i++) {
+          if(i !== this.Game.CurrentPlayer) {
+            amount += card.amount;
+            this.Game.players[i].changeMoney(-card.amount);
+          }
+        }
+        const currPlayer = this.Game.players[this.Game.CurrentPlayer];
+        currPlayer.changeMoney(amount);
+
+        if(this.isTurnActive) {
+          this.gameNotificationService.toast(`Received ${card.amount} from each player`);
+        } else {
+          this.gameNotificationService.toast(`Paid ${card.amount} to ${currPlayer.Name} player`);
+        }
+        break;
+      }
+      case EventType.Move: {
+        this.Game.players[this.Game.CurrentPlayer].move(card.amount);
+        break;
+      }
+      case EventType.MovePlayer: {
+        throw new Error('Not implemented yet');
+        break;
+      }
       case EventType.MoveTo: {
-        const newPostition = Board.getTargetPosition(card.to);
-        const currentPosition = this.Game.players[this.Game.CurrentPlayer].Position;
-        const steps = Math.abs(newPostition - currentPosition);
-        this.Game.players[this.Game.CurrentPlayer].move(steps);
+        this.Game.players[this.Game.CurrentPlayer].moveTo(card.to);
         this.gameNotificationService.toast(`Moved to ${card.to}`);
         break;
       }
-      case EventType.MoveToCenter: {break;}
-      case EventType.PropertyLoss: {break;}
-      case EventType.SkipTurn: {break;}
-      case EventType.TaxService: {break;}
+      case EventType.MoveToCenter: {
+        throw new Error('Not implemented yet');
+        break;
+      }
+      case EventType.PropertyLoss: {
+        throw new Error('Not implemented yet');
+        break;
+      }
+      case EventType.SkipTurn: {
+        this.Game.players[this.Game.CurrentPlayer].skipTurn();
+        this.gameNotificationService.toast('Player will skip next turn');
+        break;
+      }
+      case EventType.TaxService: {
+        this.Game.players[this.Game.CurrentPlayer].moveTo('TaxService');
+        this.gameNotificationService.toast('Moved to TaxService');
+        break;
+      }
     }
   };
 

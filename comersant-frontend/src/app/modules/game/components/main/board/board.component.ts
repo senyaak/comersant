@@ -9,6 +9,7 @@ import {
   PropertyCell,
   StartCell,
   StaticEventCell,
+  TaxServiceCell,
 } from '$server/modules/game/models/FieldModels/cells';
 import { AreaSite } from '$server/modules/game/models/GameModels/properties';
 
@@ -106,7 +107,7 @@ export class BoardComponent implements OnInit, AfterViewInit, OnChanges, OnDestr
       return 'SkipTurn';
     } else if (item instanceof InnerStartCell) {
       return 'InnerStartCell';
-    } else if (item instanceof StaticEventCell && item.type === EventType.TaxService) {
+    } else if (item instanceof TaxServiceCell) {
       return 'TaxService';
     }
 

@@ -90,7 +90,16 @@ export abstract class EventCell extends Cell {
   }
 }
 
-// TODO: add money change event cell
+export class TaxServiceCell extends EventCell {
+  static isTaxServiceCell(cell: Cell): cell is TaxServiceCell {
+    return cell.name === 'TaxService';
+  }
+
+  constructor() {
+    super('TaxService' as EventCellTypes);
+  }
+}
+
 export class StaticEventCell extends EventCell {
   static isStaticEventCell(cell: Cell): cell is StaticEventCell {
     return cell.name === 'staticEvent';
@@ -142,7 +151,10 @@ export class CardEventCell extends EventCell {
   }
 }
 
-export type EventCellTypes = 'card' | 'interactiveEvent' | 'staticEvent';
+export type EventCellTypes = 'card'
+| 'interactiveEvent'
+| 'staticEvent'
+| 'TaxService';
 
 export type CardEventCellTypes =
   | 'post'

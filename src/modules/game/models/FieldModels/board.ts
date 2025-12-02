@@ -15,6 +15,7 @@ import {
   StartCell,
   StaticEventCell,
   stringToCardEventType,
+  TaxServiceCell as TaxServiceCell,
 } from './cells';
 
 export enum BusinessGroups {
@@ -365,7 +366,7 @@ function createCells(): Cell[][] {
         ),
         new PropertyCell('Site', new AreaSite(12_000)),
         new CardEventCell('post'),
-        new StaticEventCell(ET.TaxService),
+        new TaxServiceCell(),
         new PropertyCell(
           'culture',
           new GovBusiness(40_000, 35_000, [
@@ -521,6 +522,8 @@ const restoreCells = (_cells: object[][]): Cell[][] => {
         }
       } else if (cell.name === 'interactiveEvent' && 'type' in cell) {
         return new InteractiveEventCell(convertToEventType(cell.type));
+      } else if (TaxServiceCell.isTaxServiceCell(cell)) {
+        return new TaxServiceCell();
       } else {
         throw new Error(`Unknown cell type: ${cell}`);
       }

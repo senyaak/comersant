@@ -1,4 +1,5 @@
 import { Board } from '../FieldModels/board';
+import { Cell } from '../FieldModels/cells';
 import { ItemType } from './items';
 
 export enum PlayerColor {
@@ -123,6 +124,12 @@ export class Player {
 
     console.log('move player', this.name, 'by', steps, 'new position:', (this.position + steps) % Board.CellsCounter);
     this.position = (this.position + steps) % Board.CellsCounter;
+  }
+
+  moveTo(cellName: Cell['name']): void {
+    const newPostition = Board.getTargetPosition(cellName);
+    const steps = Math.abs(newPostition - this.Position);
+    this.move(steps);
   }
 
   removeRaccito(): void {
