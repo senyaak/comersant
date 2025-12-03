@@ -1,4 +1,6 @@
-<svg:g [attr.transform]="'translate(' + x + ',' + y + ') rotate(' + rotation + ',' + rotationOriginX + ',' + rotationOriginY + ')'">
+<svg:g
+  [attr.transform]="'translate(' + x + ',' + y + ') rotate(' + rotation + ',' + rotationOriginX + ',' + rotationOriginY + ')'"
+  [cellIndex]="orderNumber" appCellClick>
   <svg:rect
     class="cell"
     [attr.x]="0"

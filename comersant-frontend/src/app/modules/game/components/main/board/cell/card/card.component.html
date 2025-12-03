@@ -1,6 +1,7 @@
 <svg:g class="app-card-cell" app-cell-wrapper [orderNumber]="orderNumber">
   <svg:g>
-    <svg:line [attr.x1]="localX" [attr.y1]="positionY" [attr.x2]="localX + width" [attr.y2]="positionY" [attr.stroke]="color">
+    <svg:line [attr.x1]="localX" [attr.y1]="positionY" [attr.x2]="localX + width" [attr.y2]="positionY"
+      [attr.stroke]="color">
     </svg:line>
     <svg:g
       [attr.transform]="'translate(' + cardCenterX + ',' + (positionY - height/2) + ') scale(' + patternScale + ')'"

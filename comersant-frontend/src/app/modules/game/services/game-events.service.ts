@@ -3,9 +3,7 @@ import { Injectable } from '@angular/core';
 import { GameStateService } from './game-state.service';
 import { GameService } from './game.service';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable()
 export class GameEventsService {
 
   constructor(private gameService: GameService, private gameStateService: GameStateService) {

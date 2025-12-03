@@ -7,8 +7,9 @@
       {{ label }}
     </svg:text>
     <!-- price -->
-    <svg:text [attr.x]="localX + width / 2" [attr.y]="textTopPadding + extraPadding + fontSize" [attr.font-size]="fontSize"
-      [attr.font-family]="font" [attr.stroke-width]="lineWidth" dominant-baseline="hanging" text-anchor="middle">
+    <svg:text [attr.x]="localX + width / 2" [attr.y]="textTopPadding + extraPadding + fontSize"
+      [attr.font-size]="fontSize" [attr.font-family]="font" [attr.stroke-width]="lineWidth" dominant-baseline="hanging"
+      text-anchor="middle">
       {{ cell.object.price }}
     </svg:text>
     <!-- top separator -->
@@ -47,8 +48,9 @@
         i18n="@@upgradePrice">
         Upgrade
       </svg:text>
-      <svg:text [attr.x]="localX + width / 2" [attr.y]="botSeparatorY + extraPadding + fontSize" [attr.font-size]="fontSize"
-        [attr.font-family]="font" [attr.stroke-width]="lineWidth" dominant-baseline="hanging" text-anchor="middle">
+      <svg:text [attr.x]="localX + width / 2" [attr.y]="botSeparatorY + extraPadding + fontSize"
+        [attr.font-size]="fontSize" [attr.font-family]="font" [attr.stroke-width]="lineWidth"
+        dominant-baseline="hanging" text-anchor="middle">
         {{ cell.object.upgradePrice }}
       </svg:text>
     </svg:g>

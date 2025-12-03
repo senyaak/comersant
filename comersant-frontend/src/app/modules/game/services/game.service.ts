@@ -29,9 +29,7 @@ import { GameStateService } from './game-state.service';
 /**
  * init and stores game data
  * */
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable()
 export class GameService {
   private game: BehaviorSubject<ICGame> = new BehaviorSubject<ICGame>(new ICGame());
 

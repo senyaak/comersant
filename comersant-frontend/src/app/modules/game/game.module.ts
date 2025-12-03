@@ -19,15 +19,16 @@ import { PlayerUIComponent } from './components/main/board/player-ui/player-ui.c
 import { MainComponent } from './components/main/main.component';
 import { BuyPropertyComponent } from './components/main/UI/game-control/buy-property/buy-property.component';
 import { ControlActionsComponent } from './components/main/UI/game-control/control-actions/control-actions.component';
-// TODO: remove abstrect
 import { GameControlComponent } from './components/main/UI/game-control/game-control.component';
 import { TurnControlComponent } from './components/main/UI/game-control/turn-control/turn-control.component';
 import { GameInfoComponent } from './components/main/UI/game-info/game-info.component';
 import { PlayerInfoComponent } from './components/main/UI/game-info/player-info/player-info.component';
 import { PlayerPropertyComponent } from './components/main/UI/player-property/player-property.component';
+import { CellClickDirective } from './directives/cell-click.directive';
 import { GameRoutingModule } from './game-routing.module';
 import { SplitLetters } from './pipes/singleLetterLine';
 import { Split } from './pipes/singleWordLine';
+import { BoardService } from './services/board.service';
 import { GameEventsService } from './services/game-events.service';
 import { GameNotificationService } from './services/game-notification.service';
 import { GameStateService } from './services/game-state.service';
@@ -60,8 +61,18 @@ import { GameService } from './services/game.service';
     PlayerPropertyComponent,
     ControlActionsComponent,
     TaxServiceComponent,
+    CellClickDirective,
   ],
-  imports: [CommonModule, GameRoutingModule],
-  providers: [GameService, GameStateService, GameEventsService, GameNotificationService],
+  imports: [
+    CommonModule,
+    GameRoutingModule,
+  ],
+  providers: [
+    BoardService,
+    GameService,
+    GameStateService,
+    GameEventsService,
+    GameNotificationService,
+  ],
 })
 export class GameModule {}
