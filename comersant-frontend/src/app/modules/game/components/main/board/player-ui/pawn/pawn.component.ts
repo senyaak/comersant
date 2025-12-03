@@ -41,12 +41,13 @@ export class PawnComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.$turnProgress = this.gameService.turnProgress$.subscribe(() => {
+    this.$turnProgress = this.gameService.playerMoved$.subscribe(() => {
       const targetPosition = this.PlayerPosition;
 
       // Detect position change and animate
       if (targetPosition !== this.lastCheckedPosition) {
         this.lastCheckedPosition = targetPosition;
+
         this.animateToPosition(targetPosition);
       }
     });

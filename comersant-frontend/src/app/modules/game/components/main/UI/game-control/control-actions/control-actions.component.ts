@@ -27,7 +27,7 @@ export class ControlActionsComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.turnProgress$ = this.gameService.turnProgress$.subscribe((result) => {
+    this.turnProgress$ = this.gameService.diceRolled$.subscribe((result) => {
       if (result.success && result.data.diceResult.diceRoll) {
         const rolls = result.data.diceResult.diceRoll?.join(', ');
         const total = result.data.diceResult.diceRoll?.reduce((a, b) => a + b, 0);

@@ -15,7 +15,6 @@ import {
   Router,
 } from '@angular/router';
 import { EventItem, EventType } from '$server/modules/game/models/events';
-import { Cards } from '$server/modules/game/models/FieldModels/cards';
 import { PropertyCell } from '$server/modules/game/models/FieldModels/cells';
 import { ItemType } from '$server/modules/game/models/GameModels/items';
 import { Player } from '$server/modules/game/models/GameModels/player';
@@ -38,15 +37,16 @@ export class GameService {
 
   private socket!: Socket<ServerToClientEvents, ClientToServerEvents>;
 
+  public diceRolled$ = new BehaviorSubject<RollTurnResult>({ message: 'Game not found', success: false });
   public gameReady$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+
+  public playerMoved$ = new BehaviorSubject<boolean>(false);
 
   public propertyBought$ = new BehaviorSubject<PropertyBoughtResult>({ success: false });
 
   public turnFinished$ = new BehaviorSubject<TurnFinishedResult>(
     { message: 'Unknown error finishing turn', success: false },
   );
-
-  public turnProgress$ = new BehaviorSubject<RollTurnResult>({ message: 'Game not found', success: false });
 
   constructor(
     private readonly http: HttpClient,
@@ -163,7 +163,8 @@ export class GameService {
     console.log('@#socket on any', rest);
   };
 
-  private onCardEvent = (card: Cards[keyof Cards]) => {
+  private onCardEvent = (event: IEventResult & { cardDrawn: NonNullable<IEventResult['cardDrawn']> }) => {
+    const {card} = event.cardDrawn;
     switch(card.type) {
       case EventType.BalanceChange: {
         this.Game.players[this.Game.CurrentPlayer].changeMoney(card.amount);
@@ -194,10 +195,12 @@ export class GameService {
       }
       case EventType.Move: {
         this.Game.players[this.Game.CurrentPlayer].move(card.amount);
+        this.playerMoved$.next(true);
         break;
       }
       case EventType.MovePlayer: {
         throw new Error('Not implemented yet');
+        // have to pause the game until new destination is selected
         break;
       }
       case EventType.MoveTo: {
@@ -206,11 +209,25 @@ export class GameService {
         break;
       }
       case EventType.MoveToCenter: {
+        // have to pause the game until new destination is selected
         throw new Error('Not implemented yet');
         break;
       }
       case EventType.PropertyLoss: {
-        throw new Error('Not implemented yet');
+        if(!event.propertyLost) {
+          throw new Error(`incorrect event data ${event}`);
+        }
+        if(event.propertyLost.propertyIndex === null) {
+          this.gameNotificationService.toast('No property to lose');
+        } else {
+          const cell = this.Game.board.flatCells[event.propertyLost.propertyIndex];
+          if(!PropertyCell.isInstancePropertyCell(cell)) {
+            throw new Error('Cell is not a property cell');
+          }
+
+          cell.object.owner = null;
+          this.gameNotificationService.toast(`Lost property: ${cell.name}`);
+        }
         break;
       }
       case EventType.SkipTurn: {
@@ -220,6 +237,7 @@ export class GameService {
       }
       case EventType.TaxService: {
         this.Game.players[this.Game.CurrentPlayer].moveTo('TaxService');
+        this.playerMoved$.next(true);
         this.gameNotificationService.toast('Moved to TaxService');
         break;
       }
@@ -255,10 +273,12 @@ export class GameService {
         }, i++ * 1500);
       }
       if(result.cardDrawn) {
-        const cardDrawn = result.cardDrawn;
         setTimeout(() => {
-          this.onCardEvent(cardDrawn.card);
-          this.gameNotificationService.showCard(cardDrawn);
+          if(!('cardDrawn' in result) || result.cardDrawn === undefined) {
+            throw new Error('Invalid card drawn event result');
+          }
+          this.onCardEvent(result as IEventResult & { cardDrawn: NonNullable<IEventResult['cardDrawn']> });
+          this.gameNotificationService.showCard(result.cardDrawn);
         }, i++ * 1500);
       }
       if(result.staticEvent) {
@@ -343,7 +363,8 @@ export class GameService {
     }
 
     this.game.getValue().nextTurn(result.data.diceResult);
-    this.turnProgress$.next(result);
+    this.diceRolled$.next(result);
+    this.playerMoved$.next(true);
   };
 
   private onUserConnected = ({ id , name }: Parameters<ServerToClientEvents['user_connected']>[0]) => {

@@ -114,7 +114,7 @@ export class Player {
     // Board.cellsCounter;
     if(this.freezeTurns > 0) {
       // TODO: handle in event service? since we have to send event to FE...
-      // this.freezeTurns -= 1;
+      this.freezeTurns -= 1;
       // console.log('player', this.name, 'is frozen for', this.freezeTurns, 'more turns');
       throw new Error('Player is frozen and cannot move');
     }

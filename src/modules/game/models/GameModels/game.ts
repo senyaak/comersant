@@ -7,6 +7,7 @@ import {
   CardEventCell,
   CardEventCellTypes,
   EventCell, InteractiveEventCell, PropertyCell, StaticEventCell,
+  TaxServiceCell,
 } from '../FieldModels/cells';
 import { IDiceResult, IEventResult, ITurnResult, PropertyBoughtResultSuccess, RollTurnResult } from '../types';
 import { IGame } from './igame';
@@ -90,10 +91,10 @@ export class Game extends IGame {
 
   private moveToTaxService(): void {
     const currPos = this.players[this.CurrentPlayer].Position;
-    const newPos = this.board.flatCells.findIndex((cell) => {
-      return StaticEventCell.isStaticEventCell(cell) && cell.type === EventType.TaxService;
-    });
-    const moves = +(newPos - currPos);
+    const newPos = this.board.flatCells.findIndex((cell) =>
+      TaxServiceCell.isTaxServiceCell(cell),
+    );
+    const moves = Math.abs(newPos - currPos);
     this.players[this.CurrentPlayer].move(moves);
     console.log('move player', this.CurrentPlayer, 'to', newPos);
   }
@@ -361,9 +362,9 @@ export class Game extends IGame {
     // TODO: add tax service special handling
 
     if (this.currentTurnState === Turn.Trading && diceCounter !== undefined) {
-      const diceResult: IDiceResult = {};
+      const diceResult: IDiceResult = {diceRoll: []};
       let rollResult = 0; // Roll a 6-sided dice
-      diceResult.diceRoll = [];
+      // diceResult.diceRoll = [];
 
       for (let i = 0; i < diceCounter; i++) {
         const rolled = Math.floor(Math.random() * 6) + 1;
@@ -414,8 +415,6 @@ export class Game extends IGame {
     const cardKeys: (keyof Cards)[] = Object.keys(deck);
     const randomKey: keyof Cards = cardKeys[Math.floor(Math.random() * cardKeys.length)];
     const card = deck[randomKey as keyof typeof deck];
-    // console.log('prepare card', card.type);
-    // console.log('Drew card:', card);
 
     // REMOVE: reminder - handle move to center/player events!
     // todo: check if type of randomKey is valid

@@ -36,7 +36,7 @@ export interface RollTurnSuccess {
   message: 'Turn processed successfully'
 }
 export interface IDiceResult {
-  diceRoll?: number[];
+  diceRoll: number[];
   newPlayerPosition?: number;
 }
 
