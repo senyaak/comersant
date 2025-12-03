@@ -32,7 +32,7 @@ import { GameStateService } from './game-state.service';
 @Injectable()
 export class GameService {
   private game: BehaviorSubject<ICGame> = new BehaviorSubject<ICGame>(new ICGame());
-
+  private paused$ = new BehaviorSubject<boolean>(false);
   private socket!: Socket<ServerToClientEvents, ClientToServerEvents>;
 
   public diceRolled$ = new BehaviorSubject<RollTurnResult>({ message: 'Game not found', success: false });
@@ -53,6 +53,7 @@ export class GameService {
     private readonly gameStateService: GameStateService,
     private readonly gameNotificationService: GameNotificationService,
   ) {
+    console.log('GameService initialized', this);
     this.game.subscribe(() => {
       this.checkIfReady();
     });
@@ -80,6 +81,14 @@ export class GameService {
       }
       return acc;
     }, {} as Record<Player['id'], PropertyCell[]>);
+  }
+
+  get Paused() {
+    return this.paused$.getValue();
+  }
+
+  get Paused$() {
+    return this.paused$.asObservable();
   }
 
   get Player() {

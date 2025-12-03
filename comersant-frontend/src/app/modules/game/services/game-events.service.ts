@@ -17,7 +17,11 @@ export class GameEventsService {
     this.Socket.emit('buyProperty');
   }
 
-  public nextTurn(): void {
+  public nextTurn(): boolean {
+    if (!this.gameService.isTurnActive || this.gameService.Paused) {
+      return false;
+    }
     this.Socket.emit('nextTurn', {diceCounter: this.gameStateService.DiceCounter});
+    return true;
   }
 }

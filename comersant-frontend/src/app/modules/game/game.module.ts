@@ -25,6 +25,7 @@ import { GameInfoComponent } from './components/main/UI/game-info/game-info.comp
 import { PlayerInfoComponent } from './components/main/UI/game-info/player-info/player-info.component';
 import { PlayerPropertyComponent } from './components/main/UI/player-property/player-property.component';
 import { CellClickDirective } from './directives/cell-click.directive';
+import { FrozenWhenPausedDirective } from './directives/frozen-when-paused.directive';
 import { GameRoutingModule } from './game-routing.module';
 import { SplitLetters } from './pipes/singleLetterLine';
 import { Split } from './pipes/singleWordLine';
@@ -62,6 +63,7 @@ import { GameService } from './services/game.service';
     ControlActionsComponent,
     TaxServiceComponent,
     CellClickDirective,
+    FrozenWhenPausedDirective,
   ],
   imports: [
     CommonModule,
