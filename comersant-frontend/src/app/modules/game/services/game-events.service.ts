@@ -24,4 +24,12 @@ export class GameEventsService {
     this.Socket.emit('nextTurn', {diceCounter: this.gameStateService.DiceCounter});
     return true;
   }
+
+  public placeBid(amount: number): void {
+    this.Socket.emit('placeBid', { amount });
+  }
+
+  public refuseProperty(): void {
+    this.Socket.emit('refuseProperty');
+  }
 }

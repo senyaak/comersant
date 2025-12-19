@@ -134,14 +134,23 @@ export class GameService {
     this.socket.on('turn_finished', this.onTurnFinished);
     this.socket.on('event_result', this.onEventResult);
     this.socket.on('property_bought', this.onPropertyBought);
+    this.socket.on('auction_updated', this.onAuctionUpdated);
+    this.socket.on('auction_failed', this.onAuctionFailed);
     // this.socket.on('connect_error', this.onConnectError);
   }
 
   private loadGame(gameId: string): Observable<IRawGame> {
     const game$ = this.http.get<IRawGame>(`${Routes.games}/${gameId}`).pipe(
       tap({ next: game => {
-        console.log('set game', game);
-        this.game.next(new ICGame(game));
+        // First create the game instance
+        const gameInstance = new ICGame(game);
+        this.game.next(gameInstance);
+
+        // Then explicitly trigger the event observable if there's an event in progress
+        if (game.eventInProgress) {
+          this.event$.next(game.eventInProgress);
+        }
+
         // this.game.complete();
         // console.log('->Game loaded:', this.game.getValue());
       }, error: (err) => {
@@ -153,7 +162,6 @@ export class GameService {
   }
 
   public init(gameId: string | null = null) {
-    console.log('init game service with gameId:', gameId);
     const id = localStorage.getItem('gameId');
     if (!gameId && id) {
       gameId = id;
@@ -163,19 +171,40 @@ export class GameService {
       throw new Error('gameId is not provided');
     }
 
-    return this.loadGame(gameId).pipe(tap({next: (game) => {
-      console.log('game', game);
+    return this.loadGame(gameId).pipe(tap({next: () => {
       this.initSocket();
     }, error: (err) => {
       console.error('Error loading game:', err);
-    }})).subscribe(() => {
-      console.log('Game initialized:', this.Game);
-    });
+    }})).subscribe();
   }
 
   //#region Event Handlers
   private onAny = (...rest: unknown[]) => {
     console.log('@#socket on any', rest);
+  };
+
+  private onAuctionFailed = (data: Parameters<ServerToClientEvents['auction_failed']>[0]) => {
+    // Clear the event
+    this.Event$ = null;
+
+    // Show notification
+    const cell = this.Game.board.flatCells[data.propertyIndex];
+    const propertyName = cell?.name ?? 'Property';
+    this.gameNotificationService.toast(`Auction failed for ${propertyName}. No one bid on it.`);
+  };
+
+  private onAuctionUpdated = (eventData: Parameters<ServerToClientEvents['auction_updated']>[0]) => {
+    if (!this.Game.EventInProgress || this.Game.EventInProgress.type !== GamePlayerEventType.Trading) {
+      return;
+    }
+
+    if (!eventData) {
+      return;
+    }
+
+    // Update the event data
+    this.Game.EventInProgress.eventData = eventData;
+    this.Event$ = this.Game.EventInProgress;
   };
 
   private onCardEvent = (event: IEventResult & { cardDrawn: NonNullable<IEventResult['cardDrawn']> }) => {
@@ -259,24 +288,22 @@ export class GameService {
     }
   };
 
-  private onConnect = (...rest: unknown[]) => {
-    console.log('Connected with query params:', this.socket.io.opts.query);
-    console.log('rest', rest);
-  };
-
   // private onConnectError = () => {
   //   console.log('connect_error');
   //   this.router.navigate(['/']);
   // };
 
+  private onConnect = (...rest: unknown[]) => {
+    console.log('Connected with query params:', this.socket.io.opts.query);
+    console.log('rest', rest);
+  };
+
   private onDisconnect = () => {
-    console.log('disconnected');
     this.socket.disconnect();
     this.router.navigate(['/']);
   };
 
   private onEventResult = (results: Parameters<ServerToClientEvents['event_result']>[0]) => {
-    console.log('Event results received:', results);
     const handler = (result: IEventResult) => {
       let i = 0;
       if(result.taxPaid) {
@@ -353,9 +380,15 @@ export class GameService {
     }
 
     const propertyCell = this.Game.board.flatCells[result.propertyIndex] as PropertyCell;
-    this.Game.CurrentPlayer.changeMoney(-result.price);
+    const buyer = this.Game.players.find(p => p.Id === result.newOwnerId);
+    if (buyer) {
+      buyer.changeMoney(-result.price);
+    }
     propertyCell.object.owner = result.newOwnerId;
     this.propertyBought$.next(result);
+
+    // Clear trading event after successful purchase
+    this.Event$ = null;
   };
 
   private onStaticEvent = (staticEvent: NonNullable<IEventResult['staticEvent']>) => {
