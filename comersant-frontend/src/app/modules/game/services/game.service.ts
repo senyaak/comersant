@@ -16,6 +16,8 @@ import {
 } from '@angular/router';
 import { EventItem, EventType } from '$server/modules/game/models/events';
 import { PropertyCell } from '$server/modules/game/models/FieldModels/cells';
+import { GamePlayerEventType } from '$server/modules/game/models/GameModels/gamePlayerEvent';
+import { IGame } from '$server/modules/game/models/GameModels/igame';
 import { ItemType } from '$server/modules/game/models/GameModels/items';
 import { Player } from '$server/modules/game/models/GameModels/player';
 import { Routes } from '$server/types/routes';
@@ -25,15 +27,16 @@ import { UserSettingsService } from 'src/app/services/user-settings.service';
 
 import { ICGame } from '../model/ICGame';
 import { GameNotificationService } from './game-notification.service';
-import { GameStateService } from './game-state.service';
 /**
  * init and stores game data
  * */
 @Injectable()
 export class GameService {
+  private event$ = new BehaviorSubject<IGame['eventInProgress']>(null);
   private game: BehaviorSubject<ICGame> = new BehaviorSubject<ICGame>(new ICGame());
-  private paused$ = new BehaviorSubject<boolean>(false);
   private socket!: Socket<ServerToClientEvents, ClientToServerEvents>;
+  // private frozen$ = new BehaviorSubject<boolean>(false);
+  // private tradingState$ = new BehaviorSubject<TradingState | null>(null);
 
   public diceRolled$ = new BehaviorSubject<RollTurnResult>({ message: 'Game not found', success: false });
   public gameReady$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
@@ -50,7 +53,7 @@ export class GameService {
     private readonly http: HttpClient,
     private readonly router: Router,
     private readonly userSettingsService: UserSettingsService,
-    private readonly gameStateService: GameStateService,
+    // private readonly gameStateService: GameStateService,
     private readonly gameNotificationService: GameNotificationService,
   ) {
     console.log('GameService initialized', this);
@@ -59,12 +62,25 @@ export class GameService {
     });
   }
 
+  get Event$(): Observable<IGame['eventInProgress'] | null> {
+    return this.event$.asObservable();
+  }
+
+  private set Event$(event: IGame['eventInProgress']) {
+    this.Game.EventInProgress = event;
+    this.event$.next(event);
+  }
+
+  get Frozen() {
+    return this.event$.getValue() !== null;
+  }
+
   get Game() {
     return this.game.getValue();
   }
 
   get isTurnActive(): boolean {
-    return this.Game.CurrentPlayer === this.Game.players.findIndex(
+    return this.Game.CurrentPlayerIndex === this.Game.players.findIndex(
       ({ Id }) => Id === this.Player?.Id,
     );
   }
@@ -81,14 +97,6 @@ export class GameService {
       }
       return acc;
     }, {} as Record<Player['id'], PropertyCell[]>);
-  }
-
-  get Paused() {
-    return this.paused$.getValue();
-  }
-
-  get Paused$() {
-    return this.paused$.asObservable();
   }
 
   get Player() {
@@ -125,7 +133,7 @@ export class GameService {
     this.socket.on('turn_progress', this.onTurnProgress);
     this.socket.on('turn_finished', this.onTurnFinished);
     this.socket.on('event_result', this.onEventResult);
-    this.socket.on('propertyBought', this.onPropertyBought);
+    this.socket.on('property_bought', this.onPropertyBought);
     // this.socket.on('connect_error', this.onConnectError);
   }
 
@@ -174,7 +182,7 @@ export class GameService {
     const {card} = event.cardDrawn;
     switch(card.type) {
       case EventType.BalanceChange: {
-        this.Game.players[this.Game.CurrentPlayer].changeMoney(card.amount);
+        this.Game.CurrentPlayer.changeMoney(card.amount);
         this.gameNotificationService.toast(`Balance changed by ${card.amount}`);
         break;
       }
@@ -185,12 +193,12 @@ export class GameService {
       case EventType.MoneyTransfer: {
         let amount = 0;
         for(let i = 0; i < this.Game.players.length; i++) {
-          if(i !== this.Game.CurrentPlayer) {
+          if(i !== this.Game.CurrentPlayerIndex) {
             amount += card.amount;
             this.Game.players[i].changeMoney(-card.amount);
           }
         }
-        const currPlayer = this.Game.players[this.Game.CurrentPlayer];
+        const currPlayer = this.Game.CurrentPlayer;
         currPlayer.changeMoney(amount);
 
         if(this.isTurnActive) {
@@ -201,7 +209,7 @@ export class GameService {
         break;
       }
       case EventType.Move: {
-        this.Game.players[this.Game.CurrentPlayer].move(card.amount);
+        this.Game.CurrentPlayer.move(card.amount);
         this.playerMoved$.next(true);
         break;
       }
@@ -211,7 +219,7 @@ export class GameService {
         break;
       }
       case EventType.MoveTo: {
-        this.Game.players[this.Game.CurrentPlayer].moveTo(card.to);
+        this.Game.CurrentPlayer.moveTo(card.to);
         this.gameNotificationService.toast(`Moved to ${card.to}`);
         break;
       }
@@ -238,12 +246,12 @@ export class GameService {
         break;
       }
       case EventType.SkipTurn: {
-        this.Game.players[this.Game.CurrentPlayer].skipTurn();
+        this.Game.CurrentPlayer.skipTurn();
         this.gameNotificationService.toast('Player will skip next turn');
         break;
       }
       case EventType.TaxService: {
-        this.Game.players[this.Game.CurrentPlayer].moveTo('TaxService');
+        this.Game.CurrentPlayer.moveTo('TaxService');
         this.playerMoved$.next(true);
         this.gameNotificationService.toast('Moved to TaxService');
         break;
@@ -276,7 +284,7 @@ export class GameService {
         setTimeout(() => {
           this.Game.players.find(player => player.Id === taxPaid.toPlayerId)
             ?.changeMoney(taxPaid.amount);
-          this.Game.players[this.Game.CurrentPlayer].changeMoney(-taxPaid.amount);
+          this.Game.CurrentPlayer.changeMoney(-taxPaid.amount);
         }, i++ * 1500);
       }
       if(result.cardDrawn) {
@@ -294,6 +302,15 @@ export class GameService {
           this.onStaticEvent(staticEvent);
         }, i++ * 1500);
       }
+
+      if(result.trading) {
+        const cell = this.Game.board.flatCells[this.Game.CurrentPlayer.Position];
+        if(!PropertyCell.isPropertyCell(cell)) {
+          throw new Error('Current player is not on a property cell');
+        }
+        this.Event$ = {type: GamePlayerEventType.Trading, eventData: result.trading};
+      }
+
       return i;
     };
 
@@ -307,12 +324,12 @@ export class GameService {
   private onHandleGetEvent = (item: EventItem) => {
     switch(item) {
       case EventItem.TaxFree: {
-        this.Game.players[this.Game.CurrentPlayer].giveItem(ItemType.TaxFree);
+        this.Game.CurrentPlayer.giveItem(ItemType.TaxFree);
         this.gameNotificationService.toast('Tax Free item received');
         break;
       }
       case EventItem.Security: {
-        this.Game.players[this.Game.CurrentPlayer].giveItem(ItemType.Security);
+        this.Game.CurrentPlayer.giveItem(ItemType.Security);
         this.gameNotificationService.toast('Security item received');
         break;
       }
@@ -327,7 +344,7 @@ export class GameService {
 
   };
 
-  private onPropertyBought = (result: Parameters<ServerToClientEvents['propertyBought']>[0]) => {
+  private onPropertyBought = (result: Parameters<ServerToClientEvents['property_bought']>[0]) => {
     if(result.success !== true) {
       throw new Error('Property purchase failed');
     }
@@ -336,7 +353,7 @@ export class GameService {
     }
 
     const propertyCell = this.Game.board.flatCells[result.propertyIndex] as PropertyCell;
-    this.Game.players[this.Game.CurrentPlayer].changeMoney(-result.price);
+    this.Game.CurrentPlayer.changeMoney(-result.price);
     propertyCell.object.owner = result.newOwnerId;
     this.propertyBought$.next(result);
   };

@@ -33,10 +33,10 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     try {
       const result = this.gamesService.getGame(gameId).buyProperty();
-      this.server.to(`game-${gameId}`).emit('propertyBought', result);
+      this.server.to(`game-${gameId}`).emit('property_bought', result);
     } catch (error) {
       console.error('Error buying property:', error);
-      client.emit('propertyBought', {success: false} as PropertyBoughtResultError);
+      client.emit('property_bought', {success: false} as PropertyBoughtResultError);
     }
   }
 

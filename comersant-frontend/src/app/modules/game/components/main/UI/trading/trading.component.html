@@ -1,0 +1,18 @@
+<dialog #tradingDialog>
+  @if (TradeEvent) {
+  <div class="dialog-content">
+    <h2>Trading</h2>
+
+    <div class="trading-info">
+      <p>Price: {{ TradeEvent.eventData.price }}</p>
+      <p>Players involved: {{ TradeEvent.eventData.playerIds.length }}</p>
+      <!-- Add your trading UI here -->
+    </div>
+
+    <div class="dialog-actions">
+      <button (click)="closeDialog()">Close</button>
+      <!-- Add accept/reject buttons as needed -->
+    </div>
+  </div>
+  }
+</dialog>

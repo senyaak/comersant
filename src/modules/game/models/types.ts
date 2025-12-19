@@ -2,6 +2,7 @@ import { ServerToClientEvents } from '../services/events/types';
 import { EventType } from './events';
 import { Cards } from './FieldModels/cards';
 import { CardEventCellTypes } from './FieldModels/cells';
+import { TradingEvent } from './GameModels/gamePlayerEvent';
 import { IGame } from './GameModels/igame';
 import { ItemType } from './GameModels/items';
 import { Player } from './GameModels/player';
@@ -30,7 +31,7 @@ export interface RollTurnSuccess {
   success: true,
   data: {
     diceResult: IDiceResult,
-    currentPlayer: IGame['currentPlayer'],
+    currentPlayer: IGame['currentPlayerIndex'],
     turn: IGame['currentTurnState'],
   },
   message: 'Turn processed successfully'
@@ -49,6 +50,7 @@ export interface IEventResult {
   interactiveEvent?: EventType.MoveToCenter | EventType.Raccito;
   itemReceived?: ItemType;
   propertyLost?: { propertyIndex: number | null };
+  trading?: TradingEvent['eventData'];
 }
 //#endregion turn events results
 //#region c2s events results

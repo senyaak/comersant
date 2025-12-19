@@ -1,7 +1,7 @@
 import { IEventResult, RollTurnResult, PropertyBoughtResult, TurnFinishedResult } from '../../models/types';
 
 export interface ServerToClientEvents {
-  propertyBought: (data: PropertyBoughtResult) => void;
+  property_bought: (data: PropertyBoughtResult) => void;
   turn_progress: (data: RollTurnResult) => void;
   turn_finished: (data: TurnFinishedResult) => void;
   event_result: (data: IEventResult[]) => void;

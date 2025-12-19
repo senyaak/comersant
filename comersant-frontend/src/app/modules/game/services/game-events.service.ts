@@ -18,7 +18,7 @@ export class GameEventsService {
   }
 
   public nextTurn(): boolean {
-    if (!this.gameService.isTurnActive || this.gameService.Paused) {
+    if (!this.gameService.isTurnActive || this.gameService.Frozen) {
       return false;
     }
     this.Socket.emit('nextTurn', {diceCounter: this.gameStateService.DiceCounter});

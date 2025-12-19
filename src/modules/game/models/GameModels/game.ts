@@ -10,6 +10,7 @@ import {
   TaxServiceCell,
 } from '../FieldModels/cells';
 import { IDiceResult, IEventResult, ITurnResult, PropertyBoughtResultSuccess, RollTurnResult } from '../types';
+import { GamePlayerEventType } from './gamePlayerEvent';
 import { IGame } from './igame';
 import { ItemType } from './items';
 import { Player, PlayerColor } from './player';
@@ -90,19 +91,19 @@ export class Game extends IGame {
   }
 
   private moveToTaxService(): void {
-    const currPos = this.players[this.CurrentPlayer].Position;
+    const currPos = this.players[this.CurrentPlayerIndex].Position;
     const newPos = this.board.flatCells.findIndex((cell) =>
       TaxServiceCell.isTaxServiceCell(cell),
     );
     const moves = Math.abs(newPos - currPos);
-    this.players[this.CurrentPlayer].move(moves);
-    console.log('move player', this.CurrentPlayer, 'to', newPos);
+    this.players[this.CurrentPlayerIndex].move(moves);
+    console.log('move player', this.CurrentPlayerIndex, 'to', newPos);
   }
 
   /** transfer money from other player to current player (eg birthday) */
   private transferMoney(amount: number): void {
     for (const player of this.players) {
-      if (player.Id !== this.players[this.CurrentPlayer].Id) {
+      if (player.Id !== this.players[this.CurrentPlayerIndex].Id) {
         player.changeMoney(-amount);
       } else {
         player.changeMoney(amount * (this.players.length - 1));
@@ -117,8 +118,8 @@ export class Game extends IGame {
   buyProperty(playerId?: string, propertyIndex?: number, price?: number): PropertyBoughtResultSuccess {
     let oldOwnerId: string | null | undefined = undefined;
     if(!propertyIndex || !playerId) {
-      playerId = this.players[this.currentPlayer].Id;
-      propertyIndex = this.players[this.currentPlayer].Position;
+      playerId = this.players[this.currentPlayerIndex].Id;
+      propertyIndex = this.players[this.currentPlayerIndex].Position;
       oldOwnerId = null;
     }
     const newOwner = this.players.find(player => player.Id === playerId);
@@ -171,26 +172,26 @@ export class Game extends IGame {
     results.push({cardDrawn: {cardType, card}});
     switch(card.type) {
       case EventType.BalanceChange:
-        this.players[this.CurrentPlayer].changeMoney(card.amount);
+        this.players[this.CurrentPlayerIndex].changeMoney(card.amount);
         break;
       case EventType.SkipTurn:
-        this.players[this.CurrentPlayer].skipTurn();
+        this.players[this.CurrentPlayerIndex].skipTurn();
         break;
       case EventType.Move:
-        this.players[this.CurrentPlayer].move(card.amount);
+        this.players[this.CurrentPlayerIndex].move(card.amount);
         break;
       case EventType.MovePlayer:
         // TODO: set game to waiting for action to select player to move
         break;
       case EventType.MoveTo: {
         const targetPosition = Board.getTargetPosition(card.to);
-        this.moveTo(this.players[this.CurrentPlayer], targetPosition);
+        this.moveTo(this.players[this.CurrentPlayerIndex], targetPosition);
         break;
       }
       case EventType.MoveToCenter:
         this.stateManager.setWaiting(
           GameStateType.WaitingForMoveToCenter,
-          [this.players[this.CurrentPlayer].Id],
+          [this.players[this.CurrentPlayerIndex].Id],
         );
         // TODO: set game to waiting for action to move to center or not
         break;
@@ -207,11 +208,11 @@ export class Game extends IGame {
             results.push(...this.prepareCard('surprise'));
             break;
           case EventItem.TaxFree:
-            this.players[this.CurrentPlayer].giveItem(ItemType.TaxFree);
+            this.players[this.CurrentPlayerIndex].giveItem(ItemType.TaxFree);
             results.push({itemReceived: ItemType.TaxFree});
             break;
           case EventItem.Security:
-            this.players[this.CurrentPlayer].giveItem(ItemType.Security);
+            this.players[this.CurrentPlayerIndex].giveItem(ItemType.Security);
             results.push({itemReceived: ItemType.Security});
             break;
           default:
@@ -251,11 +252,11 @@ export class Game extends IGame {
           staticEvent = {eventType: EventType.TaxService};
           break;
         case EventType.BalanceChange:
-          this.players[this.CurrentPlayer].changeMoney(cell.amount ?? 0);
+          this.players[this.CurrentPlayerIndex].changeMoney(cell.amount ?? 0);
           staticEvent = {eventType: EventType.BalanceChange, amount: cell.amount};
           break;
         case EventType.SkipTurn:
-          this.players[this.CurrentPlayer].skipTurn();
+          this.players[this.CurrentPlayerIndex].skipTurn();
           staticEvent = {eventType: EventType.SkipTurn};
           break;
         default:
@@ -284,22 +285,10 @@ export class Game extends IGame {
   @ValidateActivePlayer
   handlePlayerMoved(playerId: string): IEventResult[] {
     const results: IEventResult[] = [];
-    const position = this.players[this.CurrentPlayer].Position;
+    const position = this.players[this.CurrentPlayerIndex].Position;
     const cell = this.board.flatCells[position];
-    if (PropertyCell.isPropertyCell(cell) && cell.object.owner && cell.object.owner !== playerId) {
-      // pay tax to the owner
-      const { tax } = cell.object;
-      this.players[this.CurrentPlayer].changeMoney(-tax);
-      const owner = this.players.find(p => p.Id === cell.object.owner);
-      if(!owner) {
-        throw new Error('Owner not found');
-      }
-      owner.changeMoney(tax);
-      results.push({taxPaid: { amount: tax, toPlayerId: cell.object.owner }});
-    } else if (PropertyCell.isPropertyCell(cell) &&
-      GovBusiness.isGovBusiness(cell.object) &&
-      cell.object.owner === null) {
-      // Gov business - give 'G' to player
+    if (PropertyCell.isPropertyCell(cell)) {
+      results.push(...this.handleStepOnProperty(playerId, cell));
     } else if(cell instanceof EventCell) {
       results.push(...this.handleEvent(cell));
     } else {
@@ -320,11 +309,46 @@ export class Game extends IGame {
   }
 
   @RequireGameState(GameStateType.Active)
+  @ValidateActivePlayer
+  handleStepOnProperty(playerId: Player['id'], cell: PropertyCell): IEventResult[] {
+    const results: IEventResult[] = [];
+
+    if (cell.object.owner && cell.object.owner !== playerId) {
+      // pay tax to the owner
+      const { tax } = cell.object;
+      this.players[this.CurrentPlayerIndex].changeMoney(-tax);
+      const owner = this.players.find(p => p.Id === cell.object.owner);
+      if(!owner) {
+        throw new Error('Owner not found');
+      }
+      owner.changeMoney(tax);
+      results.push({taxPaid: { amount: tax, toPlayerId: cell.object.owner }});
+    } else if(cell.object.owner === null) {
+      this.stateManager.setWaiting(GameStateType.WaitingForPropertyAction, [this.players[this.CurrentPlayerIndex].Id]);
+      // first we start trading for the current player if refuced - proced to next state of tradings
+      const eventData = {
+        playerIds: [this.players[this.CurrentPlayerIndex].Id],
+        price: cell.object.price,
+      };
+      this.eventInProgress = {type: GamePlayerEventType.Trading, eventData};
+      results.push({trading: eventData});
+    }
+
+    if (GovBusiness.isGovBusiness(cell.object) &&
+      cell.object.owner === null) {
+      // Gov business - give 'G' to player
+      // TODO: define concept
+    }
+
+    return results;
+  }
+
+  @RequireGameState(GameStateType.Active)
   loseProperty(grade: BusinessGrade.Enterprise | BusinessGrade.Office): IEventResult[] {
     const results: IEventResult[] = [];
     const validPropsToLose = this.board.flatCells
       .filter((cell) => PropertyCell.isPropertyCell(cell))
-      .filter((cell) => cell.object.owner === this.players[this.CurrentPlayer].Id)
+      .filter((cell) => cell.object.owner === this.players[this.CurrentPlayerIndex].Id)
       .filter((cell) => Business.isBusiness(cell.object) && cell.object.grade === grade);
     if (validPropsToLose.length === 0) {
       console.log('No properties to lose for grade', grade);
@@ -375,16 +399,16 @@ export class Game extends IGame {
       console.log(`Player ${playerId} rolled a ${rollResult}`);
 
       // DEBUG:
-      diceResult.diceRoll = [4];
-      rollResult = 4;
-      this.players[this.currentPlayer].move(rollResult);
-      diceResult.newPlayerPosition = this.players[this.currentPlayer].Position;
+      diceResult.diceRoll = [1];
+      rollResult = 1;
+      this.players[this.currentPlayerIndex].move(rollResult);
+      diceResult.newPlayerPosition = this.players[this.currentPlayerIndex].Position;
 
       const turnProgressData: RollTurnResult = {
         success: true,
         data: {
           diceResult,
-          currentPlayer: this.currentPlayer,
+          currentPlayer: this.currentPlayerIndex,
           turn: this.currentTurnState,
         },
         message: 'Turn processed successfully',
@@ -392,6 +416,8 @@ export class Game extends IGame {
       result.turn_progress = [turnProgressData];
       const eventResults = this.handlePlayerMoved(playerId);
       result.event_result = [eventResults];
+
+      // todo: add trade state if property not owned
     } else if (this.currentTurnState === Turn.Event) {
       result.turn_finished = [{
         success: true,
@@ -404,7 +430,7 @@ export class Game extends IGame {
     this.currentTurnState = this.currentTurnIterator.next().value;
     // check if turn is over
     if (this.currentTurnState === Turn.Trading) {
-      this.currentPlayer = (this.currentPlayer + 1) % this.players.length;
+      this.currentPlayerIndex = (this.currentPlayerIndex + 1) % this.players.length;
     }
     return result;
   }

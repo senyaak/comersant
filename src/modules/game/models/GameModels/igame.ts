@@ -10,10 +10,11 @@ import { Turn, turnIterator } from './turn';
  * */
 export class IGame {
   public readonly board: IRawGame['board'] = new Board();
-  protected currentPlayer: IRawGame['currentPlayer'] = 0;
+  protected currentPlayerIndex: IRawGame['currentPlayerIndex'] = 0;
   protected currentTurnIterator: IRawGame['currentTurnIterator'] = turnIterator();
 
   protected currentTurnState: IRawGame['currentTurnState'] = Turn.Trading;
+  protected eventInProgress: IRawGame['eventInProgress'] = null;
   /** use to create placeholder */
   public readonly id: IRawGame['id'] = '-1';
   public readonly players: Player[] = [
@@ -30,9 +31,10 @@ export class IGame {
       // const a = game.players[0];
       this.id = game.id;
       this.players = game.players.map(player => new Player(player));
-      this.currentPlayer = game.currentPlayer;
+      this.currentPlayerIndex = game.currentPlayerIndex;
       this.currentTurnState = game.currentTurnState;
       this.board = new Board(game.board);
+      this.eventInProgress = game.eventInProgress;
       switch (game.currentTurnState) {
         case Turn.Event:
           this.currentTurnIterator.next();
@@ -43,15 +45,27 @@ export class IGame {
   }
 
   get CurrentPlayer() {
-    return this.currentPlayer;
+    return this.players[this.currentPlayerIndex];
+  }
+
+  get CurrentPlayerIndex() {
+    return this.currentPlayerIndex;
   }
 
   get CurrentTurnState() {
     return this.currentTurnState;
   }
 
+  get EventInProgress() {
+    return this.eventInProgress;
+  }
+
+  set EventInProgress(event: IRawGame['eventInProgress']) {
+    this.eventInProgress = event;
+  }
+
   isPlayerActive(playerId: string): boolean {
-    return this.players.findIndex(player => player.Id === playerId) === this.CurrentPlayer;
+    return this.players.findIndex(player => player.Id === playerId) === this.CurrentPlayerIndex;
   }
 
   updatePlayerIdByName(name: string, newId: string): void {

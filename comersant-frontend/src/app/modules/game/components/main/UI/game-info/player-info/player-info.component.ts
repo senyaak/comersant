@@ -19,7 +19,11 @@ export class PlayerInfoComponent {
   }
 
   get player(): Player {
-    return this.gameService.Game.players.find(p => p.Id === this.playerId)!;
+    const player = this.gameService.Game.players.find(p => p.Id === this.playerId);
+    if(!player) {
+      throw new Error(`Player with id ${this.playerId} not found`);
+    }
+    return player;
   }
 
   get turnState() {

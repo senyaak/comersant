@@ -24,6 +24,7 @@ import { TurnControlComponent } from './components/main/UI/game-control/turn-con
 import { GameInfoComponent } from './components/main/UI/game-info/game-info.component';
 import { PlayerInfoComponent } from './components/main/UI/game-info/player-info/player-info.component';
 import { PlayerPropertyComponent } from './components/main/UI/player-property/player-property.component';
+import { TradingComponent } from './components/main/UI/trading/trading.component';
 import { CellClickDirective } from './directives/cell-click.directive';
 import { FrozenWhenPausedDirective } from './directives/frozen-when-paused.directive';
 import { GameRoutingModule } from './game-routing.module';
@@ -64,6 +65,7 @@ import { GameService } from './services/game.service';
     TaxServiceComponent,
     CellClickDirective,
     FrozenWhenPausedDirective,
+    TradingComponent,
   ],
   imports: [
     CommonModule,
