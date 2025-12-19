@@ -32,8 +32,9 @@ interface PropertyCardData {
 })
 export class PlayerPropertyComponent implements OnInit, OnDestroy {
   private propertyBoughtSubscription?: Subscription;
-  hoveredProperty: PropertyCardData | null = null;
 
+  hoveredProperty: PropertyCardData | null = null;
+  isMinimized: boolean = false;
   playerProperties: PropertyCardData[] = [];
 
   constructor(
@@ -132,6 +133,10 @@ export class PlayerPropertyComponent implements OnInit, OnDestroy {
 
   onPropertyHover(property: PropertyCardData | null) {
     this.hoveredProperty = property;
+  }
+
+  toggleMinimize() {
+    this.isMinimized = !this.isMinimized;
   }
 
   trackByPropertyName(index: number, property: PropertyCardData): string {
