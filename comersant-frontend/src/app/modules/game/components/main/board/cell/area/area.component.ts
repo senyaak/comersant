@@ -13,6 +13,7 @@ import { Asset } from '../abstract/asset';
 })
 export class AreaComponent extends Asset implements OnInit {
   @Input({ required: true }) cell!: PropertyCell<AreaSite>;
+  @Input({ required: false }) staticMode: boolean = false;
 
   constructor(protected gameService: GameService) {
     super();

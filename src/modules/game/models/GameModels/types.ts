@@ -1,4 +1,5 @@
 import { Board } from '../FieldModels/board';
+import { GamePlayerEvent } from './gamePlayerEvent';
 import { IRawPlayer } from './player';
 import { Turn } from './turn';
 
@@ -6,11 +7,13 @@ export interface IRawGame {
   id: string;
   players: IRawPlayer[];
 
-  currentPlayer: number;
+  currentPlayerIndex: number;
   currentTurnState: Turn;
   currentTurnIterator: Generator<Turn>;
 
   board: Board;
+
+  eventInProgress: GamePlayerEvent | null;
 }
 
 /** nice hack to strip methods and assertions from class type :) */

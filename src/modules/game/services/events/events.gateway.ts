@@ -25,18 +25,15 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @ValidateGameId
   handleBuyProperty(
     @ConnectedSocket() client: Socket,
-    // @MessageBody() payload: { diceCounter: number },
   ): void {
-    // add refuse logic here, add ways for other to buy property
-    // CONSIDER: the best approach....
     const gameId = getValidatedGameId(client);
 
     try {
       const result = this.gamesService.getGame(gameId).buyProperty();
-      this.server.to(`game-${gameId}`).emit('propertyBought', result);
+      this.server.to(`game-${gameId}`).emit('property_bought', result);
     } catch (error) {
       console.error('Error buying property:', error);
-      client.emit('propertyBought', {success: false} as PropertyBoughtResultError);
+      client.emit('property_bought', {success: false} as PropertyBoughtResultError);
     }
   }
 
@@ -53,13 +50,57 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     const newId = this.gamesService.updatePlayerId(gameId, client.id, name);
     client.join(`game-${gameId}`);
-    console.log('connected', this.gamesService.getGame(gameId));
 
     this.server.to(`game-${gameId}`).emit('user_connected', {name, id: newId});
   }
 
   handleDisconnect(/*client: any*/) {
     // console.log(client);
+  }
+
+  @SubscribeMessage('nextTurn')
+  @ValidateGameId
+  handleNextTurn(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() payload: { diceCounter: number },
+  ): void {
+    const gameId = getValidatedGameId(client);
+
+    const result = this.gamesService.getGame(gameId).nextTurn(client.id, payload.diceCounter);
+    if(result.turn_progress) {
+      this.server.to(`game-${gameId}`).emit('turn_progress', ...result.turn_progress);
+    }
+    if(result.turn_finished) {
+      this.server.to(`game-${gameId}`).emit('turn_finished', ...result.turn_finished);
+    }
+    if(result.event_result) {
+      this.server.to(`game-${gameId}`).emit('event_result', ...result.event_result);
+    }
+  }
+
+  @SubscribeMessage('placeBid')
+  @ValidateGameId
+  handlePlaceBid(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() payload: { amount: number },
+  ): void {
+    const gameId = getValidatedGameId(client);
+
+    try {
+      const eventData = this.gamesService.getGame(gameId).auctionPlaceBid(
+        client.id,
+        payload.amount,
+        // Callback for unlock notification
+        (unlockedEventData) => {
+          this.server.to(`game-${gameId}`).emit('auction_updated', unlockedEventData);
+        },
+      );
+      // Emit immediate update with locked state
+      this.server.to(`game-${gameId}`).emit('auction_updated', eventData);
+    } catch (error) {
+      console.error('Error placing bid:', error);
+      // Optionally emit error back to client
+    }
   }
 
   // @ValidateGameId
@@ -94,25 +135,37 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   //   }
   // }
 
-  @SubscribeMessage('nextTurn')
+  @SubscribeMessage('refuseProperty')
   @ValidateGameId
-  handleNextTurn(
+  handleRefuseProperty(
     @ConnectedSocket() client: Socket,
-    @MessageBody() payload: { diceCounter: number },
   ): void {
-    console.log('nextTurn payload:', payload);
     const gameId = getValidatedGameId(client);
 
-    const result = this.gamesService.getGame(gameId).nextTurn(client.id, payload.diceCounter);
-    console.log('emit turn_progress', result);
-    if(result.turn_progress) {
-      this.server.to(`game-${gameId}`).emit('turn_progress', ...result.turn_progress);
-    }
-    if(result.turn_finished) {
-      this.server.to(`game-${gameId}`).emit('turn_finished', ...result.turn_finished);
-    }
-    if(result.event_result) {
-      this.server.to(`game-${gameId}`).emit('event_result', ...result.event_result);
+    try {
+      const eventData = this.gamesService.getGame(gameId).auctionPass(
+        client.id,
+        // Callback for timer updates
+        (updatedEventData) => {
+          this.server.to(`game-${gameId}`).emit('auction_updated', updatedEventData);
+        },
+        // Callback for auction finish
+        (result) => {
+          if (result.success && result.purchaseResult) {
+            // Auction completed with winner - emit property_bought
+            this.server.to(`game-${gameId}`).emit('property_bought', result.purchaseResult);
+          } else {
+            // Auction failed - no winner
+            this.server.to(`game-${gameId}`).emit('auction_failed', {
+              propertyIndex: result.propertyIndex,
+            });
+          }
+        },
+      );
+      this.server.to(`game-${gameId}`).emit('auction_updated', eventData);
+    } catch (error) {
+      console.error('Error refusing property:', error);
+      // Optionally emit error back to client
     }
   }
 

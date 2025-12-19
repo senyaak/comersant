@@ -15,8 +15,9 @@ import { GameService } from '../services/game.service';
   standalone: false,
 })
 export class FrozenWhenPausedDirective implements OnInit, OnDestroy {
+  private alreadyFrozen = false;
+  private frozenSubscription?: Subscription;
   private iceOverlay?: HTMLElement;
-  private pausedSubscription?: Subscription;
 
   constructor(
     private el: ElementRef,
@@ -25,7 +26,7 @@ export class FrozenWhenPausedDirective implements OnInit, OnDestroy {
   ) {}
 
   ngOnDestroy() {
-    this.pausedSubscription?.unsubscribe();
+    this.frozenSubscription?.unsubscribe();
     this.removeFrozenEffect();
   }
 
@@ -37,11 +38,13 @@ export class FrozenWhenPausedDirective implements OnInit, OnDestroy {
     }
 
     // Subscribe to pause state
-    this.pausedSubscription = this.gameService.Paused$.subscribe((paused) => {
-      if (paused) {
+    this.frozenSubscription = this.gameService.Event$.subscribe((frozen) => {
+      if (frozen && !this.alreadyFrozen) {
         this.applyFrozenEffect();
-      } else {
+        this.alreadyFrozen = true;
+      } else if (!frozen && this.alreadyFrozen) {
         this.removeFrozenEffect();
+        this.alreadyFrozen = false;
       }
     });
   }

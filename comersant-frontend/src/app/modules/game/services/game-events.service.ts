@@ -18,10 +18,18 @@ export class GameEventsService {
   }
 
   public nextTurn(): boolean {
-    if (!this.gameService.isTurnActive || this.gameService.Paused) {
+    if (!this.gameService.isTurnActive || this.gameService.Frozen) {
       return false;
     }
     this.Socket.emit('nextTurn', {diceCounter: this.gameStateService.DiceCounter});
     return true;
+  }
+
+  public placeBid(amount: number): void {
+    this.Socket.emit('placeBid', { amount });
+  }
+
+  public refuseProperty(): void {
+    this.Socket.emit('refuseProperty');
   }
 }

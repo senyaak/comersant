@@ -1,0 +1,60 @@
+<dialog #tradingDialog>
+  @if (TradeEvent) {
+  <div class="dialog-content">
+    <h2>{{ isAuction ? 'Auction' : 'Property Purchase' }}</h2>
+
+    <div class="trading-info">
+      <p><strong>Property:</strong> {{ propertyName }}</p>
+      <p><strong>{{ isAuction ? 'Current Bid' : 'Price' }}:</strong> {{ TradeEvent.eventData.price |
+        currency:'USD':'symbol':'1.0-0' }}</p>
+
+      @if (isAuction) {
+      <p><strong>Time Remaining:</strong> {{ TradeEvent.eventData.timeRemaining }}s</p>
+      @if (currentBidderName) {
+      <p><strong>Current Bidder:</strong> {{ currentBidderName }}</p>
+      }
+      @if (TradeEvent.eventData.isLocked) {
+      <p class="locked-message">⏳ Bid locked for 1 second...</p>
+      }
+      }
+
+      <p><strong>Players involved:</strong> {{ TradeEvent.eventData.playerIndices.length }}</p>
+    </div>
+
+    <div class="dialog-actions">
+      @if (isFirstBuyOffer) {
+      @if (canUseFirstBuyOffer) {
+      <!-- First buy offer: Buy at nominal price or refuse - ONLY for the player who landed -->
+      <button class="btn-buy" (click)="buyProperty()">
+        Buy for {{ TradeEvent.eventData.price | currency:'USD':'symbol':'1.0-0' }}
+      </button>
+      <button class="btn-refuse" (click)="pass()">
+        Refuse (Start Auction)
+      </button>
+      } @else {
+      <!-- Other players just see info -->
+      <p class="info-message">Waiting for player decision...</p>
+      }
+      } @else if (isAuction) {
+      <!-- Auction: Bid buttons (no pass - timer handles completion) -->
+      <div class="bid-buttons">
+        <button class="btn-bid" [disabled]="!canBid" (click)="placeBid(1000)">
+          +$1k
+        </button>
+        <button class="btn-bid" [disabled]="!canBid" (click)="placeBid(5000)">
+          +$5k
+        </button>
+        <button class="btn-bid" [disabled]="!canBid" (click)="placeBid(10000)">
+          +$10k
+        </button>
+      </div>
+      @if (insufficientFunds) {
+      <p class="warning-message">Insufficient funds for bidding</p>
+      } @else {
+      <p class="info-message">Auction ends when timer reaches 0</p>
+      }
+      }
+    </div>
+  </div>
+  }
+</dialog>

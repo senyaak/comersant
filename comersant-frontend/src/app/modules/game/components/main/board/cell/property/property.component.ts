@@ -15,8 +15,9 @@ import { Asset } from '../abstract/asset';
 })
 export class PropertyComponent extends Asset implements OnInit {
   @Input({ required: true }) cell!: PropertyCell<Business>;
+  label?: string;
 
-  public label?: string;
+  @Input({ required: false }) staticMode: boolean = false;
 
   constructor(
     private localization: LocalizationService,

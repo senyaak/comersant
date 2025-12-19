@@ -31,7 +31,7 @@ export class GameControlComponent implements OnInit {
   }
 
   get currentPlayerName(): string {
-    return this.gameService.Game.players[this.gameService.Game.CurrentPlayer]?.Name || 'No Current Player';
+    return this.gameService.Game.players[this.gameService.Game.CurrentPlayerIndex]?.Name || 'No Current Player';
   }
 
   get isMyTurn(): boolean {
