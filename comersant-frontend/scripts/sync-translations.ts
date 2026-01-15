@@ -12,6 +12,7 @@ const I18N_DIR = join(ROOT, 'src/assets/i18n');
 const BASE_FILE = join(I18N_DIR, 'messages.json');
 const DE_FILE = join(I18N_DIR, 'messages.de.json');
 const RU_FILE = join(I18N_DIR, 'messages.ru.json');
+const ZH_FILE = join(I18N_DIR, 'messages.zh.json');
 
 interface TranslationFile {
   locale: string;
@@ -92,6 +93,9 @@ syncTranslations(DE_FILE, 'de');
 
 // 3. Sync RU
 syncTranslations(RU_FILE, 'ru');
+
+// 4. Sync ZH
+syncTranslations(ZH_FILE, 'zh');
 
 console.log('✨ Done!\n');
 console.log('⚠️  Don\'t forget to translate new keys (they were added with English text)');

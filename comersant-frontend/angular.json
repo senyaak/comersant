@@ -24,6 +24,10 @@
           "ru": {
             "translation": "src/assets/i18n/messages.ru.json",
             "baseHref": "/ru/"
+          },
+          "zh": {
+            "translation": "src/assets/i18n/messages.zh.json",
+            "baseHref": "/zh/"
           }
         }
       },
@@ -46,7 +50,7 @@
             "progress": true,
             "scripts": [],
             "browser": "src/main.ts",
-            "localize": ["en", "de", "ru"]
+            "localize": ["en", "de", "ru", "zh"]
           },
           "configurations": {
             "production": {
@@ -76,6 +80,9 @@
             },
             "ru": {
               "localize": ["ru"]
+            },
+            "zh": {
+              "localize": ["zh"]
             }
           },
           "defaultConfiguration": "production"
@@ -94,6 +101,9 @@
             },
             "ru": {
               "buildTarget": "comersant-frontend:build:ru"
+            },
+            "zh": {
+              "buildTarget": "comersant-frontend:build:zh"
             }
           },
           "defaultConfiguration": "development"
