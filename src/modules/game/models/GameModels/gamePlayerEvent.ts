@@ -15,8 +15,6 @@ export interface TradingEvent {
     propertyIndex: number; // which property is being sold
     currentBidderIndex: number | null; // who made the last bid (player index)
     passedPlayerIndices: number[]; // who refused to bid (player indices)
-    timeRemaining: number; // seconds remaining (10 sec after bid)
-    isLocked: boolean; // true for 1 sec after new bid
   };
 }
 

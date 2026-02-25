@@ -38,11 +38,12 @@ export class GameService {
   // private frozen$ = new BehaviorSubject<boolean>(false);
   // private tradingState$ = new BehaviorSubject<TradingState | null>(null);
 
+  public bidFailed$ = new BehaviorSubject<boolean>(false);
   public diceRolled$ = new BehaviorSubject<RollTurnResult>({ message: 'Game not found', success: false });
+
   public gameReady$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
 
   public playerMoved$ = new BehaviorSubject<boolean>(false);
-
   public propertyBought$ = new BehaviorSubject<PropertyBoughtResult>({ success: false });
 
   public turnFinished$ = new BehaviorSubject<TurnFinishedResult>(
@@ -136,6 +137,7 @@ export class GameService {
     this.socket.on('property_bought', this.onPropertyBought);
     this.socket.on('auction_updated', this.onAuctionUpdated);
     this.socket.on('auction_failed', this.onAuctionFailed);
+    this.socket.on('bid_failed', this.onBidFailed);
     // this.socket.on('connect_error', this.onConnectError);
   }
 
@@ -205,6 +207,12 @@ export class GameService {
     // Update the event data
     this.Game.EventInProgress.eventData = eventData;
     this.Event$ = this.Game.EventInProgress;
+  };
+
+  private onBidFailed = () => {
+    // Flash UI for bidder — set true for 1s
+    this.bidFailed$.next(true);
+    setTimeout(() => this.bidFailed$.next(false), 1000);
   };
 
   private onCardEvent = (event: IEventResult & { cardDrawn: NonNullable<IEventResult['cardDrawn']> }) => {
@@ -335,7 +343,8 @@ export class GameService {
         if(!PropertyCell.isPropertyCell(cell)) {
           throw new Error('Current player is not on a property cell');
         }
-        this.Event$ = {type: GamePlayerEventType.Trading, eventData: result.trading};
+        // `result.trading` is now an object: { eventData, finished?, invalidBid? }
+        this.Event$ = {type: GamePlayerEventType.Trading, eventData: result.trading.eventData};
       }
 
       return i;

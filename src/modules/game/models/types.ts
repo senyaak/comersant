@@ -50,7 +50,11 @@ export interface IEventResult {
   interactiveEvent?: EventType.MoveToCenter | EventType.Raccito;
   itemReceived?: ItemType;
   propertyLost?: { propertyIndex: number | null };
-  trading?: TradingEvent['eventData'];
+  trading?: {
+    eventData: TradingEvent['eventData'];
+    finished?: AuctionResult;
+    invalidBid?: { playerIndex: number; reason: string }
+  };
 }
 //#endregion turn events results
 //#region c2s events results
@@ -65,4 +69,8 @@ export interface PropertyBoughtResultSuccess {
 export interface PropertyBoughtResultError {
   success: false;
 }
+//#
+//#/\n# Auction result type used when auction finishes: either a successful PropertyBoughtResultSuccess
+//# (merged with propertyIndex) or a failure shape. Reuse existing `PropertyBoughtResult` type.
+export type AuctionResult = PropertyBoughtResult & { propertyIndex: number };
 //#endregion c2s events results

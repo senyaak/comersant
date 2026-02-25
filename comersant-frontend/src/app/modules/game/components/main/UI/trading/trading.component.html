@@ -9,12 +9,9 @@
         currency:'USD':'symbol':'1.0-0' }}</p>
 
       @if (isAuction) {
-      <p><strong>Time Remaining:</strong> {{ TradeEvent.eventData.timeRemaining }}s</p>
+      <p><strong>Time Remaining:</strong> {{ timeRemaining }}s</p>
       @if (currentBidderName) {
       <p><strong>Current Bidder:</strong> {{ currentBidderName }}</p>
-      }
-      @if (TradeEvent.eventData.isLocked) {
-      <p class="locked-message">⏳ Bid locked for 1 second...</p>
       }
       }
 
@@ -38,13 +35,13 @@
       } @else if (isAuction) {
       <!-- Auction: Bid buttons (no pass - timer handles completion) -->
       <div class="bid-buttons">
-        <button class="btn-bid" [disabled]="!canBid" (click)="placeBid(1000)">
+        <button class="btn-bid" [class.invalid]="bidFailed" [disabled]="!canBid" (click)="placeBid(1000)">
           +$1k
         </button>
-        <button class="btn-bid" [disabled]="!canBid" (click)="placeBid(5000)">
+        <button class="btn-bid" [class.invalid]="bidFailed" [disabled]="!canBid" (click)="placeBid(5000)">
           +$5k
         </button>
-        <button class="btn-bid" [disabled]="!canBid" (click)="placeBid(10000)">
+        <button class="btn-bid" [class.invalid]="bidFailed" [disabled]="!canBid" (click)="placeBid(10000)">
           +$10k
         </button>
       </div>

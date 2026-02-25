@@ -6,7 +6,7 @@ import {
 } from '@nestjs/websockets';
 import { Namespace, Socket } from 'socket.io';
 
-import type { PropertyBoughtResultError } from '../../models/types';
+import type { PropertyBoughtResultError, PropertyBoughtResultSuccess } from '../../models/types';
 
 import { getValidatedGameId, getValidatedUserName, ValidateGameId } from '../../utils/game.util';
 import { GamesService } from '../games/games.service';
@@ -87,19 +87,27 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const gameId = getValidatedGameId(client);
 
     try {
-      const eventData = this.gamesService.getGame(gameId).auctionPlaceBid(
-        client.id,
-        payload.amount,
-        // Callback for unlock notification
-        (unlockedEventData) => {
-          this.server.to(`game-${gameId}`).emit('auction_updated', unlockedEventData);
-        },
-      );
-      // Emit immediate update with locked state
+      const {
+        eventData,
+        finished,
+        invalidBid,
+      } = this.gamesService.getGame(gameId).auctionPlaceBid(client.id, payload.amount);
+      // Emit immediate update
       this.server.to(`game-${gameId}`).emit('auction_updated', eventData);
+      // If bidder received a failure, notify only them
+      if (invalidBid) {
+        client.emit('bid_failed', invalidBid);
+      }
+      // Publish auction result if finished
+      if (finished) {
+        if (finished.success) {
+          this.server.to(`game-${gameId}`).emit('property_bought', finished as PropertyBoughtResultSuccess);
+        } else {
+          this.server.to(`game-${gameId}`).emit('auction_failed', { propertyIndex: finished.propertyIndex });
+        }
+      }
     } catch (error) {
       console.error('Error placing bid:', error);
-      // Optionally emit error back to client
     }
   }
 
@@ -143,29 +151,19 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const gameId = getValidatedGameId(client);
 
     try {
-      const eventData = this.gamesService.getGame(gameId).auctionPass(
-        client.id,
-        // Callback for timer updates
-        (updatedEventData) => {
-          this.server.to(`game-${gameId}`).emit('auction_updated', updatedEventData);
-        },
-        // Callback for auction finish
-        (result) => {
-          if (result.success && result.purchaseResult) {
-            // Auction completed with winner - emit property_bought
-            this.server.to(`game-${gameId}`).emit('property_bought', result.purchaseResult);
-          } else {
-            // Auction failed - no winner
-            this.server.to(`game-${gameId}`).emit('auction_failed', {
-              propertyIndex: result.propertyIndex,
-            });
-          }
-        },
-      );
+      // TODO: check incorrect active state/event call
+      const { eventData, finished } = this.gamesService.getGame(gameId).auctionPass(client.id);
       this.server.to(`game-${gameId}`).emit('auction_updated', eventData);
+      // Publish auction result if finished
+      if (finished) {
+        if (finished.success) {
+          this.server.to(`game-${gameId}`).emit('property_bought', finished as PropertyBoughtResultSuccess);
+        } else {
+          this.server.to(`game-${gameId}`).emit('auction_failed', { propertyIndex: finished.propertyIndex });
+        }
+      }
     } catch (error) {
       console.error('Error refusing property:', error);
-      // Optionally emit error back to client
     }
   }
 

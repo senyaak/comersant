@@ -67,20 +67,11 @@ export interface PlayersSettings {
   name: string;
 }
 
+import { AuctionResult } from '../types';
 export class Game extends IGame {
-  private auctionFinishCallback: ((result: {
-    success: boolean;
-    propertyIndex: number;
-    purchaseResult?: PropertyBoughtResultSuccess;
-  }) => void) | null = null;
-
-  private auctionTickInterval: NodeJS.Timeout | null = null;
-  private auctionTimer: NodeJS.Timeout | null = null;
-  private auctionUpdateCallback: ((eventData: TradingEvent['eventData']) => void) | null = null;
-
   public override readonly id: string;
-  public override readonly players: Player[];
 
+  public override readonly players: Player[];
   public readonly stateManager: StateManager = new StateManager();
 
   constructor(players: { id: string, name: string }[]) {
@@ -95,55 +86,29 @@ export class Game extends IGame {
     });
   }
 
-  private finishAuction(completeSale: boolean): {
-    success: boolean;
-    propertyIndex: number;
-    purchaseResult?: PropertyBoughtResultSuccess;
-  } | null {
+  private finishAuction(completeSale: boolean): AuctionResult | null {
     if (!this.eventInProgress || this.eventInProgress.type !== GamePlayerEventType.Trading) {
       return null;
     }
 
-    if (this.auctionTimer) {
-      clearTimeout(this.auctionTimer);
-      this.auctionTimer = null;
-    }
-
-    if (this.auctionTickInterval) {
-      clearInterval(this.auctionTickInterval);
-      this.auctionTickInterval = null;
-    }
-
     const { eventData } = this.eventInProgress;
 
-    let success = false;
     const propertyIndex = eventData.propertyIndex;
-    let purchaseResult: PropertyBoughtResultSuccess | undefined;
 
     if (completeSale && eventData.currentBidderIndex !== null) {
       // Complete the purchase
       const winnerId = this.players[eventData.currentBidderIndex].Id;
-      purchaseResult = this.buyProperty(winnerId, eventData.propertyIndex, eventData.price);
-      success = true;
+      const purchaseResult = this.buyProperty(winnerId, eventData.propertyIndex, eventData.price);
+      // Clear event and return success result (merge propertyIndex)
+      this.eventInProgress = null;
+      this.stateManager.clearWaiting();
+      return { ...purchaseResult, propertyIndex } as AuctionResult;
     }
 
-    // Notify clients about auction end
-    if (this.auctionUpdateCallback) {
-      this.auctionUpdateCallback(eventData);
-    }
-
-    // Clear event and return to active state
+    // No sale — return failure with property index
     this.eventInProgress = null;
     this.stateManager.clearWaiting();
-    this.auctionUpdateCallback = null;
-
-    // Notify about auction finish
-    if (this.auctionFinishCallback) {
-      this.auctionFinishCallback({ success, propertyIndex, purchaseResult });
-      this.auctionFinishCallback = null;
-    }
-
-    return { success, propertyIndex, purchaseResult };
+    return { success: false, propertyIndex } as AuctionResult;
   }
 
   private moveTo(player: Player, targetPosition: number): void {
@@ -162,46 +127,6 @@ export class Game extends IGame {
     console.log('move player', this.CurrentPlayerIndex, 'to', newPos);
   }
 
-  private startAuctionTimer(): void {
-    if (this.auctionTimer) {
-      clearTimeout(this.auctionTimer);
-    }
-    if (this.auctionTickInterval) {
-      clearInterval(this.auctionTickInterval);
-    }
-
-    // Set initial time
-    if (this.eventInProgress?.type === GamePlayerEventType.Trading) {
-      this.eventInProgress.eventData.timeRemaining = 10;
-    }
-
-    // Update timer every second
-    this.auctionTickInterval = setInterval(() => {
-      if (this.eventInProgress?.type === GamePlayerEventType.Trading) {
-        this.eventInProgress.eventData.timeRemaining -= 1;
-
-        // Notify clients about time update
-        if (this.auctionUpdateCallback) {
-          this.auctionUpdateCallback(this.eventInProgress.eventData);
-        }
-
-        if (this.eventInProgress.eventData.timeRemaining <= 0) {
-          if (this.auctionTickInterval) {
-            clearInterval(this.auctionTickInterval);
-            this.auctionTickInterval = null;
-          }
-          // Finish auction when time runs out
-          this.finishAuction(true);
-        }
-      }
-    }, 1000);
-
-    // Finish auction after 10 seconds (backup, should be handled by interval)
-    this.auctionTimer = setTimeout(() => {
-      this.finishAuction(true);
-    }, 10000);
-  }
-
   /** transfer money from other player to current player (eg birthday) */
   private transferMoney(amount: number): void {
     for (const player of this.players) {
@@ -217,15 +142,7 @@ export class Game extends IGame {
    * Pass on auction/first offer
    */
   @RequireGameState(GameStateType.WaitingForPropertyAction)
-  public auctionPass(
-    playerId: string,
-    onUpdate?: (eventData: TradingEvent['eventData']) => void,
-    onFinish?: (result: {
-      success: boolean;
-      propertyIndex: number;
-      purchaseResult?: PropertyBoughtResultSuccess;
-    }) => void,
-  ): TradingEvent['eventData'] {
+  public auctionPass(playerId: string): NonNullable<IEventResult['trading']> {
     if (!this.eventInProgress || this.eventInProgress.type !== GamePlayerEventType.Trading) {
       throw new Error('No trading event in progress');
     }
@@ -242,21 +159,20 @@ export class Game extends IGame {
       // Start auction for all players (including the one who refused first offer)
       const allPlayerIndices = this.players.map((_, idx) => idx);
       eventData.playerIndices = allPlayerIndices;
-      eventData.passedPlayerIndices = []; // Reset - refusing first offer doesn't count as auction pass
-      eventData.timeRemaining = 10;
-      eventData.isLocked = false;
+      // Reset passed list but ensure the refusing player is NOT counted as passed
+      eventData.passedPlayerIndices = (eventData.passedPlayerIndices || []).filter(idx => idx !== playerIndex);
+      // Mark game as waiting for property action for all players now participating
+      this.stateManager.setWaiting(GameStateType.WaitingForPropertyAction, this.players.map(p => p.Id));
+      // Server no longer manages timers; FE will auto-pass after 10s if no action
+      return { eventData };
+    }
 
-      // Store callbacks
-      if (onUpdate) {
-        this.auctionUpdateCallback = onUpdate;
-      }
-      if (onFinish) {
-        this.auctionFinishCallback = onFinish;
-      }
-
-      // Start auction timer
-      this.startAuctionTimer();
-      return eventData;
+    // TODO: check if needed
+    // Ensure passed list exists and tolerate a previous marking if auction is just starting
+    eventData.passedPlayerIndices = eventData.passedPlayerIndices || [];
+    if (eventData.passedPlayerIndices.includes(playerIndex) && eventData.playerIndices.length === 1) {
+      // If somehow the refusing player was marked as passed before auction start, clear that mark
+      eventData.passedPlayerIndices = eventData.passedPlayerIndices.filter(idx => idx !== playerIndex);
     }
 
     // Handle auction pass
@@ -275,21 +191,18 @@ export class Game extends IGame {
     const activePlayers = eventData.playerIndices.filter(idx => !eventData.passedPlayerIndices.includes(idx));
     if (activePlayers.length === 0) {
       // Everyone passed, end auction without sale
-      this.finishAuction(false);
+      const finished = this.finishAuction(false);
+      return { eventData, finished: finished ?? undefined };
     }
 
-    return eventData;
+    return { eventData };
   }
 
   /**
    * Place a bid in the auction
    */
   @RequireGameState(GameStateType.WaitingForPropertyAction)
-  public auctionPlaceBid(
-    playerId: string,
-    bidAmount: number,
-    onUnlock?: (eventData: TradingEvent['eventData']) => void,
-  ): TradingEvent['eventData'] {
+  public auctionPlaceBid(playerId: string, bidAmount: number): NonNullable<IEventResult['trading']> {
     if (!this.eventInProgress || this.eventInProgress.type !== GamePlayerEventType.Trading) {
       throw new Error('No trading event in progress');
     }
@@ -306,11 +219,6 @@ export class Game extends IGame {
       throw new Error('Auction not started yet. Use buyProperty or refuseFirstBuyOffer first');
     }
 
-    // Check if auction is locked
-    if (eventData.isLocked) {
-      throw new Error('Auction is locked for 1 second after last bid');
-    }
-
     // Check if player already passed
     if (eventData.passedPlayerIndices.includes(playerIndex)) {
       throw new Error('Player already passed on this auction');
@@ -321,46 +229,28 @@ export class Game extends IGame {
       throw new Error('Player cannot participate in this auction');
     }
 
-    // Check if bid is higher than current
+    // Check if bid is higher than current — report failure to bidder only
     if (bidAmount <= eventData.price) {
-      throw new Error(`Bid must be higher than current price ${eventData.price}`);
+      return {
+        eventData,
+        invalidBid: {
+          playerIndex, reason: `Bid must be higher than current price ${eventData.price}`,
+        },
+      };
     }
 
     // Check if player has enough money
     const player = this.players[playerIndex];
     if (player.Money < bidAmount) {
-      throw new Error('Insufficient funds');
+      return { eventData, invalidBid: { playerIndex, reason: 'Insufficient funds' } };
     }
 
     // Update auction state
     eventData.price = bidAmount;
     eventData.currentBidderIndex = playerIndex;
-    eventData.isLocked = true;
-    eventData.timeRemaining = 10;
+    // Server no longer manages timers; FE will auto-pass after 10s if no action
 
-    // Clear existing timers
-    if (this.auctionTimer) {
-      clearTimeout(this.auctionTimer);
-      this.auctionTimer = null;
-    }
-    if (this.auctionTickInterval) {
-      clearInterval(this.auctionTickInterval);
-      this.auctionTickInterval = null;
-    }
-
-    // Lock for 1 second, then unlock and start 10 second timer
-    setTimeout(() => {
-      if (this.eventInProgress && this.eventInProgress.type === GamePlayerEventType.Trading) {
-        this.eventInProgress.eventData.isLocked = false;
-        this.startAuctionTimer();
-        // Notify clients about unlock
-        if (onUnlock) {
-          onUnlock(this.eventInProgress.eventData);
-        }
-      }
-    }, 1000);
-
-    return eventData;
+    return { eventData };
   }
 
   /** current player wants to buy property */
@@ -418,15 +308,13 @@ export class Game extends IGame {
     // Clear event and return to active state if this was part of trading event
     if (this.eventInProgress?.type === GamePlayerEventType.Trading) {
       this.eventInProgress = null;
-      if (this.auctionTimer) {
-        clearTimeout(this.auctionTimer);
-        this.auctionTimer = null;
-      }
       this.stateManager.clearWaiting();
     }
 
     return {propertyIndex, newOwnerId: newOwner.Id, success: true, price, oldOwnerId};
   }
+
+  // drainAuctionResult removed — auction outcome is returned synchronously from auction methods
 
   @RequireGameState(GameStateType.Active)
   handleCardEvent(card: GameEvent, cardType: CardEventCellTypes): IEventResult[] {
@@ -595,11 +483,9 @@ export class Game extends IGame {
         propertyIndex,
         currentBidderIndex: null,
         passedPlayerIndices: [],
-        timeRemaining: 0,
-        isLocked: false,
       };
       this.eventInProgress = {type: GamePlayerEventType.Trading, eventData};
-      results.push({trading: eventData});
+      results.push({trading: { eventData }});
     }
 
     if (GovBusiness.isGovBusiness(cell.object) &&

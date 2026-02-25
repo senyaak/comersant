@@ -108,6 +108,11 @@ dialog {
     &:not(:disabled):hover {
       background-color: #0b7dda;
     }
+    &.invalid {
+      animation: flash-red 1s ease-in-out;
+      background-color: #f44336 !important;
+      box-shadow: 0 0 0 4px rgba(244, 67, 54, 0.15);
+    }
   }
 
   .btn-pass {
@@ -118,4 +123,11 @@ dialog {
       background-color: #757575;
     }
   }
+}
+
+@keyframes flash-red {
+  0% { transform: translateY(0); }
+  20% { transform: translateY(-2px); }
+  50% { transform: translateY(0); }
+  100% { transform: translateY(0); }
 }

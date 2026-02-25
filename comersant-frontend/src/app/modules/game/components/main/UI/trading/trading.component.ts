@@ -12,10 +12,13 @@ import { GameService } from '../../../../services/game.service';
   styleUrl: './trading.component.scss',
 })
 export class TradingComponent implements AfterViewInit, OnDestroy {
+  private bidFailedSub?: Subscription;
   private subscription?: Subscription;
   private timerSubscription?: Subscription;
-
+  public bidFailed = false;
   @ViewChild('tradingDialog') dialogRef?: ElementRef<HTMLDialogElement>;
+
+  public timeRemaining?: number;
 
   constructor(
     private readonly gameService: GameService,
@@ -38,11 +41,20 @@ export class TradingComponent implements AfterViewInit, OnDestroy {
         this.timerSubscription?.unsubscribe();
       }
     });
+    // subscribe to bid failure notifications for local UI feedback
+    this.bidFailedSub = this.gameService.bidFailed$.subscribe(flag => {
+      this.bidFailed = flag;
+      if (flag) {
+        // clear after animation completes (handled by CSS)
+        setTimeout(() => this.bidFailed = false, 1000);
+      }
+    });
   }
 
   ngOnDestroy() {
     this.subscription?.unsubscribe();
     this.timerSubscription?.unsubscribe();
+    this.bidFailedSub?.unsubscribe();
   }
 
   get canBid(): boolean {
@@ -54,7 +66,7 @@ export class TradingComponent implements AfterViewInit, OnDestroy {
     if (playerIndex === -1) return false;
 
     const player = this.gameService.Game.players[playerIndex];
-    const { isLocked, playerIndices, currentBidderIndex, price } = this.TradeEvent.eventData;
+    const { playerIndices, currentBidderIndex, price } = this.TradeEvent.eventData;
 
     // Check if player has enough money for minimum bid (+1k)
     const minNextBid = price + 1000;
@@ -65,8 +77,7 @@ export class TradingComponent implements AfterViewInit, OnDestroy {
     // - player is not in participants list
     // - player is current bidder (must wait for others to bid)
     // - player doesn't have enough money
-    return !isLocked &&
-      playerIndices.includes(playerIndex) &&
+    return playerIndices.includes(playerIndex) &&
       currentBidderIndex !== playerIndex &&
       hasEnoughMoney;
   }
@@ -111,7 +122,7 @@ export class TradingComponent implements AfterViewInit, OnDestroy {
     if (playerIndex === -1) return false;
 
     const player = this.gameService.Game.players[playerIndex];
-    const { price, currentBidderIndex, isLocked } = this.TradeEvent.eventData;
+    const { price, currentBidderIndex } = this.TradeEvent.eventData;
 
     // Show insufficient funds message if:
     // - player is not the current bidder
@@ -119,7 +130,6 @@ export class TradingComponent implements AfterViewInit, OnDestroy {
     // - player doesn't have enough money for minimum bid
     const minNextBid = price + 1000;
     return currentBidderIndex !== playerIndex &&
-      !isLocked &&
       player.Money < minNextBid;
   }
 
@@ -149,9 +159,28 @@ export class TradingComponent implements AfterViewInit, OnDestroy {
   private startTimer() {
     this.timerSubscription?.unsubscribe();
 
-    // Update timer every second
+    const trade = this.TradeEvent;
+    if (!trade) return;
+
+    // Initialize local countdown to 10 seconds for user's UX
+    this.timeRemaining = 10;
+
+    // Update timer every second and auto-pass when reaches 0
     this.timerSubscription = interval(1000).subscribe(() => {
-      // Timer is managed on server side, we just display it
+      const currentTrade = this.TradeEvent;
+      if (!currentTrade) {
+        this.timerSubscription?.unsubscribe();
+        return;
+      }
+      if (typeof this.timeRemaining !== 'number') {
+        this.timeRemaining = 10;
+      }
+      this.timeRemaining -= 1;
+      if (this.timeRemaining <= 0) {
+        this.timerSubscription?.unsubscribe();
+        // Auto-send pass (FE responsibility)
+        this.pass();
+      }
     });
   }
 
