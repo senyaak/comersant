@@ -1,6 +1,6 @@
+import type { GameEffect } from '$server/modules/game/models/GameModels/game/effects';
 import type { IRawGame } from '$server/modules/game/models/GameModels/types';
 import type {
-  IEventResult,
   PropertyBoughtResult,
   RollTurnResult,
   TurnFinishedResult,
@@ -14,11 +14,10 @@ import { Injectable } from '@angular/core';
 import {
   Router,
 } from '@angular/router';
-import { EventItem, EventType } from '$server/modules/game/models/events';
+import { EventType } from '$server/modules/game/models/events';
 import { PropertyCell } from '$server/modules/game/models/FieldModels/cells';
 import { GamePlayerEventType } from '$server/modules/game/models/GameModels/gamePlayerEvent';
 import { IGame } from '$server/modules/game/models/GameModels/igame';
-import { ItemType } from '$server/modules/game/models/GameModels/items';
 import { Player } from '$server/modules/game/models/GameModels/player';
 import { Routes } from '$server/types/routes';
 import { BehaviorSubject, tap } from 'rxjs';
@@ -215,87 +214,6 @@ export class GameService {
     setTimeout(() => this.bidFailed$.next(false), 1000);
   };
 
-  private onCardEvent = (event: IEventResult & { cardDrawn: NonNullable<IEventResult['cardDrawn']> }) => {
-    const {card} = event.cardDrawn;
-    switch(card.type) {
-      case EventType.BalanceChange: {
-        this.Game.CurrentPlayer.changeMoney(card.amount);
-        this.gameNotificationService.toast(`Balance changed by ${card.amount}`);
-        break;
-      }
-      case EventType.GetEvent: {
-        this.onHandleGetEvent(card.item);
-        break;
-      }
-      case EventType.MoneyTransfer: {
-        let amount = 0;
-        for(let i = 0; i < this.Game.players.length; i++) {
-          if(i !== this.Game.CurrentPlayerIndex) {
-            amount += card.amount;
-            this.Game.players[i].changeMoney(-card.amount);
-          }
-        }
-        const currPlayer = this.Game.CurrentPlayer;
-        currPlayer.changeMoney(amount);
-
-        if(this.isTurnActive) {
-          this.gameNotificationService.toast(`Received ${card.amount} from each player`);
-        } else {
-          this.gameNotificationService.toast(`Paid ${card.amount} to ${currPlayer.Name} player`);
-        }
-        break;
-      }
-      case EventType.Move: {
-        this.Game.CurrentPlayer.move(card.amount);
-        this.playerMoved$.next(true);
-        break;
-      }
-      case EventType.MovePlayer: {
-        throw new Error('Not implemented yet');
-        // have to pause the game until new destination is selected
-        break;
-      }
-      case EventType.MoveTo: {
-        this.Game.CurrentPlayer.moveTo(card.to);
-        this.gameNotificationService.toast(`Moved to ${card.to}`);
-        break;
-      }
-      case EventType.MoveToCenter: {
-        // have to pause the game until new destination is selected
-        throw new Error('Not implemented yet');
-        break;
-      }
-      case EventType.PropertyLoss: {
-        if(!event.propertyLost) {
-          throw new Error(`incorrect event data ${event}`);
-        }
-        if(event.propertyLost.propertyIndex === null) {
-          this.gameNotificationService.toast('No property to lose');
-        } else {
-          const cell = this.Game.board.flatCells[event.propertyLost.propertyIndex];
-          if(!PropertyCell.isInstancePropertyCell(cell)) {
-            throw new Error('Cell is not a property cell');
-          }
-
-          cell.object.owner = null;
-          this.gameNotificationService.toast(`Lost property: ${cell.name}`);
-        }
-        break;
-      }
-      case EventType.SkipTurn: {
-        this.Game.CurrentPlayer.skipTurn();
-        this.gameNotificationService.toast('Player will skip next turn');
-        break;
-      }
-      case EventType.TaxService: {
-        this.Game.CurrentPlayer.moveTo('TaxService');
-        this.playerMoved$.next(true);
-        this.gameNotificationService.toast('Moved to TaxService');
-        break;
-      }
-    }
-  };
-
   // private onConnectError = () => {
   //   console.log('connect_error');
   //   this.router.navigate(['/']);
@@ -311,73 +229,99 @@ export class GameService {
     this.router.navigate(['/']);
   };
 
-  private onEventResult = (results: Parameters<ServerToClientEvents['event_result']>[0]) => {
-    const handler = (result: IEventResult) => {
-      let i = 0;
-      if(result.taxPaid) {
-        const taxPaid = result.taxPaid;
-        setTimeout(() => {
-          this.Game.players.find(player => player.Id === taxPaid.toPlayerId)
-            ?.changeMoney(taxPaid.amount);
-          this.Game.CurrentPlayer.changeMoney(-taxPaid.amount);
-        }, i++ * 1500);
-      }
-      if(result.cardDrawn) {
-        setTimeout(() => {
-          if(!('cardDrawn' in result) || result.cardDrawn === undefined) {
-            throw new Error('Invalid card drawn event result');
-          }
-          this.onCardEvent(result as IEventResult & { cardDrawn: NonNullable<IEventResult['cardDrawn']> });
-          this.gameNotificationService.showCard(result.cardDrawn);
-        }, i++ * 1500);
-      }
-      if(result.staticEvent) {
-        const staticEvent = result.staticEvent;
-        setTimeout(() => {
-          this.onStaticEvent(staticEvent);
-        }, i++ * 1500);
-      }
-
-      if(result.trading) {
-        const cell = this.Game.board.flatCells[this.Game.CurrentPlayer.Position];
-        if(!PropertyCell.isPropertyCell(cell)) {
-          throw new Error('Current player is not on a property cell');
-        }
-        // `result.trading` is now an object: { eventData, finished?, invalidBid? }
-        this.Event$ = {type: GamePlayerEventType.Trading, eventData: result.trading.eventData};
-      }
-
-      return i;
-    };
-
-    // use global index since a single handler call can have multiple events
+  private onEventResult = (effects: GameEffect[]) => {
     let i = 0;
-    results.forEach((result) => {
-      setTimeout(() => i += handler(result), i * 1500);
-    });
-  };
+    const schedule = (fn: () => void) => setTimeout(fn, i++ * 1500);
 
-  private onHandleGetEvent = (item: EventItem) => {
-    switch(item) {
-      case EventItem.TaxFree: {
-        this.Game.CurrentPlayer.giveItem(ItemType.TaxFree);
-        this.gameNotificationService.toast('Tax Free item received');
-        break;
+    for (const effect of effects) {
+      switch (effect.type) {
+        case 'TAX_PAID':
+          schedule(() => {
+            this.Game.players.find(p => p.Id === effect.toPlayerId)?.changeMoney(effect.amount);
+            this.Game.CurrentPlayer.changeMoney(-effect.amount);
+          });
+          break;
+        case 'CARD_DRAWN':
+          schedule(() => {
+            this.gameNotificationService.showCard(effect);
+          });
+          break;
+        case 'STATIC_EVENT':
+          schedule(() => this.onStaticEvent(effect));
+          break;
+        case 'PROPERTY_OFFERED':
+          schedule(() => {
+            this.Event$ = {
+              type: GamePlayerEventType.Trading,
+              eventData: {
+                playerIndices: [effect.playerIndex],
+                price: effect.price,
+                propertyIndex: effect.propertyIndex,
+                currentBidderIndex: null,
+                passedPlayerIndices: [],
+              },
+            };
+          });
+          break;
+        case 'PROPERTY_LOST':
+          schedule(() => {
+            if (effect.propertyIndex !== null) {
+              const cell = this.Game.board.flatCells[effect.propertyIndex];
+              if (PropertyCell.isInstancePropertyCell(cell)) {
+                cell.object.owner = null;
+                this.gameNotificationService.toast(`Lost property: ${cell.name}`);
+              }
+            } else {
+              this.gameNotificationService.toast('No property to lose');
+            }
+          });
+          break;
+        case 'ITEM_RECEIVED':
+          schedule(() => {
+            this.Game.players[effect.playerIndex].giveItem(effect.item);
+          });
+          break;
+        case 'BALANCE_CHANGED':
+          schedule(() => {
+            this.Game.players[effect.playerIndex].changeMoney(effect.amount);
+          });
+          break;
+        case 'TURN_SKIPPED':
+          schedule(() => {
+            this.Game.players[effect.playerIndex].skipTurn();
+            this.gameNotificationService.toast('Player will skip next turn');
+          });
+          break;
+        case 'MONEY_TRANSFERRED_FROM_ALL':
+          schedule(() => {
+            const centerId = this.Game.players[effect.centerPlayerIndex].Id;
+            for (const player of this.Game.players) {
+              player.changeMoney(player.Id === centerId ?
+                effect.amount * (effect.playerCount - 1) :
+                -effect.amount);
+            }
+            if (this.isTurnActive) {
+              this.gameNotificationService.toast(`Received ${effect.amount} from each player`);
+            } else {
+              this.gameNotificationService.toast(`Paid ${effect.amount} to current player`);
+            }
+          });
+          break;
+        // No-ops: handled elsewhere or not yet implemented on FE
+        case 'PLAYER_MOVED':
+        case 'PLAYER_MOVED_TO_POSITION':
+        case 'PROPERTY_PURCHASED':
+        case 'AUCTION_OPENED_TO_ALL':
+        case 'AUCTION_PLAYER_PASSED':
+        case 'AUCTION_FAILED':
+        case 'AUCTION_BID_PLACED':
+        case 'AUCTION_BID_INVALID':
+        case 'INTERACTIVE_EVENT':
+        case 'WAITING_FOR_MOVE_TO_CENTER':
+        case 'MOVE_PLAYER_TODO':
+          break;
       }
-      case EventItem.Security: {
-        this.Game.CurrentPlayer.giveItem(ItemType.Security);
-        this.gameNotificationService.toast('Security item received');
-        break;
-      }
-      case EventItem.Mail:
-      case EventItem.Risk:
-      case EventItem.Surprise:
-        this.gameNotificationService.toast('Draw new card');
-        break;
-      default:
-        throw new Error('Unknown event item type');
     }
-
   };
 
   private onPropertyBought = (result: Parameters<ServerToClientEvents['property_bought']>[0]) => {
@@ -400,7 +344,7 @@ export class GameService {
     this.Event$ = null;
   };
 
-  private onStaticEvent = (staticEvent: NonNullable<IEventResult['staticEvent']>) => {
+  private onStaticEvent = (staticEvent: Extract<GameEffect, { type: 'STATIC_EVENT' }>) => {
     switch(staticEvent.eventType) {
       case EventType.BalanceChange: {
         this.gameNotificationService.toast(`Balance changed by ${staticEvent.amount || 0}`);

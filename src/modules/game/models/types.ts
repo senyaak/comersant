@@ -1,10 +1,6 @@
 import { ServerToClientEvents } from '../services/events/types';
-import { EventType } from './events';
-import { Cards } from './FieldModels/cards';
-import { CardEventCellTypes } from './FieldModels/cells';
 import { TradingEvent } from './GameModels/gamePlayerEvent';
 import { IGame } from './GameModels/igame';
-import { ItemType } from './GameModels/items';
 import { Player } from './GameModels/player';
 
 //#region turn events results
@@ -41,21 +37,11 @@ export interface IDiceResult {
   newPlayerPosition?: number;
 }
 
-/** do not create union for better dev experience */
-export interface IEventResult {
-  taxPaid?: { amount: number, toPlayerId: Player['id'] };
-  cardDrawn?: { cardType: CardEventCellTypes, card: Cards[keyof Cards] };
-  staticEvent?: {eventType: EventType.SkipTurn} | {eventType: EventType.TaxService}
-  | {eventType: EventType.BalanceChange, amount?: number};
-  interactiveEvent?: EventType.MoveToCenter | EventType.Raccito;
-  itemReceived?: ItemType;
-  propertyLost?: { propertyIndex: number | null };
-  trading?: {
-    eventData: TradingEvent['eventData'];
-    finished?: AuctionResult;
-    invalidBid?: { playerIndex: number; reason: string }
-  };
-}
+export type TradingActionResult = {
+  eventData: TradingEvent['eventData'];
+  finished?: AuctionResult;
+  invalidBid?: { playerIndex: number; reason: string };
+};
 //#endregion turn events results
 //#region c2s events results
 export type PropertyBoughtResult = PropertyBoughtResultSuccess | PropertyBoughtResultError;

@@ -1,11 +1,12 @@
+import { GameEffect } from '../../models/GameModels/game/effects';
 import { TradingEvent } from '../../models/GameModels/gamePlayerEvent';
-import { IEventResult, RollTurnResult, PropertyBoughtResult, TurnFinishedResult } from '../../models/types';
+import { RollTurnResult, PropertyBoughtResult, TurnFinishedResult } from '../../models/types';
 
 export interface ServerToClientEvents {
   property_bought: (data: PropertyBoughtResult) => void;
   turn_progress: (data: RollTurnResult) => void;
   turn_finished: (data: TurnFinishedResult) => void;
-  event_result: (data: IEventResult[]) => void;
+  event_result: (data: GameEffect[]) => void;
   user_connected: (data: { name: string; id: string }) => void;
   auction_updated: (data: TradingEvent['eventData']) => void;
   auction_failed: (data: { propertyIndex: number }) => void;

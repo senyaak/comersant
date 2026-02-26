@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { IEventResult } from '$server/modules/game/models/types';
+import { GameEffect } from '$server/modules/game/models/GameModels/game/effects';
 
 import { CardPatterns, CardType } from '../assets/svg/card-patterns';
 
@@ -129,7 +129,7 @@ export class GameNotificationService {
     }, TOAST_DURATION);
   }
 
-  showCard(cardevent: NonNullable<IEventResult['cardDrawn']>) {
+  showCard(cardevent: Extract<GameEffect, { type: 'CARD_DRAWN' }>) {
     const cardType = cardevent.cardType as CardType;
     const message = cardevent.card.msg;
 

@@ -1,76 +1,38 @@
 import { randomBytes } from 'crypto';
 
-import { EventItem, EventType, GameEvent } from '../events';
 import { Board } from '../FieldModels/board';
-import { Cards, getCardsByType } from '../FieldModels/cards';
+import { EventCell, PropertyCell } from '../FieldModels/cells';
 import {
-  CardEventCell,
-  CardEventCellTypes,
-  EventCell, InteractiveEventCell, PropertyCell, StaticEventCell,
-  TaxServiceCell,
-} from '../FieldModels/cells';
-import { IDiceResult, IEventResult, ITurnResult, PropertyBoughtResultSuccess, RollTurnResult } from '../types';
+  IDiceResult,
+  ITurnResult,
+  PropertyBoughtResultSuccess,
+  RollTurnResult,
+  TradingActionResult,
+} from '../types';
+import { computeAuctionBid, computeAuctionPass } from './game/domains/auction';
+import { computeEventCell } from './game/domains/cards';
+import { computeMove, computeMoveToPosition } from './game/domains/movement';
+import {
+  computeBuyProperty,
+  computeLoseProperty,
+  computePropertyStep,
+} from './game/domains/properties';
+import { GameEffect } from './game/effects';
+import { RequireGameState, ValidateActivePlayer } from './game/validators';
 import { GamePlayerEventType, TradingEvent } from './gamePlayerEvent';
 import { IGame } from './igame';
-import { ItemType } from './items';
 import { Player, PlayerColor } from './player';
-import { Business, BusinessGrade, GovBusiness } from './properties';
+import { BusinessGrade } from './properties';
 import { GameStateType, StateManager } from './state-manager';
 import { Turn } from './turn';
-
-// Type constraint to ensure the method has playerId as first parameter
-type MethodWithPlayerId<T extends unknown[], R> = (playerId: string, ...args: T) => R;
-
-// Decorator to validate that the player is active
-function ValidateActivePlayer<T extends unknown[], R>(
-  target: unknown,
-  propertyKey: string,
-  descriptor: TypedPropertyDescriptor<MethodWithPlayerId<T, R>>,
-): TypedPropertyDescriptor<MethodWithPlayerId<T, R>> {
-  const originalMethod = descriptor.value;
-
-  descriptor.value = function(this: Game, playerId: string, ...args: T): R {
-    if (!this.isPlayerActive(playerId)) {
-      throw new Error(`It's not player ${playerId} turn`);
-    }
-    return originalMethod?.apply(this, [playerId, ...args]);
-  };
-
-  return descriptor;
-}
-
-// Decorator to require specific game state
-function RequireGameState(requiredState: GameStateType) {
-  return function(
-    target: unknown,
-    propertyKey: string,
-    descriptor: PropertyDescriptor,
-  ): PropertyDescriptor {
-    const originalMethod = descriptor.value;
-
-    descriptor.value = function(this: Game, ...args: unknown[]): unknown {
-      if (!this.stateManager.isStateValid(requiredState)) {
-        const currentState = this.stateManager.state;
-        throw new Error(
-          `Action not allowed in current game state. Required: ${requiredState}, Current: ${currentState}`,
-        );
-      }
-      return originalMethod.apply(this, args);
-    };
-
-    return descriptor;
-  };
-}
 
 export interface PlayersSettings {
   id: string;
   name: string;
 }
 
-import { AuctionResult } from '../types';
 export class Game extends IGame {
   public override readonly id: string;
-
   public override readonly players: Player[];
   public readonly stateManager: StateManager = new StateManager();
 
@@ -79,178 +41,192 @@ export class Game extends IGame {
     if (players.length < 2) {
       throw new Error('At least two players are required to start a game');
     }
-
     this.id = randomBytes(16).toString('hex');
     this.players = players.map((player, counter) => {
       return new Player(player.id, Object.values(PlayerColor)[counter], player.name);
     });
   }
 
-  private finishAuction(completeSale: boolean): AuctionResult | null {
-    if (!this.eventInProgress || this.eventInProgress.type !== GamePlayerEventType.Trading) {
-      return null;
-    }
+  // ─── Effect dispatcher ─────────────────────────────────────────────────────
 
-    const { eventData } = this.eventInProgress;
+  private applyEffect(effect: GameEffect): void {
+    switch (effect.type) {
 
-    const propertyIndex = eventData.propertyIndex;
+      // Movement
+      case 'PLAYER_MOVED':
+        this.players[effect.playerIndex].move(effect.steps);
+        break;
+      case 'PLAYER_MOVED_TO_POSITION': {
+        const player = this.players[effect.playerIndex];
+        const steps = Math.abs(effect.targetPosition - player.Position);
+        player.move(steps);
+        break;
+      }
 
-    if (completeSale && eventData.currentBidderIndex !== null) {
-      // Complete the purchase
-      const winnerId = this.players[eventData.currentBidderIndex].Id;
-      const purchaseResult = this.buyProperty(winnerId, eventData.propertyIndex, eventData.price);
-      // Clear event and return success result (merge propertyIndex)
-      this.eventInProgress = null;
-      this.stateManager.clearWaiting();
-      return { ...purchaseResult, propertyIndex } as AuctionResult;
-    }
+      // Auction
+      case 'AUCTION_OPENED_TO_ALL':
+        if (this.eventInProgress?.type === GamePlayerEventType.Trading) {
+          this.eventInProgress.eventData.playerIndices = effect.playerIndices;
+          this.eventInProgress.eventData.passedPlayerIndices = [];
+          this.stateManager.setWaiting(
+            GameStateType.WaitingForPropertyAction,
+            this.players.map(p => p.Id),
+          );
+        }
+        break;
+      case 'AUCTION_PLAYER_PASSED':
+        if (this.eventInProgress?.type === GamePlayerEventType.Trading) {
+          this.eventInProgress.eventData.passedPlayerIndices.push(effect.playerIndex);
+        }
+        break;
+      case 'AUCTION_FAILED':
+        this.eventInProgress = null;
+        this.stateManager.clearWaiting();
+        break;
+      case 'AUCTION_BID_PLACED':
+        if (this.eventInProgress?.type === GamePlayerEventType.Trading) {
+          this.eventInProgress.eventData.price = effect.price;
+          this.eventInProgress.eventData.currentBidderIndex = effect.playerIndex;
+        }
+        break;
+      case 'AUCTION_BID_INVALID':
+        break;
 
-    // No sale — return failure with property index
-    this.eventInProgress = null;
-    this.stateManager.clearWaiting();
-    return { success: false, propertyIndex } as AuctionResult;
-  }
+      // Properties
+      case 'PROPERTY_OFFERED': {
+        const player = this.players[effect.playerIndex];
+        this.stateManager.setWaiting(GameStateType.WaitingForPropertyAction, [player.Id]);
+        const eventData: TradingEvent['eventData'] = {
+          playerIndices: [effect.playerIndex],
+          price: effect.price,
+          propertyIndex: effect.propertyIndex,
+          currentBidderIndex: null,
+          passedPlayerIndices: [],
+        };
+        this.eventInProgress = { type: GamePlayerEventType.Trading, eventData };
+        break;
+      }
+      case 'TAX_PAID':
+        this.players[effect.fromPlayerIndex].changeMoney(-effect.amount);
+        this.players.find(p => p.Id === effect.toPlayerId)?.changeMoney(effect.amount);
+        break;
+      case 'PROPERTY_PURCHASED': {
+        const buyer = this.players.find(p => p.Id === effect.buyerPlayerId);
+        const cell = this.board.flatCells[effect.propertyIndex];
+        if (!buyer || !PropertyCell.isPropertyCell(cell)) break;
+        if (effect.previousOwnerId) {
+          const prevOwner = this.players.find(p => p.Id === effect.previousOwnerId);
+          prevOwner?.changeMoney(effect.price);
+          cell.object.owner = null;
+        }
+        cell.object.owner = buyer.Id;
+        buyer.changeMoney(-effect.price);
+        if (this.eventInProgress?.type === GamePlayerEventType.Trading) {
+          this.eventInProgress = null;
+          this.stateManager.clearWaiting();
+        }
+        break;
+      }
+      case 'PROPERTY_LOST': {
+        if (effect.propertyIndex !== null) {
+          const cell = this.board.flatCells[effect.propertyIndex];
+          if (PropertyCell.isPropertyCell(cell)) {
+            cell.object.owner = null;
+          }
+        }
+        break;
+      }
 
-  private moveTo(player: Player, targetPosition: number): void {
-    const currentPosition = player.Position;
-    const movesCounter = Math.abs(targetPosition - currentPosition);
-    player.move(movesCounter);
-  }
+      // Cards
+      case 'BALANCE_CHANGED':
+        this.players[effect.playerIndex].changeMoney(effect.amount);
+        break;
+      case 'TURN_SKIPPED':
+        this.players[effect.playerIndex].skipTurn();
+        break;
+      case 'ITEM_RECEIVED':
+        this.players[effect.playerIndex].giveItem(effect.item);
+        break;
+      case 'MONEY_TRANSFERRED_FROM_ALL': {
+        const currentPlayerId = this.players[effect.centerPlayerIndex].Id;
+        for (const player of this.players) {
+          if (player.Id === currentPlayerId) {
+            player.changeMoney(effect.amount * (effect.playerCount - 1));
+          } else {
+            player.changeMoney(-effect.amount);
+          }
+        }
+        break;
+      }
+      case 'WAITING_FOR_MOVE_TO_CENTER':
+        this.stateManager.setWaiting(
+          GameStateType.WaitingForMoveToCenter,
+          [this.players[effect.playerIndex].Id],
+        );
+        break;
+      case 'CARD_DRAWN':
+      case 'STATIC_EVENT':
+      case 'INTERACTIVE_EVENT':
+      case 'MOVE_PLAYER_TODO':
+        break;
 
-  private moveToTaxService(): void {
-    const currPos = this.players[this.CurrentPlayerIndex].Position;
-    const newPos = this.board.flatCells.findIndex((cell) =>
-      TaxServiceCell.isTaxServiceCell(cell),
-    );
-    const moves = Math.abs(newPos - currPos);
-    this.players[this.CurrentPlayerIndex].move(moves);
-    console.log('move player', this.CurrentPlayerIndex, 'to', newPos);
-  }
-
-  /** transfer money from other player to current player (eg birthday) */
-  private transferMoney(amount: number): void {
-    for (const player of this.players) {
-      if (player.Id !== this.players[this.CurrentPlayerIndex].Id) {
-        player.changeMoney(-amount);
-      } else {
-        player.changeMoney(amount * (this.players.length - 1));
+      default: {
+        const _exhaustive: never = effect;
+        throw new Error(`Unhandled effect type: ${(_exhaustive as GameEffect).type}`);
       }
     }
   }
 
-  /**
-   * Pass on auction/first offer
-   */
+  // ─── IO methods ────────────────────────────────────────────────────────────
+
   @RequireGameState(GameStateType.WaitingForPropertyAction)
-  public auctionPass(playerId: string): NonNullable<IEventResult['trading']> {
+  public auctionPass(playerId: string): TradingActionResult {
     if (!this.eventInProgress || this.eventInProgress.type !== GamePlayerEventType.Trading) {
       throw new Error('No trading event in progress');
     }
-
-    const { eventData } = this.eventInProgress;
     const playerIndex = this.players.findIndex(p => p.Id === playerId);
+    if (playerIndex === -1) throw new Error('Player not found');
 
-    if (playerIndex === -1) {
-      throw new Error('Player not found');
+    const prevEventData = { ...this.eventInProgress.eventData };
+    const effects = computeAuctionPass(
+      this.eventInProgress.eventData, playerIndex, this.players.length,
+    );
+    for (const e of effects) this.applyEffect(e);
+
+    const failed = effects.find(
+      (e): e is Extract<GameEffect, { type: 'AUCTION_FAILED' }> => e.type === 'AUCTION_FAILED',
+    );
+    if (failed) {
+      return { eventData: prevEventData, finished: { success: false, propertyIndex: failed.propertyIndex } };
     }
 
-    // Handle first buy offer refusal - START AUCTION
-    if (eventData.playerIndices.length === 1 && eventData.playerIndices[0] === playerIndex) {
-      // Start auction for all players (including the one who refused first offer)
-      const allPlayerIndices = this.players.map((_, idx) => idx);
-      eventData.playerIndices = allPlayerIndices;
-      // Reset passed list but ensure the refusing player is NOT counted as passed
-      eventData.passedPlayerIndices = (eventData.passedPlayerIndices || []).filter(idx => idx !== playerIndex);
-      // Mark game as waiting for property action for all players now participating
-      this.stateManager.setWaiting(GameStateType.WaitingForPropertyAction, this.players.map(p => p.Id));
-      // Server no longer manages timers; FE will auto-pass after 10s if no action
-      return { eventData };
-    }
-
-    // TODO: check if needed
-    // Ensure passed list exists and tolerate a previous marking if auction is just starting
-    eventData.passedPlayerIndices = eventData.passedPlayerIndices || [];
-    if (eventData.passedPlayerIndices.includes(playerIndex) && eventData.playerIndices.length === 1) {
-      // If somehow the refusing player was marked as passed before auction start, clear that mark
-      eventData.passedPlayerIndices = eventData.passedPlayerIndices.filter(idx => idx !== playerIndex);
-    }
-
-    // Handle auction pass
-    if (!eventData.playerIndices.includes(playerIndex)) {
-      throw new Error('Player cannot participate in this auction');
-    }
-
-    if (eventData.passedPlayerIndices.includes(playerIndex)) {
-      throw new Error('Player already passed');
-    }
-
-    // Add player to passed list
-    eventData.passedPlayerIndices.push(playerIndex);
-
-    // Check if all players passed
-    const activePlayers = eventData.playerIndices.filter(idx => !eventData.passedPlayerIndices.includes(idx));
-    if (activePlayers.length === 0) {
-      // Everyone passed, end auction without sale
-      const finished = this.finishAuction(false);
-      return { eventData, finished: finished ?? undefined };
-    }
-
-    return { eventData };
+    return { eventData: this.eventInProgress?.eventData ?? prevEventData };
   }
 
-  /**
-   * Place a bid in the auction
-   */
   @RequireGameState(GameStateType.WaitingForPropertyAction)
-  public auctionPlaceBid(playerId: string, bidAmount: number): NonNullable<IEventResult['trading']> {
+  public auctionPlaceBid(playerId: string, bidAmount: number): TradingActionResult {
     if (!this.eventInProgress || this.eventInProgress.type !== GamePlayerEventType.Trading) {
       throw new Error('No trading event in progress');
     }
-
-    const { eventData } = this.eventInProgress;
     const playerIndex = this.players.findIndex(p => p.Id === playerId);
+    if (playerIndex === -1) throw new Error('Player not found');
 
-    if (playerIndex === -1) {
-      throw new Error('Player not found');
-    }
+    const effects = computeAuctionBid(
+      this.eventInProgress.eventData, playerIndex, bidAmount, this.players[playerIndex].Money,
+    );
+    for (const e of effects) this.applyEffect(e);
 
-    // Check if auction is active (more than 1 player can participate)
-    if (eventData.playerIndices.length === 1) {
-      throw new Error('Auction not started yet. Use buyProperty or refuseFirstBuyOffer first');
-    }
-
-    // Check if player already passed
-    if (eventData.passedPlayerIndices.includes(playerIndex)) {
-      throw new Error('Player already passed on this auction');
-    }
-
-    // Check if player can participate
-    if (!eventData.playerIndices.includes(playerIndex)) {
-      throw new Error('Player cannot participate in this auction');
-    }
-
-    // Check if bid is higher than current — report failure to bidder only
-    if (bidAmount <= eventData.price) {
+    const invalidBid = effects.find(
+      (e): e is Extract<GameEffect, { type: 'AUCTION_BID_INVALID' }> => e.type === 'AUCTION_BID_INVALID',
+    );
+    if (invalidBid) {
       return {
-        eventData,
-        invalidBid: {
-          playerIndex, reason: `Bid must be higher than current price ${eventData.price}`,
-        },
+        eventData: this.eventInProgress.eventData,
+        invalidBid: { playerIndex: invalidBid.playerIndex, reason: invalidBid.reason },
       };
     }
 
-    // Check if player has enough money
-    const player = this.players[playerIndex];
-    if (player.Money < bidAmount) {
-      return { eventData, invalidBid: { playerIndex, reason: 'Insufficient funds' } };
-    }
-
-    // Update auction state
-    eventData.price = bidAmount;
-    eventData.currentBidderIndex = playerIndex;
-    // Server no longer manages timers; FE will auto-pass after 10s if no action
-
-    return { eventData };
+    return { eventData: this.eventInProgress.eventData };
   }
 
   /** current player wants to buy property */
@@ -258,278 +234,54 @@ export class Game extends IGame {
   /** players trade */
   buyProperty(playerId: string, propertyIndex: number, price: number): PropertyBoughtResultSuccess;
   buyProperty(playerId?: string, propertyIndex?: number, price?: number): PropertyBoughtResultSuccess {
-    let oldOwnerId: string | null | undefined = undefined;
-    if(!propertyIndex || !playerId) {
-      playerId = this.players[this.currentPlayerIndex].Id;
-      propertyIndex = this.players[this.currentPlayerIndex].Position;
-      oldOwnerId = null;
-    }
-    const newOwner = this.players.find(player => player.Id === playerId);
-    if(!newOwner) {
-      throw new Error('Player not found');
-    }
-    const property = this.board.cells.flat()[propertyIndex];
+    let resolvedPlayerId: string;
+    let resolvedPropertyIndex: number;
+    let resolvedPrice: number;
 
-    if (PropertyCell.isPropertyCell(property) === false) {
-      throw new Error('Current cell is not a property');
-    }
-
-    if(!price && oldOwnerId !== null) {
-      throw new Error('Price must be specified when buying from another player');
-    }
-    if(!price) {
-      price = property.object.price;
-    }
-    if(oldOwnerId !== null) {
-      oldOwnerId = property.object.owner;
-    }
-
-    if (property.object.owner === playerId) {
-      throw new Error('Property is already owned by the player');
-    }
-    if(newOwner.Money < price) {
-      throw new Error('Insufficient funds');
-    }
-
-    if (property.object.owner && property.object.owner !== playerId) {
-      // we have to sell property from previous owner
-      const prevOwner = this.players.find(player => player.Id === property.object.owner);
-      if(!prevOwner) {
-        throw new Error('Previous owner not found! CRITICAL ERROR');
-      }
-      prevOwner.changeMoney(price);
-      // player?.move
-      property.object.owner = null;
-    }
-
-    property.object.owner = newOwner.Id;
-    newOwner.changeMoney(-price);
-
-    // Clear event and return to active state if this was part of trading event
-    if (this.eventInProgress?.type === GamePlayerEventType.Trading) {
-      this.eventInProgress = null;
-      this.stateManager.clearWaiting();
-    }
-
-    return {propertyIndex, newOwnerId: newOwner.Id, success: true, price, oldOwnerId};
-  }
-
-  // drainAuctionResult removed — auction outcome is returned synchronously from auction methods
-
-  @RequireGameState(GameStateType.Active)
-  handleCardEvent(card: GameEvent, cardType: CardEventCellTypes): IEventResult[] {
-    const results: IEventResult[] = [];
-    results.push({cardDrawn: {cardType, card}});
-    switch(card.type) {
-      case EventType.BalanceChange:
-        this.players[this.CurrentPlayerIndex].changeMoney(card.amount);
-        break;
-      case EventType.SkipTurn:
-        this.players[this.CurrentPlayerIndex].skipTurn();
-        break;
-      case EventType.Move:
-        this.players[this.CurrentPlayerIndex].move(card.amount);
-        break;
-      case EventType.MovePlayer:
-        // TODO: set game to waiting for action to select player to move
-        break;
-      case EventType.MoveTo: {
-        const targetPosition = Board.getTargetPosition(card.to);
-        this.moveTo(this.players[this.CurrentPlayerIndex], targetPosition);
-        break;
-      }
-      case EventType.MoveToCenter:
-        this.stateManager.setWaiting(
-          GameStateType.WaitingForMoveToCenter,
-          [this.players[this.CurrentPlayerIndex].Id],
-        );
-        // TODO: set game to waiting for action to move to center or not
-        break;
-      case EventType.GetEvent:
-        switch(card.item) {
-          // Handle different items if needed
-          case EventItem.Mail:
-            results.push(...this.prepareCard('post'));
-            break;
-          case EventItem.Risk:
-            results.push(...this.prepareCard('risk'));
-            break;
-          case EventItem.Surprise:
-            results.push(...this.prepareCard('surprise'));
-            break;
-          case EventItem.TaxFree:
-            this.players[this.CurrentPlayerIndex].giveItem(ItemType.TaxFree);
-            results.push({itemReceived: ItemType.TaxFree});
-            break;
-          case EventItem.Security:
-            this.players[this.CurrentPlayerIndex].giveItem(ItemType.Security);
-            results.push({itemReceived: ItemType.Security});
-            break;
-          default:
-            throw new Error('Unknown event item!');
-        }
-        break;
-      case EventType.MoneyTransfer:
-        this.transferMoney(card.amount);
-        break;
-      case EventType.PropertyLoss:
-        this.loseProperty(card.grade);
-        break;
-      case EventType.TaxService: {
-        this.moveToTaxService();
-        break;
-      }
-
-      default:
-        throw new Error('Unknown event type!');
-    }
-
-    return results;
-  }
-
-  @RequireGameState(GameStateType.Active)
-  handleEvent(cell: EventCell): IEventResult[] {
-    const result: IEventResult[] = [];
-    console.log('handle event cell');
-    if(cell instanceof CardEventCell) {
-      result.push(...this.prepareCard(cell.type));
-    } else if(cell instanceof StaticEventCell) {
-      console.log('static event cell');
-      let staticEvent: IEventResult['staticEvent'];
-      switch(cell.type) {
-        case EventType.TaxService:
-          this.moveToTaxService();
-          staticEvent = {eventType: EventType.TaxService};
-          break;
-        case EventType.BalanceChange:
-          this.players[this.CurrentPlayerIndex].changeMoney(cell.amount ?? 0);
-          staticEvent = {eventType: EventType.BalanceChange, amount: cell.amount};
-          break;
-        case EventType.SkipTurn:
-          this.players[this.CurrentPlayerIndex].skipTurn();
-          staticEvent = {eventType: EventType.SkipTurn};
-          break;
-        default:
-          throw new Error('Unknown static event cell type');
-      }
-
-      result.push({ staticEvent });
-    } else if(cell instanceof InteractiveEventCell) {
-      // TODO: Set game state to waiting for player action?
-      switch(cell.type) {
-        case EventType.Raccito:
-        case EventType.MoveToCenter: break;
-        default:
-          throw new Error(`Unknown interactive event cell type: ${cell.type}`);
-      }
-      console.log('interactive event cell');
-      result.push({interactiveEvent: cell.type});
+    if (!playerId || propertyIndex === undefined || price === undefined) {
+      resolvedPlayerId = this.players[this.currentPlayerIndex].Id;
+      resolvedPropertyIndex = this.players[this.currentPlayerIndex].Position;
+      const cell = this.board.flatCells[resolvedPropertyIndex];
+      if (!PropertyCell.isPropertyCell(cell)) throw new Error('Current cell is not a property');
+      resolvedPrice = cell.object.price;
     } else {
-      throw new Error('Unknown event cell type');
+      resolvedPlayerId = playerId;
+      resolvedPropertyIndex = propertyIndex;
+      resolvedPrice = price;
     }
 
-    return result;
+    const effects = computeBuyProperty(
+      this.players, this.board.flatCells, resolvedPlayerId, resolvedPropertyIndex, resolvedPrice,
+    );
+    for (const e of effects) this.applyEffect(e);
+
+    const purchased = effects[0] as Extract<GameEffect, { type: 'PROPERTY_PURCHASED' }>;
+    return {
+      success: true,
+      propertyIndex: purchased.propertyIndex,
+      newOwnerId: purchased.buyerPlayerId,
+      price: purchased.price,
+      oldOwnerId: purchased.previousOwnerId,
+    };
   }
 
   @RequireGameState(GameStateType.Active)
-  @ValidateActivePlayer
-  handlePlayerMoved(playerId: string): IEventResult[] {
-    const results: IEventResult[] = [];
-    const position = this.players[this.CurrentPlayerIndex].Position;
-    const cell = this.board.flatCells[position];
-    if (PropertyCell.isPropertyCell(cell)) {
-      results.push(...this.handleStepOnProperty(playerId, cell));
-    } else if(cell instanceof EventCell) {
-      results.push(...this.handleEvent(cell));
-    } else {
-      console.log('nothing to do', cell.name);
-    }
-    console.log(`Player ${playerId} moved`);
-    return results;
-
-    // TODO
-    /**
-     * Possible cells:
-     * - properties
-     * -- owned -> nothing
-     * -- unowned -> if Gov - give 'G'
-     * -- opponent owned -> pay tax/racet
-     * - events -> doing...
-     */
-  }
-
-  @RequireGameState(GameStateType.Active)
-  @ValidateActivePlayer
-  handleStepOnProperty(playerId: Player['id'], cell: PropertyCell): IEventResult[] {
-    const results: IEventResult[] = [];
-
-    if (cell.object.owner && cell.object.owner !== playerId) {
-      // pay tax to the owner
-      const { tax } = cell.object;
-      this.players[this.CurrentPlayerIndex].changeMoney(-tax);
-      const owner = this.players.find(p => p.Id === cell.object.owner);
-      if(!owner) {
-        throw new Error('Owner not found');
-      }
-      owner.changeMoney(tax);
-      results.push({taxPaid: { amount: tax, toPlayerId: cell.object.owner }});
-    } else if(cell.object.owner === null) {
-      this.stateManager.setWaiting(GameStateType.WaitingForPropertyAction, [this.players[this.CurrentPlayerIndex].Id]);
-      // first buy offer for current player
-      const propertyIndex = this.board.flatCells.indexOf(cell);
-      const eventData: TradingEvent['eventData'] = {
-        playerIndices: [this.CurrentPlayerIndex],
-        price: cell.object.price,
-        propertyIndex,
-        currentBidderIndex: null,
-        passedPlayerIndices: [],
-      };
-      this.eventInProgress = {type: GamePlayerEventType.Trading, eventData};
-      results.push({trading: { eventData }});
-    }
-
-    if (GovBusiness.isGovBusiness(cell.object) &&
-      cell.object.owner === null) {
-      // Gov business - give 'G' to player
-      // TODO: define concept
-    }
-
-    return results;
-  }
-
-  @RequireGameState(GameStateType.Active)
-  loseProperty(grade: BusinessGrade.Enterprise | BusinessGrade.Office): IEventResult[] {
-    const results: IEventResult[] = [];
-    const validPropsToLose = this.board.flatCells
-      .filter((cell) => PropertyCell.isPropertyCell(cell))
-      .filter((cell) => cell.object.owner === this.players[this.CurrentPlayerIndex].Id)
-      .filter((cell) => Business.isBusiness(cell.object) && cell.object.grade === grade);
-    if (validPropsToLose.length === 0) {
-      console.log('No properties to lose for grade', grade);
-      results.push({propertyLost: {propertyIndex: null}});
-    } else {
-      const randomIndex = Math.floor(Math.random() * validPropsToLose.length);
-      const propertyToLose = validPropsToLose[randomIndex];
-      propertyToLose.object.owner = null;
-      results.push({propertyLost: {propertyIndex: this.board.flatCells.indexOf(propertyToLose)}});
-      console.log('Property lost:', propertyToLose);
-    }
-
-    return results;
+  loseProperty(grade: BusinessGrade.Enterprise | BusinessGrade.Office): GameEffect[] {
+    const currentPlayerId = this.players[this.currentPlayerIndex].Id;
+    const effects = computeLoseProperty(this.board.flatCells, currentPlayerId, grade);
+    for (const e of effects) this.applyEffect(e);
+    return effects;
   }
 
   @RequireGameState(GameStateType.WaitingForMoveToCenter)
   @ValidateActivePlayer
-  public moveToCenter(playerId: string, newPosition: number): IEventResult[] {
+  public moveToCenter(playerId: string, newPosition: number): GameEffect[] {
     const isPosition = newPosition >= Board.Cells[0].length && newPosition < Board.CellsCounter;
-    if(!isPosition) {
-      throw new Error('Invalid cell index for move to center');
-    }
-    const player = this.players.find(p => p.Id === playerId);
-    if(!player) {
-      throw new Error('Player not found');
-    }
-    this.moveTo(player, newPosition);
+    if (!isPosition) throw new Error('Invalid cell index for move to center');
+    if (!this.players.find(p => p.Id === playerId)) throw new Error('Player not found');
+
+    const effects = computeMoveToPosition(this.currentPlayerIndex, newPosition);
+    for (const e of effects) this.applyEffect(e);
     return [];
   }
 
@@ -537,68 +289,58 @@ export class Game extends IGame {
   @ValidateActivePlayer
   public nextTurn(playerId: string, diceCounter?: number): ITurnResult {
     const result: ITurnResult = {};
-    // TODO: add tax service special handling
 
     if (this.currentTurnState === Turn.Trading && diceCounter !== undefined) {
-      const diceResult: IDiceResult = {diceRoll: []};
-      let rollResult = 0; // Roll a 6-sided dice
-      // diceResult.diceRoll = [];
-
+      const diceRoll: number[] = [];
+      let rollResult = 0;
       for (let i = 0; i < diceCounter; i++) {
         const rolled = Math.floor(Math.random() * 6) + 1;
-        diceResult.diceRoll.push(rolled);
+        diceRoll.push(rolled);
         rollResult += rolled;
       }
 
-      console.log(`Player ${playerId} rolled a ${rollResult}`);
-
       // DEBUG:
-      diceResult.diceRoll = [1];
+      diceRoll.length = 0;
+      diceRoll.push(1);
       rollResult = 1;
-      this.players[this.currentPlayerIndex].move(rollResult);
-      diceResult.newPlayerPosition = this.players[this.currentPlayerIndex].Position;
 
+      const currentPos = this.players[this.currentPlayerIndex].Position;
+      const newPos = (currentPos + rollResult) % Board.CellsCounter;
+      const allEffects: GameEffect[] = [...computeMove(this.currentPlayerIndex, rollResult)];
+
+      const cell = this.board.flatCells[newPos];
+      if (PropertyCell.isPropertyCell(cell)) {
+        allEffects.push(...computePropertyStep(cell, playerId, this.currentPlayerIndex, newPos));
+      } else if (cell instanceof EventCell) {
+        allEffects.push(...computeEventCell(
+          cell, this.currentPlayerIndex, playerId, this.players.length, this.board.flatCells,
+        ));
+      } else {
+        console.log('nothing to do', cell.name);
+      }
+
+      for (const e of allEffects) this.applyEffect(e);
+
+      const diceResult: IDiceResult = { diceRoll, newPlayerPosition: newPos };
       const turnProgressData: RollTurnResult = {
         success: true,
-        data: {
-          diceResult,
-          currentPlayer: this.currentPlayerIndex,
-          turn: this.currentTurnState,
-        },
+        data: { diceResult, currentPlayer: this.currentPlayerIndex, turn: this.currentTurnState },
         message: 'Turn processed successfully',
       };
       result.turn_progress = [turnProgressData];
-      const eventResults = this.handlePlayerMoved(playerId);
-      result.event_result = [eventResults];
+      result.event_result = [allEffects];
 
-      // todo: add trade state if property not owned
     } else if (this.currentTurnState === Turn.Event) {
-      result.turn_finished = [{
-        success: true,
-        message: 'Turn finished successfully',
-      }];
+      result.turn_finished = [{ success: true, message: 'Turn finished successfully' }];
     } else {
       throw new Error('Invalid turn state or missing diceCounter');
     }
 
     this.currentTurnState = this.currentTurnIterator.next().value;
-    // check if turn is over
     if (this.currentTurnState === Turn.Trading) {
       this.currentPlayerIndex = (this.currentPlayerIndex + 1) % this.players.length;
     }
+
     return result;
-  }
-
-  @RequireGameState(GameStateType.Active)
-  prepareCard(type: CardEventCellTypes): IEventResult[] {
-    const deck = getCardsByType(type);
-    const cardKeys: (keyof Cards)[] = Object.keys(deck);
-    const randomKey: keyof Cards = cardKeys[Math.floor(Math.random() * cardKeys.length)];
-    const card = deck[randomKey as keyof typeof deck];
-
-    // REMOVE: reminder - handle move to center/player events!
-    // todo: check if type of randomKey is valid
-    // result.push({cardDrawn: {cardKey: randomKey, card}});
-    return this.handleCardEvent(card, type);
   }
 }
