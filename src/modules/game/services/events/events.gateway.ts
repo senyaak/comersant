@@ -92,19 +92,19 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
         finished,
         invalidBid,
       } = this.gamesService.getGame(gameId).auctionPlaceBid(client.id, payload.amount);
-      // Emit immediate update
-      this.server.to(`game-${gameId}`).emit('auction_updated', eventData);
       // If bidder received a failure, notify only them
       if (invalidBid) {
         client.emit('bid_failed', invalidBid);
       }
-      // Publish auction result if finished
+      // Publish auction result if finished, otherwise emit state update
       if (finished) {
         if (finished.success) {
           this.server.to(`game-${gameId}`).emit('property_bought', finished as PropertyBoughtResultSuccess);
         } else {
           this.server.to(`game-${gameId}`).emit('auction_failed', { propertyIndex: finished.propertyIndex });
         }
+      } else {
+        this.server.to(`game-${gameId}`).emit('auction_updated', eventData);
       }
     } catch (error) {
       console.error('Error placing bid:', error);
@@ -153,14 +153,15 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     try {
       // TODO: check incorrect active state/event call
       const { eventData, finished } = this.gamesService.getGame(gameId).auctionPass(client.id);
-      this.server.to(`game-${gameId}`).emit('auction_updated', eventData);
-      // Publish auction result if finished
+      // Publish auction result if finished, otherwise emit state update
       if (finished) {
         if (finished.success) {
           this.server.to(`game-${gameId}`).emit('property_bought', finished as PropertyBoughtResultSuccess);
         } else {
           this.server.to(`game-${gameId}`).emit('auction_failed', { propertyIndex: finished.propertyIndex });
         }
+      } else {
+        this.server.to(`game-${gameId}`).emit('auction_updated', eventData);
       }
     } catch (error) {
       console.error('Error refusing property:', error);
