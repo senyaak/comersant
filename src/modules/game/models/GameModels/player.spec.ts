@@ -86,9 +86,11 @@ describe('Player constructor', () => {
     expect(() => new Player({ totally: 'wrong' } as never)).toThrow('Invalid Player constructor argument');
   });
 
-  it('known gap: restoring from IRawPlayer drops freezeTurns / raccito / raccitoCounter', () => {
+  it('known gap: restoring from IRawPlayer silently drops raccito / raccitoCounter', () => {
     // If this test starts failing it is almost certainly because the restore path was fixed —
     // in that case, delete this guard and assert the new restored state instead.
+    // Note: freezeTurns is not part of IRawPlayer at all, so it cannot be restored
+    // through this constructor — another gap worth tracking separately.
     const raw: IRawPlayer = {
       id: 'id3',
       color: PlayerColor.purple,
@@ -99,7 +101,6 @@ describe('Player constructor', () => {
       raccitoCounter: 42,
     };
     const p = new Player(raw);
-    // Not restored — raccito flag and counter silently default
     expect(p.Raccito).toBe(false);
     expect(p.RaccitoCounter).toBe(0);
   });

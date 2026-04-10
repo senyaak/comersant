@@ -243,17 +243,22 @@ describe('Game.nextTurn integration (real applyEffect)', () => {
     const propIdx = firstPropertyIndex(game);
     const cell = game.board.flatCells[propIdx] as PropertyCell;
     cell.object.owner = null;
+    // Pin the listed price to a known literal so the eventData assertion does not
+    // re-read cell.object.price from the same source the implementation uses.
+    const LISTED_PRICE = 12_345;
+    Object.defineProperty(cell.object, 'price', { value: LISTED_PRICE, configurable: true });
 
     // Position the current player so dice=1 lands them exactly on the property cell
     game.players[0].move(propIdx - game.players[0].Position - 1);
 
     game.nextTurn('p1', 1);
 
+    expect(game.players[0].Position).toBe(propIdx); // actually moved onto the property
     expect(game.stateManager.state).toBe(GameStateType.WaitingForPropertyAction);
     expect(game.EventInProgress).not.toBeNull();
     expect(game.EventInProgress?.eventData).toEqual({
       playerIndices: [0],
-      price: cell.object.price,
+      price: LISTED_PRICE,
       propertyIndex: propIdx,
       currentBidderIndex: null,
       passedPlayerIndices: [],
@@ -269,6 +274,7 @@ describe('Game.nextTurn integration (real applyEffect)', () => {
 
     game.nextTurn('p1', 1);
 
+    expect(game.players[0].Position).toBe(propIdx); // actually moved — not a silent no-op
     expect(game.stateManager.state).toBe(GameStateType.Active);
     expect(game.EventInProgress).toBeNull();
   });
@@ -302,12 +308,17 @@ describe('Game.buyProperty', () => {
   let game: Game;
   let propIdx: number;
   let cell: PropertyCell;
+  // Known listed price we force onto the cell so assertions use a concrete literal
+  // instead of re-reading cell.object.price from the same source the implementation reads.
+  const LISTED_PRICE = 99_999;
 
   beforeEach(() => {
     game = buildGame();
     propIdx = firstPropertyIndex(game);
     cell = game.board.flatCells[propIdx] as PropertyCell;
     cell.object.owner = null;
+    // Property.price is declared readonly — override via defineProperty for deterministic tests.
+    Object.defineProperty(cell.object, 'price', { value: LISTED_PRICE, configurable: true });
     // Move the current player to the property cell so the no-arg overload picks it up
     game.players[0].move(propIdx);
     // Open the trading event so the buyProperty path that clears it can be exercised
@@ -316,7 +327,7 @@ describe('Game.buyProperty', () => {
       type: 0, // GamePlayerEventType.Trading
       eventData: {
         playerIndices: [0],
-        price: cell.object.price,
+        price: LISTED_PRICE,
         propertyIndex: propIdx,
         currentBidderIndex: null,
         passedPlayerIndices: [],
@@ -330,30 +341,42 @@ describe('Game.buyProperty', () => {
       success: true,
       propertyIndex: propIdx,
       newOwnerId: 'p1',
-      price: cell.object.price,
+      price: LISTED_PRICE,
       oldOwnerId: null,
     });
     expect(cell.object.owner).toBe('p1');
   });
 
-  it('explicit overload buys for an arbitrary player at the given price', () => {
-    const result = game.buyProperty('p2', propIdx, cell.object.price);
-    expect(result.newOwnerId).toBe('p2');
+  it('explicit overload buys for an arbitrary player at the given custom price', () => {
+    // Use a price different from the listed one so the test verifies the explicit
+    // overload actually honors its argument rather than silently falling back to the cell.
+    const customPrice = 42_000;
+    const result = game.buyProperty('p2', propIdx, customPrice);
+    expect(result).toEqual({
+      success: true,
+      propertyIndex: propIdx,
+      newOwnerId: 'p2',
+      price: customPrice,
+      oldOwnerId: null,
+    });
     expect(cell.object.owner).toBe('p2');
   });
 
-  it('decrements the buyer money and assigns ownership of the cell', () => {
+  it('decrements the buyer money by exactly the listed price on a no-arg buy', () => {
     const before = game.players[0].Money;
     game.buyProperty();
-    expect(game.players[0].Money).toBe(before - cell.object.price);
+    expect(game.players[0].Money).toBe(before - LISTED_PRICE);
     expect(cell.object.owner).toBe('p1');
   });
 
-  it('refunds the previous owner when re-purchasing an owned property', () => {
+  it('refunds the previous owner by the exact bid amount when re-purchasing', () => {
     cell.object.owner = 'p2';
+    const customBid = 50_000;
+    const p1Before = game.players[0].Money;
     const p2Before = game.players[1].Money;
-    game.buyProperty('p1', propIdx, cell.object.price);
-    expect(game.players[1].Money).toBe(p2Before + cell.object.price);
+    game.buyProperty('p1', propIdx, customBid);
+    expect(game.players[1].Money).toBe(p2Before + customBid);
+    expect(game.players[0].Money).toBe(p1Before - customBid);
   });
 
   it('clears any in-progress trading event after a successful purchase', () => {

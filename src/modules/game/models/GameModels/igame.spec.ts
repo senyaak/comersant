@@ -48,9 +48,9 @@ describe('IGame default constructor', () => {
     expect(game.CurrentPlayerIndex).toBe(0);
   });
 
-  it('creates an empty board', () => {
+  it('creates a populated Board instance with a Start cell at index 0', () => {
     expect(game.board).toBeInstanceOf(Board);
-    expect(game.board.flatCells.length).toBeGreaterThan(0);
+    expect(game.board.flatCells[0].name).toBe('Start');
   });
 
   it('EventInProgress returns null initially', () => {
@@ -68,10 +68,12 @@ describe('IGame restoring constructor', () => {
     expect(game.CurrentTurnState).toBe(Turn.Trading);
   });
 
-  it('rebuilds the board from the raw game payload', () => {
-    const game = new IGame(buildRawGame());
+  it('rebuilds the board as a fresh Board instance (not sharing the raw payload reference)', () => {
+    const raw = buildRawGame();
+    const game = new IGame(raw);
     expect(game.board).toBeInstanceOf(Board);
-    expect(game.board.flatCells.length).toBeGreaterThan(0);
+    expect(game.board).not.toBe(raw.board); // new instance via restoreCells
+    expect(game.board.flatCells[0].name).toBe('Start');
   });
 
   it('restores eventInProgress when the snapshot has one', () => {
