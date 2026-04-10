@@ -44,3 +44,40 @@ describe('Player.changeMoney elimination', () => {
     expect(b).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('Player constructor', () => {
+  it.todo('creates a player from (id, color, name) tuple with default money and position');
+  it.todo('restores a player from an IRawPlayer object (id, color, name, money, position)');
+  it.todo('throws on invalid constructor arguments');
+});
+
+describe('Player.move', () => {
+  it.todo('advances position by the given step count');
+  it.todo('wraps position around Board.CellsCounter when crossing the start');
+  it.todo('decrements raccitoCounter by step count while raccito is active');
+  it.todo('throws and decrements freezeTurns when the player is frozen');
+  it.todo('does not throw on the next move after freezeTurns reaches zero');
+});
+
+describe('Player.moveTo', () => {
+  it.todo('moves the player to the position resolved from the target cell name');
+});
+
+describe('Player.skipTurn', () => {
+  it.todo('increments the freezeTurns counter');
+  it.todo('stacks multiple skipTurn calls so each future move is blocked once');
+});
+
+describe('Player raccito', () => {
+  it.todo('setRaccito enables the flag and seeds the counter to two full board laps');
+  it.todo('removeRaccito throws while the counter is still positive');
+  it.todo('removeRaccito clears the flag once the counter has been drained by moves');
+});
+
+describe('Player.giveItem', () => {
+  it.todo('appends an item to the inventory');
+});
+
+describe('Player.Id setter', () => {
+  it.todo('updates the id (used by reconnect flow via IGame.updatePlayerIdByName)');
+});
