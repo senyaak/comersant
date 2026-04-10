@@ -1,3 +1,4 @@
+import { InvalidGameStateError, NotActivePlayerError } from '../errors';
 import { GameStateType, StateManager } from '../state-manager';
 import { RequireGameState, ValidateActivePlayer } from './validators';
 
@@ -37,13 +38,19 @@ describe('@ValidateActivePlayer', () => {
     expect(original).toHaveBeenCalledWith('p1');
   });
 
-  it('throws when the supplied player id is not the active one', () => {
+  it('throws NotActivePlayerError carrying the offending player id', () => {
     const original = jest.fn();
     const wrapped = wrapValidateActivePlayer(original);
 
     const fakeGame = { isPlayerActive: () => false };
 
-    expect(() => wrapped.call(fakeGame as never, 'p2')).toThrow(/not player p2 turn/);
+    expect(() => wrapped.call(fakeGame as never, 'p2')).toThrow(NotActivePlayerError);
+    try {
+      wrapped.call(fakeGame as never, 'p2');
+    } catch (e) {
+      expect(e).toBeInstanceOf(NotActivePlayerError);
+      expect((e as NotActivePlayerError).playerId).toBe('p2');
+    }
     expect(original).not.toHaveBeenCalled();
   });
 
@@ -70,23 +77,27 @@ describe('@RequireGameState', () => {
     expect(original).toHaveBeenCalledWith('arg');
   });
 
-  it('throws when stateManager is in any other state', () => {
+  it('throws InvalidGameStateError when stateManager is in any other state', () => {
     const original = jest.fn();
     const wrapped = wrapRequireGameState(GameStateType.WaitingForPropertyAction, original);
-
     const stateManager = new StateManager();
 
-    expect(() => wrapped.call({ stateManager } as never)).toThrow();
+    expect(() => wrapped.call({ stateManager } as never)).toThrow(InvalidGameStateError);
     expect(original).not.toHaveBeenCalled();
   });
 
-  it('error message names both the required and the actual state', () => {
+  it('InvalidGameStateError carries both the required and the actual state', () => {
     const wrapped = wrapRequireGameState(GameStateType.WaitingForTrade, jest.fn());
     const stateManager = new StateManager();
 
-    expect(() => wrapped.call({ stateManager } as never)).toThrow(
-      /Required: waiting_trade.*Current: active/,
-    );
+    try {
+      wrapped.call({ stateManager } as never);
+      fail('expected InvalidGameStateError to be thrown');
+    } catch (e) {
+      expect(e).toBeInstanceOf(InvalidGameStateError);
+      expect((e as InvalidGameStateError).requiredState).toBe(GameStateType.WaitingForTrade);
+      expect((e as InvalidGameStateError).currentState).toBe(GameStateType.Active);
+    }
   });
 
   it('preserves the return value of the original method', () => {
@@ -143,7 +154,7 @@ describe('@RequireGameState + @ValidateActivePlayer composition', () => {
     expect(original).toHaveBeenCalledWith('p1');
   });
 
-  it('state check runs first: throws on wrong state even if player would be active', () => {
+  it('state check runs first: throws InvalidGameStateError even if player would be active', () => {
     const original = jest.fn();
     const wrapped = wrapBoth(GameStateType.WaitingForTrade, original);
 
@@ -151,11 +162,11 @@ describe('@RequireGameState + @ValidateActivePlayer composition', () => {
       stateManager: new StateManager(),
       isPlayerActive: () => true,
     };
-    expect(() => wrapped.call(context as never, 'p1')).toThrow(/Required: waiting_trade/);
+    expect(() => wrapped.call(context as never, 'p1')).toThrow(InvalidGameStateError);
     expect(original).not.toHaveBeenCalled();
   });
 
-  it('throws on wrong player when state is valid', () => {
+  it('throws NotActivePlayerError when state is valid but player is wrong', () => {
     const original = jest.fn();
     const wrapped = wrapBoth(GameStateType.Active, original);
 
@@ -163,7 +174,7 @@ describe('@RequireGameState + @ValidateActivePlayer composition', () => {
       stateManager: new StateManager(),
       isPlayerActive: () => false,
     };
-    expect(() => wrapped.call(context as never, 'wrong')).toThrow(/wrong turn/);
+    expect(() => wrapped.call(context as never, 'wrong')).toThrow(NotActivePlayerError);
     expect(original).not.toHaveBeenCalled();
   });
 });

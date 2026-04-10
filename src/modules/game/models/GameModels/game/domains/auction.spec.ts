@@ -1,3 +1,8 @@
+import {
+  AuctionNotStartedError,
+  NotInAuctionError,
+  PlayerAlreadyPassedError,
+} from '../../errors';
 import { TradingEvent } from '../../gamePlayerEvent';
 import { computeAuctionBid, computeAuctionPass } from './auction';
 
@@ -33,37 +38,37 @@ describe('computeAuctionPass', () => {
     ]);
   });
 
-  it('throws when the player is not part of eventData.playerIndices', () => {
+  it('throws NotInAuctionError when the player is not part of eventData.playerIndices', () => {
     const data = baseEventData({ playerIndices: [0, 1] });
-    expect(() => computeAuctionPass(data, 2, 3)).toThrow('cannot participate');
+    expect(() => computeAuctionPass(data, 2, 3)).toThrow(NotInAuctionError);
   });
 
-  it('throws when the player has already passed in this auction', () => {
+  it('throws PlayerAlreadyPassedError when the player has already passed', () => {
     const data = baseEventData({ passedPlayerIndices: [1] });
-    expect(() => computeAuctionPass(data, 1, 3)).toThrow('already passed');
+    expect(() => computeAuctionPass(data, 1, 3)).toThrow(PlayerAlreadyPassedError);
   });
 
   it('does NOT trigger first-buy refusal when the sole invited player is different from the passer', () => {
     // playerIndices = [1] means player 1 was offered the property, but player 0 is trying to pass
     const data = baseEventData({ playerIndices: [1] });
-    expect(() => computeAuctionPass(data, 0, 3)).toThrow('cannot participate');
+    expect(() => computeAuctionPass(data, 0, 3)).toThrow(NotInAuctionError);
   });
 });
 
 describe('computeAuctionBid', () => {
-  it('throws when called before the auction is opened to all (still single playerIndices)', () => {
+  it('throws AuctionNotStartedError when called before the auction is opened to all', () => {
     const data = baseEventData({ playerIndices: [0] });
-    expect(() => computeAuctionBid(data, 0, 200, 1000)).toThrow('Auction not started');
+    expect(() => computeAuctionBid(data, 0, 200, 1000)).toThrow(AuctionNotStartedError);
   });
 
-  it('throws when the bidder has already passed', () => {
+  it('throws PlayerAlreadyPassedError when the bidder has already passed', () => {
     const data = baseEventData({ passedPlayerIndices: [1] });
-    expect(() => computeAuctionBid(data, 1, 200, 1000)).toThrow('already passed');
+    expect(() => computeAuctionBid(data, 1, 200, 1000)).toThrow(PlayerAlreadyPassedError);
   });
 
-  it('throws when the bidder is not in eventData.playerIndices', () => {
+  it('throws NotInAuctionError when the bidder is not in eventData.playerIndices', () => {
     const data = baseEventData({ playerIndices: [0, 1] });
-    expect(() => computeAuctionBid(data, 2, 200, 1000)).toThrow('cannot participate');
+    expect(() => computeAuctionBid(data, 2, 200, 1000)).toThrow(NotInAuctionError);
   });
 
   it('returns AUCTION_BID_INVALID with a price reason when bid is not strictly above current price', () => {

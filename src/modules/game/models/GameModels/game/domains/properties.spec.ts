@@ -1,5 +1,11 @@
 import { Board } from '../../../FieldModels/board';
 import { PropertyCell } from '../../../FieldModels/cells';
+import {
+  InsufficientFundsError,
+  NotAPropertyCellError,
+  PlayerNotFoundError,
+  PropertyAlreadyOwnedError,
+} from '../../errors';
 import { AreaSite, Business, BusinessGrade } from '../../properties';
 import { computeBuyProperty, computeLoseProperty, computePropertyStep } from './properties';
 
@@ -64,26 +70,26 @@ describe('computeBuyProperty', () => {
     cell.object.owner = null;
   });
 
-  it('throws when the buyer is not in the players list', () => {
+  it('throws PlayerNotFoundError when the buyer is not in the players list', () => {
     expect(() => computeBuyProperty(players, board.flatCells, 'unknown', index, 100))
-      .toThrow('Player not found');
+      .toThrow(PlayerNotFoundError);
   });
 
-  it('throws when the resolved cell is not a PropertyCell', () => {
+  it('throws NotAPropertyCellError when the resolved cell is not a PropertyCell', () => {
     const nonPropertyIndex = board.flatCells.findIndex(c => !PropertyCell.isPropertyCell(c));
     expect(() => computeBuyProperty(players, board.flatCells, 'p1', nonPropertyIndex, 100))
-      .toThrow('Current cell is not a property');
+      .toThrow(NotAPropertyCellError);
   });
 
-  it('throws when the buyer already owns the property', () => {
+  it('throws PropertyAlreadyOwnedError when the buyer already owns the property', () => {
     cell.object.owner = 'p1';
     expect(() => computeBuyProperty(players, board.flatCells, 'p1', index, cell.object.price))
-      .toThrow('already owned');
+      .toThrow(PropertyAlreadyOwnedError);
   });
 
-  it('throws when the buyer has insufficient funds', () => {
+  it('throws InsufficientFundsError when the buyer cannot afford the price', () => {
     expect(() => computeBuyProperty(players, board.flatCells, 'p2', index, cell.object.price))
-      .toThrow('Insufficient funds');
+      .toThrow(InsufficientFundsError);
   });
 
   it('returns PROPERTY_PURCHASED with the passed-in price (not the cell listing) and previousOwnerId=null', () => {

@@ -1,3 +1,4 @@
+import { InvalidGameStateError, NotActivePlayerError } from '../errors';
 import { Game } from '../game';
 import { GameStateType } from '../state-manager';
 
@@ -14,7 +15,7 @@ export function ValidateActivePlayer<T extends unknown[], R>(
 
   descriptor.value = function(this: Game, playerId: string, ...args: T): R {
     if (!this.isPlayerActive(playerId)) {
-      throw new Error(`It's not player ${playerId} turn`);
+      throw new NotActivePlayerError(playerId);
     }
     return originalMethod?.apply(this, [playerId, ...args]);
   };
@@ -33,10 +34,7 @@ export function RequireGameState(requiredState: GameStateType) {
 
     descriptor.value = function(this: Game, ...args: unknown[]): unknown {
       if (!this.stateManager.isStateValid(requiredState)) {
-        const currentState = this.stateManager.state;
-        throw new Error(
-          `Action not allowed in current game state. Required: ${requiredState}, Current: ${currentState}`,
-        );
+        throw new InvalidGameStateError(requiredState, this.stateManager.state);
       }
       return originalMethod.apply(this, args);
     };

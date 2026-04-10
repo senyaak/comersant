@@ -1,3 +1,8 @@
+import {
+  AuctionNotStartedError,
+  NotInAuctionError,
+  PlayerAlreadyPassedError,
+} from '../../errors';
 import { TradingEvent } from '../../gamePlayerEvent';
 
 export type AuctionEffect =
@@ -24,10 +29,10 @@ export function computeAuctionPass(
   }
 
   if (!eventData.playerIndices.includes(playerIndex)) {
-    throw new Error('Player cannot participate in this auction');
+    throw new NotInAuctionError(playerIndex);
   }
   if (eventData.passedPlayerIndices.includes(playerIndex)) {
-    throw new Error('Player already passed');
+    throw new PlayerAlreadyPassedError(playerIndex);
   }
 
   const newPassed = [...eventData.passedPlayerIndices, playerIndex];
@@ -50,13 +55,13 @@ export function computeAuctionBid(
   playerMoney: number,
 ): AuctionEffect[] {
   if (eventData.playerIndices.length === 1) {
-    throw new Error('Auction not started yet. Use buyProperty or refuseFirstBuyOffer first');
+    throw new AuctionNotStartedError();
   }
   if (eventData.passedPlayerIndices.includes(playerIndex)) {
-    throw new Error('Player already passed on this auction');
+    throw new PlayerAlreadyPassedError(playerIndex);
   }
   if (!eventData.playerIndices.includes(playerIndex)) {
-    throw new Error('Player cannot participate in this auction');
+    throw new NotInAuctionError(playerIndex);
   }
   if (bidAmount <= eventData.price) {
     return [

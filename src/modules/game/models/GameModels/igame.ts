@@ -2,6 +2,7 @@ import type { IRawGame } from './types';
 
 import { Board } from '../FieldModels/board';
 import { PropertyCell } from '../FieldModels/cells';
+import { PlayerNotFoundError } from './errors';
 import { Player, PlayerColor } from './player';
 import { Turn, turnIterator } from './turn';
 
@@ -88,7 +89,7 @@ export class IGame {
     }
 
     if (!player) {
-      throw new Error(`Player with name ${name} not found`);
+      throw new PlayerNotFoundError(name);
     }
     player.Id = newId;
   }

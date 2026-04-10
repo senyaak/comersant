@@ -10,6 +10,15 @@ import {
   RollTurnResult,
   TradingActionResult,
 } from '../types';
+import {
+  InsufficientPlayersError,
+  InvalidCellIndexError,
+  InvalidTurnStateError,
+  NoTradingEventError,
+  NotAPropertyCellError,
+  PlayerNotFoundError,
+  UnhandledEffectError,
+} from './errors';
 import { computeAuctionBid, computeAuctionPass } from './game/domains/auction';
 import { computeEventCell } from './game/domains/cards';
 import { computeMove, computeMoveToPosition } from './game/domains/movement';
@@ -41,7 +50,7 @@ export class Game extends IGame {
   constructor(players: { id: string, name: string }[]) {
     super();
     if (players.length < 2) {
-      throw new Error('At least two players are required to start a game');
+      throw new InsufficientPlayersError();
     }
     this.id = randomBytes(16).toString('hex');
     this.players = players.map((player, counter) => {
@@ -183,7 +192,7 @@ export class Game extends IGame {
 
       default: {
         const _exhaustive: never = effect;
-        throw new Error(`Unhandled effect type: ${(_exhaustive as GameEffect).type}`);
+        throw new UnhandledEffectError((_exhaustive as GameEffect).type);
       }
     }
   }
@@ -202,10 +211,10 @@ export class Game extends IGame {
   @RequireGameState(GameStateType.WaitingForPropertyAction)
   public auctionPass(playerId: string): TradingActionResult {
     if (!this.eventInProgress || this.eventInProgress.type !== GamePlayerEventType.Trading) {
-      throw new Error('No trading event in progress');
+      throw new NoTradingEventError();
     }
     const playerIndex = this.players.findIndex(p => p.Id === playerId);
-    if (playerIndex === -1) throw new Error('Player not found');
+    if (playerIndex === -1) throw new PlayerNotFoundError(playerId);
 
     const prevEventData = { ...this.eventInProgress.eventData };
     const effects = computeAuctionPass(
@@ -226,10 +235,10 @@ export class Game extends IGame {
   @RequireGameState(GameStateType.WaitingForPropertyAction)
   public auctionPlaceBid(playerId: string, bidAmount: number): TradingActionResult {
     if (!this.eventInProgress || this.eventInProgress.type !== GamePlayerEventType.Trading) {
-      throw new Error('No trading event in progress');
+      throw new NoTradingEventError();
     }
     const playerIndex = this.players.findIndex(p => p.Id === playerId);
-    if (playerIndex === -1) throw new Error('Player not found');
+    if (playerIndex === -1) throw new PlayerNotFoundError(playerId);
 
     const effects = computeAuctionBid(
       this.eventInProgress.eventData, playerIndex, bidAmount, this.players[playerIndex].Money,
@@ -262,7 +271,7 @@ export class Game extends IGame {
       resolvedPlayerId = this.players[this.currentPlayerIndex].Id;
       resolvedPropertyIndex = this.players[this.currentPlayerIndex].Position;
       const cell = this.board.flatCells[resolvedPropertyIndex];
-      if (!PropertyCell.isPropertyCell(cell)) throw new Error('Current cell is not a property');
+      if (!PropertyCell.isPropertyCell(cell)) throw new NotAPropertyCellError(resolvedPropertyIndex);
       resolvedPrice = cell.object.price;
     } else {
       resolvedPlayerId = playerId;
@@ -297,8 +306,8 @@ export class Game extends IGame {
   @ValidateActivePlayer
   public moveToCenter(playerId: string, newPosition: number): GameEffect[] {
     const isPosition = newPosition >= Board.Cells[0].length && newPosition < Board.CellsCounter;
-    if (!isPosition) throw new Error('Invalid cell index for move to center');
-    if (!this.players.find(p => p.Id === playerId)) throw new Error('Player not found');
+    if (!isPosition) throw new InvalidCellIndexError(newPosition);
+    if (!this.players.find(p => p.Id === playerId)) throw new PlayerNotFoundError(playerId);
 
     const effects = computeMoveToPosition(this.currentPlayerIndex, newPosition);
     for (const e of effects) this.applyEffect(e);
@@ -356,7 +365,7 @@ export class Game extends IGame {
     } else if (this.currentTurnState === Turn.Event) {
       result.turn_finished = [{ success: true, message: 'Turn finished successfully' }];
     } else {
-      throw new Error('Invalid turn state or missing diceCounter');
+      throw new InvalidTurnStateError();
     }
 
     const currentWasEliminated = this.players[this.currentPlayerIndex].Eliminated;

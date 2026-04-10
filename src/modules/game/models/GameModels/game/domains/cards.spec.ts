@@ -10,6 +10,12 @@ import {
   StaticEventCell,
   TaxServiceCell,
 } from '../../../FieldModels/cells';
+import {
+  UnknownEventCellTypeError,
+  UnknownEventItemError,
+  UnknownEventTypeError,
+  UnknownStaticEventCellTypeError,
+} from '../../errors';
 import { ItemType } from '../../items';
 import { Business, BusinessGrade } from '../../properties';
 import {
@@ -185,23 +191,26 @@ describe('computeCardEvent — GetEvent variants', () => {
     ]);
   });
 
-  it('throws on an unknown EventItem', () => {
+  it('throws UnknownEventItemError on an unknown EventItem', () => {
     const card = { msg: 'x', type: EventType.GetEvent, item: 999 } as unknown as GameEvent;
-    expect(() => computeCardEvent(card, 'post', 0, 'p1', 3, flatCells())).toThrow('Unknown event item');
+    expect(() => computeCardEvent(card, 'post', 0, 'p1', 3, flatCells()))
+      .toThrow(UnknownEventItemError);
   });
 });
 
 describe('computeCardEvent — error paths', () => {
-  it('throws on an unknown EventType', () => {
+  it('throws UnknownEventTypeError on an unknown EventType', () => {
     const card = { msg: 'x', type: 9999 } as unknown as GameEvent;
-    expect(() => computeCardEvent(card, 'post', 0, 'p1', 3, flatCells())).toThrow('Unknown event type');
+    expect(() => computeCardEvent(card, 'post', 0, 'p1', 3, flatCells()))
+      .toThrow(UnknownEventTypeError);
   });
 
-  it('throws on EventType.Raccito — the enum value is declared but not handled in the switch', () => {
+  it('throws UnknownEventTypeError on EventType.Raccito — enum value is declared but not handled', () => {
     // Regression guard: if Raccito support is implemented later, this test should be updated
     // to assert the new behavior rather than removed silently.
     const card = { msg: 'x', type: EventType.Raccito } as unknown as GameEvent;
-    expect(() => computeCardEvent(card, 'post', 0, 'p1', 3, flatCells())).toThrow('Unknown event type');
+    expect(() => computeCardEvent(card, 'post', 0, 'p1', 3, flatCells()))
+      .toThrow(UnknownEventTypeError);
   });
 });
 
@@ -288,14 +297,16 @@ describe('computeEventCell', () => {
     ]);
   });
 
-  it('throws on an unknown StaticEventCell type', () => {
+  it('throws UnknownStaticEventCellTypeError on an unknown StaticEventCell type', () => {
     const cell = new StaticEventCell(EventType.Move);
-    expect(() => computeEventCell(cell, 0, 'p1', 3, flatCells())).toThrow('Unknown static event cell type');
+    expect(() => computeEventCell(cell, 0, 'p1', 3, flatCells()))
+      .toThrow(UnknownStaticEventCellTypeError);
   });
 
-  it('throws on a cell that is none of the known EventCell subclasses', () => {
+  it('throws UnknownEventCellTypeError on a cell that is none of the known EventCell subclasses', () => {
     const property = flatCells().find(PropertyCell.isPropertyCell)!;
-    expect(() => computeEventCell(property as never, 0, 'p1', 3, flatCells())).toThrow('Unknown event cell type');
+    expect(() => computeEventCell(property as never, 0, 'p1', 3, flatCells()))
+      .toThrow(UnknownEventCellTypeError);
   });
 });
 

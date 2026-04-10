@@ -1,4 +1,10 @@
 import { Cell, PropertyCell } from '../../../FieldModels/cells';
+import {
+  InsufficientFundsError,
+  NotAPropertyCellError,
+  PlayerNotFoundError,
+  PropertyAlreadyOwnedError,
+} from '../../errors';
 import { Business, BusinessGrade } from '../../properties';
 
 export type PropertyEffect =
@@ -46,12 +52,12 @@ export function computeBuyProperty(
   price: number,
 ): PropertyEffect[] {
   const buyer = players.find(p => p.Id === playerId);
-  if (!buyer) throw new Error('Player not found');
+  if (!buyer) throw new PlayerNotFoundError(playerId);
 
   const cell = flatCells[propertyIndex];
-  if (!PropertyCell.isPropertyCell(cell)) throw new Error('Current cell is not a property');
-  if (cell.object.owner === playerId) throw new Error('Property is already owned by the player');
-  if (buyer.Money < price) throw new Error('Insufficient funds');
+  if (!PropertyCell.isPropertyCell(cell)) throw new NotAPropertyCellError(propertyIndex);
+  if (cell.object.owner === playerId) throw new PropertyAlreadyOwnedError(playerId);
+  if (buyer.Money < price) throw new InsufficientFundsError();
 
   return [{
     type: 'PROPERTY_PURCHASED',

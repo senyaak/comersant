@@ -8,6 +8,12 @@ import {
   InteractiveEventCell,
   StaticEventCell,
 } from '../../../FieldModels/cells';
+import {
+  UnknownEventCellTypeError,
+  UnknownEventItemError,
+  UnknownEventTypeError,
+  UnknownStaticEventCellTypeError,
+} from '../../errors';
 import { ItemType } from '../../items';
 import { MovementEffect, computeMove, computeMoveToTaxService, computeMoveToCellName } from './movement';
 import { PropertyEffect, computeLoseProperty } from './properties';
@@ -79,7 +85,7 @@ export function computeCardEvent(
           effects.push({ type: 'ITEM_RECEIVED', playerIndex: currentPlayerIndex, item: ItemType.Security });
           break;
         default:
-          throw new Error('Unknown event item!');
+          throw new UnknownEventItemError(card.item);
       }
       break;
 
@@ -101,7 +107,7 @@ export function computeCardEvent(
       break;
 
     default:
-      throw new Error('Unknown event type!');
+      throw new UnknownEventTypeError((card as GameEvent).type);
   }
 
   return effects;
@@ -137,7 +143,7 @@ export function computeEventCell(
   if (cell instanceof InteractiveEventCell) {
     return [{ type: 'INTERACTIVE_EVENT', eventType: cell.type }];
   }
-  throw new Error('Unknown event cell type');
+  throw new UnknownEventCellTypeError();
 }
 
 function computeStaticEventCell(
@@ -160,7 +166,7 @@ function computeStaticEventCell(
       effects.push({ type: 'TURN_SKIPPED', playerIndex: currentPlayerIndex });
       break;
     default:
-      throw new Error('Unknown static event cell type');
+      throw new UnknownStaticEventCellTypeError(cell.type);
   }
   return effects;
 }

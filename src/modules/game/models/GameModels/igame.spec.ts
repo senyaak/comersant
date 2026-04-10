@@ -1,5 +1,6 @@
 import { Board } from '../FieldModels/board';
 import { PropertyCell } from '../FieldModels/cells';
+import { PlayerNotFoundError } from './errors';
 import { IGame } from './igame';
 import { IRawPlayer, PlayerColor } from './player';
 import { Turn, turnIterator } from './turn';
@@ -130,8 +131,13 @@ describe('IGame.updatePlayerIdByName', () => {
     expect(cells[1].object.owner).toBe('new-id');
   });
 
-  it('throws when the name is not present in the player list', () => {
-    expect(() => game.updatePlayerIdByName('Nobody', 'x')).toThrow('not found');
+  it('throws PlayerNotFoundError carrying the missing name', () => {
+    expect(() => game.updatePlayerIdByName('Nobody', 'x')).toThrow(PlayerNotFoundError);
+    try {
+      game.updatePlayerIdByName('Nobody', 'x');
+    } catch (e) {
+      expect((e as PlayerNotFoundError).identifier).toBe('Nobody');
+    }
   });
 
   it('updates the player id without touching any board cells when the player owns nothing', () => {

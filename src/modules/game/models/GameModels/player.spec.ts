@@ -1,4 +1,9 @@
 import { Board } from '../FieldModels/board';
+import {
+  InvalidPlayerConstructorArgumentError,
+  PlayerFrozenError,
+  RaccitoCounterActiveError,
+} from './errors';
 import { ItemType } from './items';
 import { IRawPlayer, Player, PlayerColor } from './player';
 
@@ -84,8 +89,9 @@ describe('Player constructor', () => {
     expect(p.Position).toBe(7);
   });
 
-  it('throws on invalid constructor arguments', () => {
-    expect(() => new Player({ totally: 'wrong' } as never)).toThrow('Invalid Player constructor argument');
+  it('throws InvalidPlayerConstructorArgumentError on an unrecognized argument shape', () => {
+    expect(() => new Player({ totally: 'wrong' } as never))
+      .toThrow(InvalidPlayerConstructorArgumentError);
   });
 
   it('known gap: restoring from IRawPlayer silently drops raccito / raccitoCounter', () => {
@@ -137,11 +143,11 @@ describe('Player.move', () => {
     expect(p.RaccitoCounter).toBe(start - 4);
   });
 
-  it('throws on each blocked move and decrements freezeTurns all the way to zero', () => {
+  it('throws PlayerFrozenError on each blocked move and decrements freezeTurns to zero', () => {
     p.skipTurn();
     p.skipTurn();
-    expect(() => p.move(3)).toThrow('frozen'); // freezeTurns: 2 → 1
-    expect(() => p.move(3)).toThrow('frozen'); // freezeTurns: 1 → 0
+    expect(() => p.move(3)).toThrow(PlayerFrozenError); // freezeTurns: 2 → 1
+    expect(() => p.move(3)).toThrow(PlayerFrozenError); // freezeTurns: 1 → 0
     // Third move proves the decrement really happened — otherwise this would still throw.
     p.move(7);
     expect(p.Position).toBe(7);
@@ -149,7 +155,7 @@ describe('Player.move', () => {
 
   it('does not throw on the next move after freezeTurns reaches zero', () => {
     p.skipTurn();
-    expect(() => p.move(2)).toThrow();
+    expect(() => p.move(2)).toThrow(PlayerFrozenError);
     expect(() => p.move(2)).not.toThrow();
     expect(p.Position).toBe(2);
   });
@@ -170,18 +176,18 @@ describe('Player.moveTo', () => {
 });
 
 describe('Player.skipTurn', () => {
-  it('increments the freezeTurns counter', () => {
+  it('increments the freezeTurns counter so the next move throws PlayerFrozenError', () => {
     const p = new Player('p', PlayerColor.red, 'P');
     p.skipTurn();
-    expect(() => p.move(1)).toThrow('frozen');
+    expect(() => p.move(1)).toThrow(PlayerFrozenError);
   });
 
   it('stacks multiple skipTurn calls so each future move is blocked once', () => {
     const p = new Player('p', PlayerColor.red, 'P');
     p.skipTurn();
     p.skipTurn();
-    expect(() => p.move(1)).toThrow();
-    expect(() => p.move(1)).toThrow();
+    expect(() => p.move(1)).toThrow(PlayerFrozenError);
+    expect(() => p.move(1)).toThrow(PlayerFrozenError);
     expect(p.Position).toBe(0); // blocked moves must not advance the player
 
     p.move(3);
@@ -197,10 +203,10 @@ describe('Player raccito', () => {
     expect(p.RaccitoCounter).toBe(Board.CellsCounter * 2);
   });
 
-  it('removeRaccito throws while the counter is still positive', () => {
+  it('removeRaccito throws RaccitoCounterActiveError while the counter is still positive', () => {
     const p = new Player('p', PlayerColor.red, 'P');
     p.setRaccito();
-    expect(() => p.removeRaccito()).toThrow('Cannot remove raccito');
+    expect(() => p.removeRaccito()).toThrow(RaccitoCounterActiveError);
   });
 
   it('removeRaccito clears the flag once the counter has been drained by moves', () => {

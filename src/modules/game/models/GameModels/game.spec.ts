@@ -1,5 +1,14 @@
 import { Board } from '../FieldModels/board';
 import { PropertyCell } from '../FieldModels/cells';
+import {
+  InsufficientPlayersError,
+  InvalidCellIndexError,
+  InvalidGameStateError,
+  InvalidPlayerConstructorArgumentError,
+  InvalidTurnStateError,
+  NotAPropertyCellError,
+  NotActivePlayerError,
+} from './errors';
 import { Game } from './game';
 import { Business, BusinessGrade } from './properties';
 import { GameStateType } from './state-manager';
@@ -104,8 +113,8 @@ const firstBusinessOfGrade = (game: Game, grade: BusinessGrade) =>
   );
 
 describe('Game constructor', () => {
-  it('throws when fewer than two players are supplied', () => {
-    expect(() => new Game([{ id: 'p1', name: 'Alice' }])).toThrow('At least two players');
+  it('throws InsufficientPlayersError when fewer than two players are supplied', () => {
+    expect(() => new Game([{ id: 'p1', name: 'Alice' }])).toThrow(InsufficientPlayersError);
   });
 
   it('assigns a unique color to each player in declaration order', () => {
@@ -129,16 +138,16 @@ describe('Game constructor', () => {
     expect(listener).toHaveBeenCalledWith({ playerId: 'p2', playerName: 'Bob' });
   });
 
-  it('known gap: a 7th player crashes the constructor with a cryptic Player error', () => {
+  it('known gap: a 7th player crashes the constructor with InvalidPlayerConstructorArgumentError', () => {
     // PlayerColor enum only has 6 values. The 7th Object.values(PlayerColor)[6] is undefined,
     // which makes Player\'s own constructor fall through its "color && name" guard and throw
-    // a generic "Invalid Player constructor argument" rather than a meaningful "too many
-    // players" error from Game. Worth fixing in Game.ts — caught by this guard.
+    // InvalidPlayerConstructorArgumentError rather than a meaningful "too many players"
+    // error from Game. Worth fixing in Game.ts — caught by this guard.
     const sevenPlayers = Array.from({ length: 7 }, (_, i) => ({
       id: `p${i + 1}`,
       name: `P${i + 1}`,
     }));
-    expect(() => new Game(sevenPlayers)).toThrow('Invalid Player constructor argument');
+    expect(() => new Game(sevenPlayers)).toThrow(InvalidPlayerConstructorArgumentError);
   });
 });
 
@@ -157,13 +166,13 @@ describe('Game.nextTurn rotation', () => {
     applyEffectSpy.mockRestore();
   });
 
-  it('throws via @ValidateActivePlayer when called by a non-active player', () => {
-    expect(() => game.nextTurn('p2', 1)).toThrow(/p2 turn/);
+  it('throws NotActivePlayerError when called by a non-active player', () => {
+    expect(() => game.nextTurn('p2', 1)).toThrow(NotActivePlayerError);
   });
 
-  it('throws via @RequireGameState when stateManager is not Active', () => {
+  it('throws InvalidGameStateError when stateManager is not Active', () => {
     game.stateManager.setWaiting(GameStateType.WaitingForTrade, ['p1']);
-    expect(() => game.nextTurn('p1', 1)).toThrow(/Required: active/);
+    expect(() => game.nextTurn('p1', 1)).toThrow(InvalidGameStateError);
   });
 
   it('rolls diceCounter dice and returns turn_progress + event_result during Trading', () => {
@@ -178,8 +187,8 @@ describe('Game.nextTurn rotation', () => {
     }
   });
 
-  it('throws when called in Trading phase without a diceCounter', () => {
-    expect(() => game.nextTurn('p1')).toThrow('Invalid turn state');
+  it('throws InvalidTurnStateError when called in Trading phase without a diceCounter', () => {
+    expect(() => game.nextTurn('p1')).toThrow(InvalidTurnStateError);
   });
 
   it('returns turn_finished when called in the Event phase', () => {
@@ -395,10 +404,10 @@ describe('Game.buyProperty', () => {
     expect(game.EventInProgress).toBeNull();
   });
 
-  it('throws when the current cell is not a property', () => {
+  it('throws NotAPropertyCellError when the current cell is not a property', () => {
     // Move current player to a known non-property cell (Start at index 0)
     game.players[0].move(Board.CellsCounter - propIdx); // back to start (mod board)
-    expect(() => game.buyProperty()).toThrow('Current cell is not a property');
+    expect(() => game.buyProperty()).toThrow(NotAPropertyCellError);
   });
 });
 
@@ -459,9 +468,9 @@ describe('Game.auctionPlaceBid', () => {
     });
   });
 
-  it('throws via @RequireGameState when called outside WaitingForPropertyAction', () => {
+  it('throws InvalidGameStateError when called outside WaitingForPropertyAction', () => {
     game.stateManager.clearWaiting();
-    expect(() => game.auctionPlaceBid('p2', 9999)).toThrow(/Required: waiting_property_action/);
+    expect(() => game.auctionPlaceBid('p2', 9999)).toThrow(InvalidGameStateError);
   });
 });
 
@@ -513,9 +522,9 @@ describe('Game.auctionPass', () => {
     expect(result.finished).toEqual({ success: false, propertyIndex: SEEDED_PROP_INDEX });
   });
 
-  it('throws via @RequireGameState when called outside WaitingForPropertyAction', () => {
+  it('throws InvalidGameStateError when called outside WaitingForPropertyAction', () => {
     game.stateManager.clearWaiting();
-    expect(() => game.auctionPass('p1')).toThrow(/Required: waiting_property_action/);
+    expect(() => game.auctionPass('p1')).toThrow(InvalidGameStateError);
   });
 });
 
@@ -540,9 +549,9 @@ describe('Game.loseProperty', () => {
     expect((game.board.flatCells[idx] as PropertyCell).object.owner).toBeNull();
   });
 
-  it('throws via @RequireGameState when called outside Active', () => {
+  it('throws InvalidGameStateError when called outside Active', () => {
     game.stateManager.setWaiting(GameStateType.WaitingForTrade, ['p1']);
-    expect(() => game.loseProperty(BusinessGrade.Office)).toThrow(/Required: active/);
+    expect(() => game.loseProperty(BusinessGrade.Office)).toThrow(InvalidGameStateError);
   });
 });
 
@@ -553,22 +562,22 @@ describe('Game.moveToCenter', () => {
     game.stateManager.setWaiting(GameStateType.WaitingForMoveToCenter, ['p1']);
   });
 
-  it('throws when the target position is not on the inner ring', () => {
-    expect(() => game.moveToCenter('p1', 0)).toThrow('Invalid cell index');
+  it('throws InvalidCellIndexError when the target position is not on the inner ring', () => {
+    expect(() => game.moveToCenter('p1', 0)).toThrow(InvalidCellIndexError);
   });
 
-  it('throws via @ValidateActivePlayer when the player id is unknown', () => {
-    // Dead-code observation: moveToCenter has its own "Player not found" check,
+  it('throws NotActivePlayerError when the player id is unknown', () => {
+    // Dead-code observation: moveToCenter has its own PlayerNotFoundError check,
     // but @ValidateActivePlayer runs first and rejects unknown ids before the body,
-    // so the message we see here is the validator one, not "Player not found".
+    // so we see NotActivePlayerError rather than PlayerNotFoundError.
     const innerStart = Board.Cells[0].length;
-    expect(() => game.moveToCenter('unknown', innerStart)).toThrow(/unknown turn/);
+    expect(() => game.moveToCenter('unknown', innerStart)).toThrow(NotActivePlayerError);
   });
 
-  it('throws via @RequireGameState when called outside WaitingForMoveToCenter', () => {
+  it('throws InvalidGameStateError when called outside WaitingForMoveToCenter', () => {
     game.stateManager.clearWaiting();
     const innerStart = Board.Cells[0].length;
-    expect(() => game.moveToCenter('p1', innerStart)).toThrow(/Required: waiting_move_center/);
+    expect(() => game.moveToCenter('p1', innerStart)).toThrow(InvalidGameStateError);
   });
 
   it('moves the current player to the supplied position', () => {

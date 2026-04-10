@@ -1,5 +1,10 @@
 import { Board } from '../FieldModels/board';
 import { Cell } from '../FieldModels/cells';
+import {
+  InvalidPlayerConstructorArgumentError,
+  PlayerFrozenError,
+  RaccitoCounterActiveError,
+} from './errors';
 import { ItemType } from './items';
 
 export enum PlayerColor {
@@ -60,7 +65,7 @@ export class Player {
       this.position = entity.position;
       this.money = entity.money;
     } else {
-      throw new Error('Invalid Player constructor argument');
+      throw new InvalidPlayerConstructorArgumentError();
     }
   }
 
@@ -126,7 +131,7 @@ export class Player {
       // TODO: handle in event service? since we have to send event to FE...
       this.freezeTurns -= 1;
       // console.log('player', this.name, 'is frozen for', this.freezeTurns, 'more turns');
-      throw new Error('Player is frozen and cannot move');
+      throw new PlayerFrozenError();
     }
     if(this.raccitoCounter > 0) {
       this.raccitoCounter -= steps;
@@ -148,7 +153,7 @@ export class Player {
 
   removeRaccito(): void {
     if(this.raccitoCounter > 0) {
-      throw new Error('Cannot remove raccito while counter is active');
+      throw new RaccitoCounterActiveError();
     }
     this.raccito = false;
     this.raccitoCounter = 0;
