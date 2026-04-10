@@ -2,8 +2,6 @@ import { IGame } from '$server/modules/game/models/GameModels/igame';
 import { Turn } from '$server/modules/game/models/GameModels/turn';
 import { IDiceResult } from '$server/modules/game/models/types';
 
-// import { TradingState } from './types';
-
 export class ICGame extends IGame {
   private advanceToNextActivePlayer(): void {
     do {
@@ -24,23 +22,4 @@ export class ICGame extends IGame {
       this.advanceToNextActivePlayer();
     }
   }
-
-  // startTrading(cell: PropertyCell, price: number): void {
-  //   if(price !== undefined && price <= 0) {
-  //     throw new Error('Custom price must be greater than zero');
-  //   }
-
-  //   const playerIds: Player['id'][] = [];
-  //   if(cell.object.owner === null) {
-  //     playerIds.push(this.CurrentPlayer.Id);
-  //   } else {
-  //     for(const player of this.players) {
-  //       if(player.Id !== cell.object.owner) {
-  //         playerIds.push(player.Id);
-  //       }
-  //     }
-  //   }
-
-  //   // this.tradingState = {playerIds, price};
-  // }
 }

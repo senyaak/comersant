@@ -35,10 +35,6 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     });
   }
 
-  // afterInit(server: Server) {
-  //   console.log('Game Gateway initialized');
-  // }
-
   @SubscribeMessage('buyProperty')
   @ValidateGameId
   handleBuyProperty(
@@ -129,38 +125,6 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
   }
 
-  // @ValidateGameId
-  // @SubscribeMessage('message')
-  // handleMessage(
-  // // @ConnectedSocket() client: Socket,
-  // // @MessageBody() payload: unknown,
-  // ): NextTurnResult {
-  //   try {
-  //     throw new Error('Test error');
-  //     // console.log('ad', client, payload);
-
-  //     // const gameId = getValidatedGameId(client);
-  //     // const game = this.gamesService.getGame(gameId);
-  //     // console.log('Game state:', game);
-
-  //     // // game.nextTurn();
-  //     // return {
-  //     //   success: true,
-  //     //   data: {
-  //     //     currentPlayer: game.CurrentPlayer,
-  //     //     turn: game.CurrentTurnState,
-  //     //   },
-  //     //   message: 'Turn processed successfully',
-  //     // };
-  //   } catch (error) {
-  //     console.error('Error processing message:', error);
-  //     return {
-  //       success: false,
-  //       message: 'Game not found',
-  //     };
-  //   }
-  // }
-
   @SubscribeMessage('refuseProperty')
   @ValidateGameId
   handleRefuseProperty(
@@ -186,10 +150,4 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
   }
 
-  // @SubscribeMessage(ClientEvents.CreateRoom)
-  // async createRoom(
-  //   @ConnectedSocket() socket: Socket,
-  //   @MessageBody() roomName: string,
-  // ) {
-  // }
 }

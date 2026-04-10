@@ -34,8 +34,6 @@ export class GameService {
   private event$ = new BehaviorSubject<IGame['eventInProgress']>(null);
   private game: BehaviorSubject<ICGame> = new BehaviorSubject<ICGame>(new ICGame());
   private socket!: Socket<ServerToClientEvents, ClientToServerEvents>;
-  // private frozen$ = new BehaviorSubject<boolean>(false);
-  // private tradingState$ = new BehaviorSubject<TradingState | null>(null);
 
   public bidFailed$ = new BehaviorSubject<boolean>(false);
   public diceRolled$ = new BehaviorSubject<RollTurnResult>({ message: 'Game not found', success: false });
@@ -54,7 +52,6 @@ export class GameService {
     private readonly http: HttpClient,
     private readonly router: Router,
     private readonly userSettingsService: UserSettingsService,
-    // private readonly gameStateService: GameStateService,
     private readonly gameNotificationService: GameNotificationService,
   ) {
     console.log('GameService initialized', this);
@@ -148,23 +145,17 @@ export class GameService {
     this.socket.on('bid_failed', this.onBidFailed);
     this.socket.on('player_eliminated', this.onPlayerEliminated);
     this.socket.on('game_over', this.onGameOver);
-    // this.socket.on('connect_error', this.onConnectError);
   }
 
   private loadGame(gameId: string): Observable<IRawGame> {
     const game$ = this.http.get<IRawGame>(`${Routes.games}/${gameId}`).pipe(
       tap({ next: game => {
-        // First create the game instance
         const gameInstance = new ICGame(game);
         this.game.next(gameInstance);
 
-        // Then explicitly trigger the event observable if there's an event in progress
         if (game.eventInProgress) {
           this.event$.next(game.eventInProgress);
         }
-
-        // this.game.complete();
-        // console.log('->Game loaded:', this.game.getValue());
       }, error: (err) => {
         console.error('Error loading game:', err);
         this.router.navigate(['/']);
@@ -224,11 +215,6 @@ export class GameService {
     this.bidFailed$.next(true);
     setTimeout(() => this.bidFailed$.next(false), 1000);
   };
-
-  // private onConnectError = () => {
-  //   console.log('connect_error');
-  //   this.router.navigate(['/']);
-  // };
 
   private onConnect = (...rest: unknown[]) => {
     console.log('Connected with query params:', this.socket.io.opts.query);

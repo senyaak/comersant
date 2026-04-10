@@ -189,6 +189,7 @@ export class Game extends IGame {
   }
 
   private handlePlayerEliminated(player: Player): void {
+    this.clearOwnedProperties(player);
     this.events.emit('playerEliminated', { playerId: player.Id, playerName: player.Name });
     const alive = this.players.filter(p => !p.Eliminated);
     if (alive.length === 1) {
@@ -318,10 +319,10 @@ export class Game extends IGame {
         rollResult += rolled;
       }
 
-      // DEBUG:
-      diceRoll.length = 0;
-      diceRoll.push(1);
-      rollResult = 1;
+      // DEBUG: force a fixed dice roll for local testing — uncomment to use.
+      // diceRoll.length = 0;
+      // diceRoll.push(1);
+      // rollResult = 1;
 
       const currentPos = this.players[this.currentPlayerIndex].Position;
       const newPos = (currentPos + rollResult) % Board.CellsCounter;

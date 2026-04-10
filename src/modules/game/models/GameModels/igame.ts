@@ -67,7 +67,7 @@ export class IGame {
     this.eventInProgress = event;
   }
 
-  private clearOwnedProperties(player: Player): void {
+  protected clearOwnedProperties(player: Player): void {
     for (const cell of this.board.flatCells) {
       if (cell instanceof PropertyCell && cell.object.owner === player.Id) {
         cell.object.owner = null;
