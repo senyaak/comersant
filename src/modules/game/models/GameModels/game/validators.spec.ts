@@ -43,7 +43,7 @@ describe('@ValidateActivePlayer', () => {
 
     const fakeGame = { isPlayerActive: () => false };
 
-    expect(() => wrapped.call(fakeGame as never, 'p2')).toThrow(/p2/);
+    expect(() => wrapped.call(fakeGame as never, 'p2')).toThrow(/not player p2 turn/);
     expect(original).not.toHaveBeenCalled();
   });
 

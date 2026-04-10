@@ -169,22 +169,20 @@ describe('computeCardEvent — GetEvent variants', () => {
     }
   });
 
-  it('EventItem.TaxFree → ITEM_RECEIVED with ItemType.TaxFree', () => {
+  it('EventItem.TaxFree → CARD_DRAWN + ITEM_RECEIVED with ItemType.TaxFree, nothing else', () => {
     const card: GameEvent = { msg: 'x', type: EventType.GetEvent, item: EventItem.TaxFree };
-    expect(computeCardEvent(card, 'post', 1, 'p2', 3, flatCells())).toContainEqual({
-      type: 'ITEM_RECEIVED',
-      playerIndex: 1,
-      item: ItemType.TaxFree,
-    });
+    expect(computeCardEvent(card, 'post', 1, 'p2', 3, flatCells())).toEqual([
+      { type: 'CARD_DRAWN', cardType: 'post', card },
+      { type: 'ITEM_RECEIVED', playerIndex: 1, item: ItemType.TaxFree },
+    ]);
   });
 
-  it('EventItem.Security → ITEM_RECEIVED with ItemType.Security', () => {
+  it('EventItem.Security → CARD_DRAWN + ITEM_RECEIVED with ItemType.Security, nothing else', () => {
     const card: GameEvent = { msg: 'x', type: EventType.GetEvent, item: EventItem.Security };
-    expect(computeCardEvent(card, 'post', 0, 'p1', 3, flatCells())).toContainEqual({
-      type: 'ITEM_RECEIVED',
-      playerIndex: 0,
-      item: ItemType.Security,
-    });
+    expect(computeCardEvent(card, 'post', 0, 'p1', 3, flatCells())).toEqual([
+      { type: 'CARD_DRAWN', cardType: 'post', card },
+      { type: 'ITEM_RECEIVED', playerIndex: 0, item: ItemType.Security },
+    ]);
   });
 
   it('throws on an unknown EventItem', () => {

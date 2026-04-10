@@ -45,12 +45,18 @@ describe('Game elimination flow', () => {
     expect(cell.object.owner).toBeNull();
   });
 
-  it('leaves other players\' properties intact', () => {
-    const survivorCell = ownedProperty(game.players[1].Id);
+  it('only clears the eliminated player\'s cells and leaves other owners untouched', () => {
+    // Two different property cells: one owned by the player we are about to drain (p1),
+    // one owned by a survivor (p2). A broken handler that cleared ALL cells instead of
+    // only the eliminated player's would fail on the second assertion.
+    const cells = game.board.flatCells.filter(PropertyCell.isPropertyCell);
+    cells[0].object.owner = game.players[0].Id;
+    cells[1].object.owner = game.players[1].Id;
 
     drainPlayer(0);
 
-    expect(survivorCell.object.owner).toBe(game.players[1].Id);
+    expect(cells[0].object.owner).toBeNull();
+    expect(cells[1].object.owner).toBe(game.players[1].Id);
   });
 
   it('does not emit gameOver while more than one player is alive', () => {
@@ -298,7 +304,11 @@ describe('Game elimination effects pipeline', () => {
     applyEffect({ type: 'BALANCE_CHANGED', playerIndex: 0, amount: -9_999_999 });
     applyEffect({ type: 'BALANCE_CHANGED', playerIndex: 1, amount: -9_999_999 });
 
+    // Two eliminations, in order (p1 before p2) — not just "two somethings"
     expect(playerElim).toHaveBeenCalledTimes(2);
+    expect(playerElim).toHaveBeenNthCalledWith(1, { playerId: 'p1', playerName: 'Alice' });
+    expect(playerElim).toHaveBeenNthCalledWith(2, { playerId: 'p2', playerName: 'Bob' });
+    // gameOver only after the second elimination leaves a single survivor
     expect(gameOver).toHaveBeenCalledTimes(1);
     expect(gameOver).toHaveBeenCalledWith({ winnerId: 'p3', winnerName: 'Carol' });
   });
@@ -393,14 +403,14 @@ describe('Game.buyProperty', () => {
 });
 
 describe('Game.auctionPlaceBid', () => {
+  // Same rationale as Game.auctionPass: auctionPlaceBid works on EventInProgress,
+  // not the board, so we seed with distinct literal values.
+  const SEEDED_PROP_INDEX = 88;
+  const SEEDED_PRICE = 1_000;
   let game: Game;
-  let propIdx: number;
 
   beforeEach(() => {
     game = buildGame();
-    propIdx = firstPropertyIndex(game);
-    const cell = game.board.flatCells[propIdx] as PropertyCell;
-    cell.object.owner = null;
     game.stateManager.setWaiting(
       GameStateType.WaitingForPropertyAction,
       game.players.map(p => p.Id),
@@ -410,46 +420,43 @@ describe('Game.auctionPlaceBid', () => {
       type: 0,
       eventData: {
         playerIndices: [0, 1, 2],
-        price: cell.object.price,
-        propertyIndex: propIdx,
+        price: SEEDED_PRICE,
+        propertyIndex: SEEDED_PROP_INDEX,
         currentBidderIndex: null,
         passedPlayerIndices: [],
       },
     } as never;
   });
 
+  const expectedInitialEventData = {
+    playerIndices: [0, 1, 2],
+    price: SEEDED_PRICE,
+    propertyIndex: SEEDED_PROP_INDEX,
+    currentBidderIndex: null,
+    passedPlayerIndices: [],
+  };
+
   it('returns invalidBid on a non-increasing bid, leaving eventData untouched', () => {
-    const snapshot = JSON.parse(JSON.stringify(
-      (game.EventInProgress as { eventData: unknown }).eventData,
-    ));
-    const currentPrice =
-      (game.EventInProgress as { eventData: { price: number } }).eventData.price;
-
-    const result = game.auctionPlaceBid('p2', currentPrice);
-
+    const result = game.auctionPlaceBid('p2', SEEDED_PRICE);
     expect(result.invalidBid).toBeDefined();
-    expect(result.eventData).toEqual(snapshot);
+    expect(result.eventData).toEqual(expectedInitialEventData);
   });
 
   it('returns invalidBid when the bidder cannot afford the bid, leaving eventData untouched', () => {
-    const snapshot = JSON.parse(JSON.stringify(
-      (game.EventInProgress as { eventData: unknown }).eventData,
-    ));
     const huge = 9_999_999;
-
     const result = game.auctionPlaceBid('p2', huge);
-
     expect(result.invalidBid?.reason).toMatch(/Insufficient/);
-    expect(result.eventData).toEqual(snapshot);
+    expect(result.eventData).toEqual(expectedInitialEventData);
   });
 
   it('updates eventData.price and currentBidderIndex on a successful bid', () => {
-    const currentPrice =
-      (game.EventInProgress as { eventData: { price: number } }).eventData.price;
-    const newPrice = currentPrice + 100;
+    const newPrice = SEEDED_PRICE + 100;
     const result = game.auctionPlaceBid('p2', newPrice);
-    expect(result.eventData.price).toBe(newPrice);
-    expect(result.eventData.currentBidderIndex).toBe(1);
+    expect(result.eventData).toEqual({
+      ...expectedInitialEventData,
+      price: newPrice,
+      currentBidderIndex: 1,
+    });
   });
 
   it('throws via @RequireGameState when called outside WaitingForPropertyAction', () => {
@@ -459,21 +466,24 @@ describe('Game.auctionPlaceBid', () => {
 });
 
 describe('Game.auctionPass', () => {
+  // auctionPass operates entirely on EventInProgress, not the board, so we seed the
+  // trading event with literal propertyIndex and price values that are visibly distinct
+  // from anything the real Board would produce. That way, assertions reading these
+  // values back are guaranteed to come from the seeded state and not coincidence.
+  const SEEDED_PROP_INDEX = 77;
+  const SEEDED_PRICE = 5_000;
   let game: Game;
 
   beforeEach(() => {
     game = buildGame();
-    const propIdx = firstPropertyIndex(game);
-    const cell = game.board.flatCells[propIdx] as PropertyCell;
-    cell.object.owner = null;
     game.stateManager.setWaiting(GameStateType.WaitingForPropertyAction, ['p1']);
     // First-buy offer state: only the offered player (p1, index 0) participates
     game.EventInProgress = {
       type: 0,
       eventData: {
         playerIndices: [0],
-        price: cell.object.price,
-        propertyIndex: propIdx,
+        price: SEEDED_PRICE,
+        propertyIndex: SEEDED_PROP_INDEX,
         currentBidderIndex: null,
         passedPlayerIndices: [],
       },
@@ -496,13 +506,11 @@ describe('Game.auctionPass', () => {
   });
 
   it('returns finished:{success:false, propertyIndex} after the last active player passes', () => {
-    const propIdx =
-      (game.EventInProgress as { eventData: { propertyIndex: number } }).eventData.propertyIndex;
     game.auctionPass('p1'); // opens auction
     game.auctionPass('p2');
     game.auctionPass('p3');
     const result = game.auctionPass('p1');
-    expect(result.finished).toEqual({ success: false, propertyIndex: propIdx });
+    expect(result.finished).toEqual({ success: false, propertyIndex: SEEDED_PROP_INDEX });
   });
 
   it('throws via @RequireGameState when called outside WaitingForPropertyAction', () => {

@@ -21,13 +21,15 @@ describe('Player.changeMoney elimination', () => {
     expect(player.Eliminated).toBe(false);
   });
 
-  it('flags elimination when money drops to zero', () => {
+  it('flags elimination when money drops to exactly zero', () => {
     player.changeMoney(-player.Money);
+    expect(player.Money).toBe(0);
     expect(player.Eliminated).toBe(true);
   });
 
   it('flags elimination when money goes negative', () => {
     player.changeMoney(-(player.Money + 1));
+    expect(player.Money).toBe(-1);
     expect(player.Eliminated).toBe(true);
   });
 
@@ -135,11 +137,14 @@ describe('Player.move', () => {
     expect(p.RaccitoCounter).toBe(start - 4);
   });
 
-  it('throws and decrements freezeTurns when the player is frozen', () => {
+  it('throws on each blocked move and decrements freezeTurns all the way to zero', () => {
     p.skipTurn();
     p.skipTurn();
-    expect(() => p.move(3)).toThrow('frozen');
-    expect(() => p.move(3)).toThrow('frozen');
+    expect(() => p.move(3)).toThrow('frozen'); // freezeTurns: 2 → 1
+    expect(() => p.move(3)).toThrow('frozen'); // freezeTurns: 1 → 0
+    // Third move proves the decrement really happened — otherwise this would still throw.
+    p.move(7);
+    expect(p.Position).toBe(7);
   });
 
   it('does not throw on the next move after freezeTurns reaches zero', () => {
