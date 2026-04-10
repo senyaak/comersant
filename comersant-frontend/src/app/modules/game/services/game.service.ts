@@ -44,6 +44,7 @@ export class GameService {
 
   public playerMoved$ = new BehaviorSubject<boolean>(false);
   public propertyBought$ = new BehaviorSubject<PropertyBoughtResult>({ success: false });
+  public spectating$ = new BehaviorSubject<boolean>(false);
 
   public turnFinished$ = new BehaviorSubject<TurnFinishedResult>(
     { message: 'Unknown error finishing turn', success: false },
@@ -60,6 +61,10 @@ export class GameService {
     this.game.subscribe(() => {
       this.checkIfReady();
     });
+  }
+
+  get canTakeTurn(): boolean {
+    return this.isTurnActive && !this.Frozen && !this.Spectating;
   }
 
   get Event$(): Observable<IGame['eventInProgress'] | null> {
@@ -111,6 +116,10 @@ export class GameService {
     return this.socket;
   }
 
+  get Spectating(): boolean {
+    return this.spectating$.getValue();
+  }
+
   private checkIfReady() {
     if (this.Socket && this.Player?.Id !== undefined) {
       this.gameReady$.next(true);
@@ -137,6 +146,8 @@ export class GameService {
     this.socket.on('auction_updated', this.onAuctionUpdated);
     this.socket.on('auction_failed', this.onAuctionFailed);
     this.socket.on('bid_failed', this.onBidFailed);
+    this.socket.on('player_eliminated', this.onPlayerEliminated);
+    this.socket.on('game_over', this.onGameOver);
     // this.socket.on('connect_error', this.onConnectError);
   }
 
@@ -320,6 +331,24 @@ export class GameService {
         case 'WAITING_FOR_MOVE_TO_CENTER':
         case 'MOVE_PLAYER_TODO':
           break;
+      }
+    }
+  };
+
+  private onGameOver = (data: Parameters<ServerToClientEvents['game_over']>[0]) => {
+    if (data.winnerId === this.socket.id) {
+      alert('You are the winner!');
+    } else {
+      alert(`Game over! ${data.winnerName} wins!`);
+    }
+  };
+
+  private onPlayerEliminated = (data: Parameters<ServerToClientEvents['player_eliminated']>[0]) => {
+    for (const { playerId, playerName } of data) {
+      this.gameNotificationService.toast(`${playerName} has been eliminated!`);
+      if (playerId === this.socket.id) {
+        this.spectating$.next(true);
+        alert('Game over! You have been eliminated.');
       }
     }
   };

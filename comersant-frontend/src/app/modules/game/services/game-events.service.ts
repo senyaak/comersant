@@ -14,22 +14,24 @@ export class GameEventsService {
   }
 
   public buyProperty(): void {
+    if (this.gameService.Spectating) return;
     this.Socket.emit('buyProperty');
   }
 
-  public nextTurn(): boolean {
-    if (!this.gameService.isTurnActive || this.gameService.Frozen) {
-      return false;
+  public nextTurn(): void {
+    if (!this.gameService.isTurnActive || this.gameService.Frozen || this.gameService.Spectating) {
+      return;
     }
     this.Socket.emit('nextTurn', {diceCounter: this.gameStateService.DiceCounter});
-    return true;
   }
 
   public placeBid(amount: number): void {
+    if (this.gameService.Spectating) return;
     this.Socket.emit('placeBid', { amount });
   }
 
   public refuseProperty(): void {
+    if (this.gameService.Spectating) return;
     this.Socket.emit('refuseProperty');
   }
 }

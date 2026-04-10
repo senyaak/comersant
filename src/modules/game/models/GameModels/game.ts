@@ -1,4 +1,5 @@
 import { randomBytes } from 'crypto';
+import { EventEmitter } from 'events';
 
 import { Board } from '../FieldModels/board';
 import { EventCell, PropertyCell } from '../FieldModels/cells';
@@ -32,6 +33,7 @@ export interface PlayersSettings {
 }
 
 export class Game extends IGame {
+  public readonly events = new EventEmitter();
   public override readonly id: string;
   public override readonly players: Player[];
   public readonly stateManager: StateManager = new StateManager();
@@ -45,9 +47,18 @@ export class Game extends IGame {
     this.players = players.map((player, counter) => {
       return new Player(player.id, Object.values(PlayerColor)[counter], player.name);
     });
+    for (const player of this.players) {
+      player.onEliminated(() => this.handlePlayerEliminated(player));
+    }
   }
 
   // ─── Effect dispatcher ─────────────────────────────────────────────────────
+
+  private advanceToNextActivePlayer(): void {
+    do {
+      this.currentPlayerIndex = (this.currentPlayerIndex + 1) % this.players.length;
+    } while (this.players[this.currentPlayerIndex].Eliminated);
+  }
 
   private applyEffect(effect: GameEffect): void {
     switch (effect.type) {
@@ -174,6 +185,14 @@ export class Game extends IGame {
         const _exhaustive: never = effect;
         throw new Error(`Unhandled effect type: ${(_exhaustive as GameEffect).type}`);
       }
+    }
+  }
+
+  private handlePlayerEliminated(player: Player): void {
+    this.events.emit('playerEliminated', { playerId: player.Id, playerName: player.Name });
+    const alive = this.players.filter(p => !p.Eliminated);
+    if (alive.length === 1) {
+      this.events.emit('gameOver', { winnerId: alive[0].Id, winnerName: alive[0].Name });
     }
   }
 
@@ -330,15 +349,29 @@ export class Game extends IGame {
       result.turn_progress = [turnProgressData];
       result.event_result = [allEffects];
 
+      if (this.players.filter(p => !p.Eliminated).length <= 1) {
+        return result;
+      }
     } else if (this.currentTurnState === Turn.Event) {
       result.turn_finished = [{ success: true, message: 'Turn finished successfully' }];
     } else {
       throw new Error('Invalid turn state or missing diceCounter');
     }
 
+    const currentWasEliminated = this.players[this.currentPlayerIndex].Eliminated;
+
     this.currentTurnState = this.currentTurnIterator.next().value;
     if (this.currentTurnState === Turn.Trading) {
-      this.currentPlayerIndex = (this.currentPlayerIndex + 1) % this.players.length;
+      this.advanceToNextActivePlayer();
+    }
+
+    // If current player was just eliminated, auto-advance through their Event phase
+    if (currentWasEliminated && this.currentTurnState === Turn.Event) {
+      result.turn_finished = [{ success: true, message: 'Turn finished successfully' }];
+      this.currentTurnState = this.currentTurnIterator.next().value;
+      if (this.currentTurnState === Turn.Trading) {
+        this.advanceToNextActivePlayer();
+      }
     }
 
     return result;

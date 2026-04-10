@@ -5,6 +5,12 @@ import { IDiceResult } from '$server/modules/game/models/types';
 // import { TradingState } from './types';
 
 export class ICGame extends IGame {
+  private advanceToNextActivePlayer(): void {
+    do {
+      this.currentPlayerIndex = (this.currentPlayerIndex + 1) % this.players.length;
+    } while (this.players[this.currentPlayerIndex].Eliminated);
+  }
+
   nextTurn(): void;
   nextTurn(turnResult: IDiceResult): void;
   nextTurn(turnResult?: IDiceResult): void {
@@ -15,7 +21,7 @@ export class ICGame extends IGame {
     console.log('next turn');
     this.currentTurnState = this.currentTurnIterator.next().value;
     if (this.currentTurnState === Turn.Trading) {
-      this.currentPlayerIndex = (this.currentPlayerIndex + 1) % this.players.length;
+      this.advanceToNextActivePlayer();
     }
   }
 

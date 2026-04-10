@@ -11,6 +11,8 @@ export interface ServerToClientEvents {
   auction_updated: (data: TradingEvent['eventData']) => void;
   auction_failed: (data: { propertyIndex: number }) => void;
   bid_failed: () => void;
+  player_eliminated: (data: { playerId: string; playerName: string }[]) => void;
+  game_over: (data: { winnerId: string; winnerName: string }) => void;
 }
 
 export interface ClientToServerEvents {

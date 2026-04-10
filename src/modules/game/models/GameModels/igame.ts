@@ -40,6 +40,9 @@ export class IGame {
           this.currentTurnIterator.next();
       }
     }
+    for (const player of this.players) {
+      player.onEliminated(() => this.clearOwnedProperties(player));
+    }
     // init the turn iterator to the current state
     this.currentTurnIterator.next();
   }
@@ -62,6 +65,14 @@ export class IGame {
 
   set EventInProgress(event: IRawGame['eventInProgress']) {
     this.eventInProgress = event;
+  }
+
+  private clearOwnedProperties(player: Player): void {
+    for (const cell of this.board.flatCells) {
+      if (cell instanceof PropertyCell && cell.object.owner === player.Id) {
+        cell.object.owner = null;
+      }
+    }
   }
 
   isPlayerActive(playerId: string): boolean {

@@ -77,11 +77,12 @@ export class ControlActionsComponent implements OnInit, OnDestroy {
    * Handles the next turn button click
    */
   onNextTurn() {
-    if (this.isProcessingTurn) {
+    if (this.isProcessingTurn || !this.gameService.canTakeTurn) {
       return;
     }
 
-    this.isProcessingTurn = this.gameEventsService.nextTurn();
+    this.gameEventsService.nextTurn();
+    this.isProcessingTurn = true;
   }
 }
 

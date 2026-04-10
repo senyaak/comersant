@@ -23,6 +23,8 @@ export interface IRawPlayer {
 
 export class Player {
   private readonly color: IRawPlayer['color'];
+  private eliminated: boolean = false;
+  private eliminationListeners: (() => void)[] = [];
   private freezeTurns: number = 0;
   private id: IRawPlayer['id'];
   private items: ItemType[] = [];
@@ -66,6 +68,10 @@ export class Player {
     return this.color;
   }
 
+  get Eliminated(): boolean {
+    return this.eliminated;
+  }
+
   get Id(): string {
     return this.id;
   }
@@ -104,6 +110,10 @@ export class Player {
 
   changeMoney(amount: number): void {
     this.money += amount;
+    if (!this.eliminated && this.money <= 0) {
+      this.eliminated = true;
+      for (const listener of this.eliminationListeners) listener();
+    }
   }
 
   giveItem(item: ItemType): void {
@@ -130,6 +140,10 @@ export class Player {
     const newPostition = Board.getTargetPosition(cellName);
     const steps = Math.abs(newPostition - this.Position);
     this.move(steps);
+  }
+
+  onEliminated(listener: () => void): void {
+    this.eliminationListeners.push(listener);
   }
 
   removeRaccito(): void {

@@ -6,6 +6,7 @@ import {
 } from '@nestjs/websockets';
 import { Namespace, Socket } from 'socket.io';
 
+import type { Game } from '../../models/GameModels/game';
 import type { PropertyBoughtResultError, PropertyBoughtResultSuccess } from '../../models/types';
 
 import { getValidatedGameId, getValidatedUserName, ValidateGameId } from '../../utils/game.util';
@@ -15,7 +16,24 @@ import { ClientToServerEvents, ServerToClientEvents } from './types';
 @WebSocketGateway({ namespace: 'game' })
 export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer() private server!: Namespace<ClientToServerEvents, ServerToClientEvents>;
-  constructor(private gamesService: GamesService) {}
+  private subscribedGames = new Set<string>();
+
+  constructor(private gamesService: GamesService) {
+    this.gamesService.Games.subscribe(games => {
+      for (const game of games) this.attachGameListeners(game);
+    });
+  }
+
+  private attachGameListeners(game: Game): void {
+    if (this.subscribedGames.has(game.id)) return;
+    this.subscribedGames.add(game.id);
+    game.events.on('playerEliminated', (data: { playerId: string; playerName: string }) => {
+      this.server.to(`game-${game.id}`).emit('player_eliminated', [data]);
+    });
+    game.events.on('gameOver', (data: { winnerId: string; winnerName: string }) => {
+      this.server.to(`game-${game.id}`).emit('game_over', data);
+    });
+  }
 
   // afterInit(server: Server) {
   //   console.log('Game Gateway initialized');
@@ -70,11 +88,11 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     if(result.turn_progress) {
       this.server.to(`game-${gameId}`).emit('turn_progress', ...result.turn_progress);
     }
-    if(result.turn_finished) {
-      this.server.to(`game-${gameId}`).emit('turn_finished', ...result.turn_finished);
-    }
     if(result.event_result) {
       this.server.to(`game-${gameId}`).emit('event_result', ...result.event_result);
+    }
+    if(result.turn_finished) {
+      this.server.to(`game-${gameId}`).emit('turn_finished', ...result.turn_finished);
     }
   }
 
