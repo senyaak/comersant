@@ -1,5 +1,4 @@
-import { Board } from '../../../FieldModels/board';
-import { TaxServiceCell } from '../../../FieldModels/cells';
+import { Cell, StartCell, TaxServiceCell } from '../../../FieldModels/cells';
 import {
   computeMove,
   computeMoveToCellName,
@@ -24,27 +23,36 @@ describe('computeMoveToPosition', () => {
 });
 
 describe('computeMoveToTaxService', () => {
-  it('finds the TaxServiceCell index in the flat board and emits PLAYER_MOVED_TO_POSITION', () => {
-    const flatCells = new Board().flatCells;
-    const expected = flatCells.findIndex(c => TaxServiceCell.isTaxServiceCell(c));
+  // Hand-built cell array: we know exactly where the TaxServiceCell sits (index 2),
+  // so the expected targetPosition is independent of what the production function
+  // does internally.
+  const fakeCells = (): Cell[] => [
+    new StartCell(),
+    new StartCell(),
+    new TaxServiceCell(),
+    new StartCell(),
+  ];
 
-    expect(computeMoveToTaxService(0, flatCells)).toEqual([
-      { type: 'PLAYER_MOVED_TO_POSITION', playerIndex: 0, targetPosition: expected },
+  it('targets the TaxServiceCell at its known index', () => {
+    expect(computeMoveToTaxService(0, fakeCells())).toEqual([
+      { type: 'PLAYER_MOVED_TO_POSITION', playerIndex: 0, targetPosition: 2 },
+    ]);
+  });
+
+  it('targets -1 when no TaxServiceCell is present', () => {
+    const noTax: Cell[] = [new StartCell(), new StartCell()];
+    expect(computeMoveToTaxService(0, noTax)).toEqual([
+      { type: 'PLAYER_MOVED_TO_POSITION', playerIndex: 0, targetPosition: -1 },
     ]);
   });
 });
 
 describe('computeMoveToCellName', () => {
-  it('resolves the cell name via Board.getTargetPosition and emits PLAYER_MOVED_TO_POSITION', () => {
-    const flatCells = new Board().flatCells;
-    const namedCell = flatCells.find(c => c.name === 'Start') ?? flatCells[0];
-
-    expect(computeMoveToCellName(3, namedCell.name)).toEqual([
-      {
-        type: 'PLAYER_MOVED_TO_POSITION',
-        playerIndex: 3,
-        targetPosition: Board.getTargetPosition(namedCell.name),
-      },
+  it('targets the "Start" cell at its known position on the real board', () => {
+    // Start is the first cell of the outer ring, at index 0 of flatCells.
+    // Hard-coded on purpose so the test fails loudly if Board layout changes.
+    expect(computeMoveToCellName(3, 'Start')).toEqual([
+      { type: 'PLAYER_MOVED_TO_POSITION', playerIndex: 3, targetPosition: 0 },
     ]);
   });
 });

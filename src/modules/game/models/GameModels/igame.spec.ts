@@ -80,9 +80,21 @@ describe('IGame restoring constructor', () => {
     expect(game.EventInProgress).toBe(event);
   });
 
-  it('advances the turn iterator past Trading when restoring an Event-phase snapshot', () => {
+  it('Trading-phase restore leaves the iterator positioned so the next yield is Event', () => {
+    const game = new IGame(buildRawGame({ currentTurnState: Turn.Trading }));
+    const iter = (game as unknown as {
+      currentTurnIterator: Generator<Turn>;
+    }).currentTurnIterator;
+    expect(iter.next().value).toBe(Turn.Event);
+  });
+
+  it('Event-phase restore advances the iterator one extra step so the next yield is Trading', () => {
     const game = new IGame(buildRawGame({ currentTurnState: Turn.Event }));
     expect(game.CurrentTurnState).toBe(Turn.Event);
+    const iter = (game as unknown as {
+      currentTurnIterator: Generator<Turn>;
+    }).currentTurnIterator;
+    expect(iter.next().value).toBe(Turn.Trading);
   });
 
   it('wires elimination cleanup listeners on the restored players', () => {

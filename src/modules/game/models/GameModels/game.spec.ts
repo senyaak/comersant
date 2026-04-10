@@ -160,11 +160,16 @@ describe('Game.nextTurn rotation', () => {
     expect(() => game.nextTurn('p1', 1)).toThrow(/Required: active/);
   });
 
-  it('rolls dice and returns turn_progress + event_result during the Trading phase', () => {
-    const result = game.nextTurn('p1', 2);
-    expect(result.turn_progress).toBeDefined();
+  it('rolls diceCounter dice and returns turn_progress + event_result during Trading', () => {
+    const result = game.nextTurn('p1', 3);
     expect(result.event_result).toBeDefined();
-    expect(result.turn_progress?.[0].success).toBe(true);
+    const progress = result.turn_progress?.[0];
+    expect(progress?.success).toBe(true);
+    if (progress?.success) {
+      expect(progress.data.diceResult.diceRoll).toHaveLength(3);
+      expect(progress.data.turn).toBe(Turn.Trading);
+      expect(progress.data.currentPlayer).toBe(0);
+    }
   });
 
   it('throws when called in Trading phase without a diceCounter', () => {
@@ -452,16 +457,20 @@ describe('Game.auctionPass', () => {
   it('appends the player to passedPlayerIndices on a regular pass', () => {
     game.auctionPass('p1'); // opens auction
     game.auctionPass('p2');
-    const data = (game.EventInProgress as { eventData: { passedPlayerIndices: number[] } }).eventData;
-    expect(data.passedPlayerIndices).toContain(1);
+    const data = (game.EventInProgress as {
+      eventData: { passedPlayerIndices: number[] };
+    }).eventData;
+    expect(data.passedPlayerIndices).toEqual([1]);
   });
 
-  it('returns finished:{success:false} after the last active player passes', () => {
+  it('returns finished:{success:false, propertyIndex} after the last active player passes', () => {
+    const propIdx =
+      (game.EventInProgress as { eventData: { propertyIndex: number } }).eventData.propertyIndex;
     game.auctionPass('p1'); // opens auction
     game.auctionPass('p2');
     game.auctionPass('p3');
     const result = game.auctionPass('p1');
-    expect(result.finished).toMatchObject({ success: false });
+    expect(result.finished).toEqual({ success: false, propertyIndex: propIdx });
   });
 
   it('throws via @RequireGameState when called outside WaitingForPropertyAction', () => {
@@ -479,17 +488,16 @@ describe('Game.loseProperty', () => {
     expect(effects).toEqual([{ type: 'PROPERTY_LOST', propertyIndex: null }]);
   });
 
-  it('clears the owner of the randomly chosen property of the requested grade', () => {
+  it('clears the owner of the only matching property of the requested grade', () => {
     const idx = firstBusinessOfGrade(game, BusinessGrade.Area);
     const cell = game.board.flatCells[idx] as PropertyCell<Business>;
     cell.object.owner = 'p1';
     cell.object.grade = BusinessGrade.Office;
 
     const [effect] = game.loseProperty(BusinessGrade.Office);
-    expect(effect.type).toBe('PROPERTY_LOST');
-    if (effect.type === 'PROPERTY_LOST' && effect.propertyIndex !== null) {
-      expect((game.board.flatCells[effect.propertyIndex] as PropertyCell).object.owner).toBeNull();
-    }
+    // With exactly one matching property, the random pick is deterministic (index idx).
+    expect(effect).toEqual({ type: 'PROPERTY_LOST', propertyIndex: idx });
+    expect((game.board.flatCells[idx] as PropertyCell).object.owner).toBeNull();
   });
 
   it('throws via @RequireGameState when called outside Active', () => {

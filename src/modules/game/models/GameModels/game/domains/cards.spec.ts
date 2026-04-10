@@ -1,10 +1,14 @@
 import { EventItem, EventType, GameEvent } from '../../../events';
 import { Board } from '../../../FieldModels/board';
+import { Post, Risk, Surprise } from '../../../FieldModels/cards';
 import {
+  Cell,
   CardEventCell,
   InteractiveEventCell,
   PropertyCell,
+  StartCell,
   StaticEventCell,
+  TaxServiceCell,
 } from '../../../FieldModels/cells';
 import { ItemType } from '../../items';
 import { Business, BusinessGrade } from '../../properties';
@@ -15,6 +19,14 @@ import {
 } from './cards';
 
 const flatCells = () => new Board().flatCells;
+
+// Hand-built flat cell array: TaxServiceCell sits at index 2, nothing else matters.
+const fakeFlatCells = (): Cell[] => [
+  new StartCell(),
+  new StartCell(),
+  new TaxServiceCell(),
+  new StartCell(),
+];
 
 describe('computeCardEvent — per EventType branch', () => {
   it('BalanceChange → CARD_DRAWN + BALANCE_CHANGED with the card amount', () => {
@@ -49,18 +61,15 @@ describe('computeCardEvent — per EventType branch', () => {
     ]);
   });
 
-  it('MoveTo → CARD_DRAWN + PLAYER_MOVED_TO_POSITION resolved by Board.getTargetPosition', () => {
-    const cells = flatCells();
-    const namedCell = cells.find(c => c.name === 'TaxService') ?? cells[0];
-    const card: GameEvent = { msg: 'x', type: EventType.MoveTo, to: namedCell.name };
+  it('MoveTo → CARD_DRAWN + PLAYER_MOVED_TO_POSITION targeting the hard-coded Start cell index', () => {
+    // Start is the first cell of the real board at index 0 — hard-coded on purpose so
+    // this test does not recompute the expected value through the same code path the
+    // implementation uses (Board.getTargetPosition).
+    const card: GameEvent = { msg: 'x', type: EventType.MoveTo, to: 'Start' };
 
-    expect(computeCardEvent(card, 'post', 0, 'p1', 3, cells)).toEqual([
+    expect(computeCardEvent(card, 'post', 0, 'p1', 3, flatCells())).toEqual([
       { type: 'CARD_DRAWN', cardType: 'post', card },
-      {
-        type: 'PLAYER_MOVED_TO_POSITION',
-        playerIndex: 0,
-        targetPosition: Board.getTargetPosition(namedCell.name),
-      },
+      { type: 'PLAYER_MOVED_TO_POSITION', playerIndex: 0, targetPosition: 0 },
     ]);
   });
 
@@ -106,14 +115,15 @@ describe('computeCardEvent — per EventType branch', () => {
     expect(effects[1]).toEqual({ type: 'PROPERTY_LOST', propertyIndex: idx });
   });
 
-  it('TaxService → CARD_DRAWN + PLAYER_MOVED_TO_POSITION pointing at the tax service cell', () => {
-    const cells = flatCells();
-    const taxIdx = cells.findIndex(c => c.name === 'TaxService');
+  it('TaxService → CARD_DRAWN + PLAYER_MOVED_TO_POSITION pointing at the TaxServiceCell', () => {
+    // Use a fake cells array where the TaxServiceCell sits at a known index (2).
+    // This way the expected targetPosition is an explicit constant, not rediscovered
+    // by the same findIndex the implementation uses.
     const card: GameEvent = { msg: 'x', type: EventType.TaxService };
 
-    expect(computeCardEvent(card, 'post', 0, 'p1', 3, cells)).toEqual([
+    expect(computeCardEvent(card, 'post', 0, 'p1', 3, fakeFlatCells())).toEqual([
       { type: 'CARD_DRAWN', cardType: 'post', card },
-      { type: 'PLAYER_MOVED_TO_POSITION', playerIndex: 0, targetPosition: taxIdx },
+      { type: 'PLAYER_MOVED_TO_POSITION', playerIndex: 0, targetPosition: 2 },
     ]);
   });
 });
@@ -179,22 +189,45 @@ describe('computeCardEvent — error paths', () => {
 });
 
 describe('computePrepareCard', () => {
-  it('picks a card from the deck of the requested type', () => {
+  it('draws a card that belongs to the Post deck when "post" is requested', () => {
     const effects = computePrepareCard('post', 0, 'p1', 3, flatCells());
-    expect(effects[0].type).toBe('CARD_DRAWN');
+    const drawn = effects[0];
+    expect(drawn.type).toBe('CARD_DRAWN');
+    if (drawn.type === 'CARD_DRAWN') {
+      expect(drawn.cardType).toBe('post');
+      expect(Object.values(Post)).toContain(drawn.card);
+    }
   });
 
-  it('forwards to computeCardEvent so the same effect rules apply', () => {
+  it('draws a card that belongs to the Risk deck when "risk" is requested', () => {
     const effects = computePrepareCard('risk', 0, 'p1', 3, flatCells());
-    expect(effects.length).toBeGreaterThanOrEqual(2);
+    const drawn = effects[0];
+    if (drawn.type === 'CARD_DRAWN') {
+      expect(drawn.cardType).toBe('risk');
+      expect(Object.values(Risk)).toContain(drawn.card);
+    }
+  });
+
+  it('draws a card that belongs to the Surprise deck when "surprise" is requested', () => {
+    const effects = computePrepareCard('surprise', 0, 'p1', 3, flatCells());
+    const drawn = effects[0];
+    if (drawn.type === 'CARD_DRAWN') {
+      expect(drawn.cardType).toBe('surprise');
+      expect(Object.values(Surprise)).toContain(drawn.card);
+    }
   });
 });
 
 describe('computeEventCell', () => {
-  it('delegates to computePrepareCard for a CardEventCell', () => {
-    const cell = new CardEventCell('post');
+  it('delegates to computePrepareCard for a CardEventCell, preserving the cell type', () => {
+    const cell = new CardEventCell('surprise');
     const effects = computeEventCell(cell, 0, 'p1', 3, flatCells());
-    expect(effects[0].type).toBe('CARD_DRAWN');
+    const drawn = effects[0];
+    expect(drawn.type).toBe('CARD_DRAWN');
+    if (drawn.type === 'CARD_DRAWN') {
+      expect(drawn.cardType).toBe('surprise');
+      expect(Object.values(Surprise)).toContain(drawn.card);
+    }
   });
 
   it('returns INTERACTIVE_EVENT for an InteractiveEventCell', () => {
@@ -204,14 +237,12 @@ describe('computeEventCell', () => {
     ]);
   });
 
-  it('StaticEventCell TaxService → STATIC_EVENT + PLAYER_MOVED_TO_POSITION (tax service)', () => {
-    const cells = flatCells();
+  it('StaticEventCell TaxService → STATIC_EVENT + PLAYER_MOVED_TO_POSITION at the known index', () => {
     const cell = new StaticEventCell(EventType.TaxService);
-    const taxIdx = cells.findIndex(c => c.name === 'TaxService');
 
-    expect(computeEventCell(cell, 0, 'p1', 3, cells)).toEqual([
+    expect(computeEventCell(cell, 0, 'p1', 3, fakeFlatCells())).toEqual([
       { type: 'STATIC_EVENT', eventType: EventType.TaxService },
-      { type: 'PLAYER_MOVED_TO_POSITION', playerIndex: 0, targetPosition: taxIdx },
+      { type: 'PLAYER_MOVED_TO_POSITION', playerIndex: 0, targetPosition: 2 },
     ]);
   });
 
@@ -251,5 +282,3 @@ describe('computeEventCell', () => {
   });
 });
 
-// Suppress unused-import warning helper for Business if added later
-void Business;

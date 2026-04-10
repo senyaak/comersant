@@ -1,6 +1,6 @@
 import { Board } from '../../../FieldModels/board';
 import { PropertyCell } from '../../../FieldModels/cells';
-import { Business, BusinessGrade } from '../../properties';
+import { AreaSite, Business, BusinessGrade } from '../../properties';
 import { computeBuyProperty, computeLoseProperty, computePropertyStep } from './properties';
 
 const propertyIndex = (board: Board): number =>
@@ -12,40 +12,39 @@ const businessIndex = (board: Board, grade: BusinessGrade): number =>
   );
 
 describe('computePropertyStep', () => {
-  let board: Board;
-  let cell: PropertyCell;
-  let index: number;
+  // Hand-built PropertyCell with known price (1000) → known tax (100 via AreaSite formula).
+  // Prices and taxes are hard-coded so the test is independent of the real board layout
+  // and catches any drift in how computePropertyStep reads the cell.
+  const buildCell = (owner: string | null = null): PropertyCell => {
+    const property = new AreaSite(1000, owner);
+    return new PropertyCell('Site' as never, property);
+  };
+  const PROP_INDEX = 7;
 
-  beforeEach(() => {
-    board = new Board();
-    index = propertyIndex(board);
-    cell = board.flatCells[index] as PropertyCell;
-    cell.object.owner = null;
-  });
-
-  it('returns TAX_PAID with the cell tax when the property is owned by another player', () => {
-    cell.object.owner = 'other-player';
-    expect(computePropertyStep(cell, 'me', 0, index)).toEqual([
-      { type: 'TAX_PAID', fromPlayerIndex: 0, toPlayerId: 'other-player', amount: cell.object.tax },
+  it('returns TAX_PAID with the hard-coded tax amount when another player owns the property', () => {
+    const cell = buildCell('other-player');
+    expect(computePropertyStep(cell, 'me', 0, PROP_INDEX)).toEqual([
+      { type: 'TAX_PAID', fromPlayerIndex: 0, toPlayerId: 'other-player', amount: 100 },
     ]);
   });
 
-  it('returns PROPERTY_OFFERED with the cell price when the property has no owner', () => {
-    expect(computePropertyStep(cell, 'me', 2, index)).toEqual([
-      { type: 'PROPERTY_OFFERED', playerIndex: 2, propertyIndex: index, price: cell.object.price },
+  it('returns PROPERTY_OFFERED with the hard-coded price when the property has no owner', () => {
+    const cell = buildCell(null);
+    expect(computePropertyStep(cell, 'me', 2, PROP_INDEX)).toEqual([
+      { type: 'PROPERTY_OFFERED', playerIndex: 2, propertyIndex: PROP_INDEX, price: 1000 },
     ]);
   });
 
   it('returns an empty effect list when the current player already owns the property', () => {
-    cell.object.owner = 'me';
-    expect(computePropertyStep(cell, 'me', 0, index)).toEqual([]);
+    const cell = buildCell('me');
+    expect(computePropertyStep(cell, 'me', 0, PROP_INDEX)).toEqual([]);
   });
 
   it('identifies ownership by player id, not by player index', () => {
     // Regression guard: if the check were "cell.owner === currentPlayerIndex"
     // (a plausible mistake), this would still return TAX_PAID for a non-zero index.
-    cell.object.owner = 'me';
-    expect(computePropertyStep(cell, 'me', 2, index)).toEqual([]);
+    const cell = buildCell('me');
+    expect(computePropertyStep(cell, 'me', 2, PROP_INDEX)).toEqual([]);
   });
 });
 
@@ -104,10 +103,16 @@ describe('computeBuyProperty', () => {
   });
 
   it('allows a purchase when the buyer has exactly the price (boundary)', () => {
-    const exactBuyer = [{ Id: 'p1', Money: cell.object.price }];
-    expect(() =>
-      computeBuyProperty(exactBuyer, board.flatCells, 'p1', index, cell.object.price),
-    ).not.toThrow();
+    const price = cell.object.price;
+    const exactBuyer = [{ Id: 'p1', Money: price }];
+    const effects = computeBuyProperty(exactBuyer, board.flatCells, 'p1', index, price);
+    expect(effects).toEqual([{
+      type: 'PROPERTY_PURCHASED',
+      buyerPlayerId: 'p1',
+      propertyIndex: index,
+      price,
+      previousOwnerId: null,
+    }]);
   });
 });
 

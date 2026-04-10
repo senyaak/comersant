@@ -150,12 +150,16 @@ describe('Player.move', () => {
 });
 
 describe('Player.moveTo', () => {
-  it('moves the player to the position resolved from the target cell name', () => {
+  it('looks up the cell name via Board.getTargetPosition and lands on that position', () => {
     const p = new Player('p', PlayerColor.red, 'P');
-    const cells = new Board().flatCells;
-    const taxIdx = cells.findIndex(c => c.name === 'TaxService');
+    const spy = jest.spyOn(Board, 'getTargetPosition').mockReturnValue(13);
+
     p.moveTo('TaxService');
-    expect(p.Position).toBe(taxIdx);
+
+    expect(spy).toHaveBeenCalledWith('TaxService');
+    expect(p.Position).toBe(13);
+
+    spy.mockRestore();
   });
 });
 
@@ -209,12 +213,15 @@ describe('Player raccito', () => {
 });
 
 describe('Player.giveItem', () => {
-  it('appends an item to the inventory without throwing', () => {
+  it('appends items to the private inventory list in call order', () => {
     const p = new Player('p', PlayerColor.red, 'P');
-    expect(() => {
-      p.giveItem(ItemType.TaxFree);
-      p.giveItem(ItemType.Security);
-    }).not.toThrow();
+    p.giveItem(ItemType.TaxFree);
+    p.giveItem(ItemType.Security);
+
+    // Player has no public items getter — reach into the private field to verify.
+    // If a getter is added later, swap this for the public accessor.
+    const items = (p as unknown as { items: ItemType[] }).items;
+    expect(items).toEqual([ItemType.TaxFree, ItemType.Security]);
   });
 });
 
