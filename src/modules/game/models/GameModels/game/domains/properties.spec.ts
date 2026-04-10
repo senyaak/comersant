@@ -17,7 +17,7 @@ describe('computePropertyStep', () => {
   // and catches any drift in how computePropertyStep reads the cell.
   const buildCell = (owner: string | null = null): PropertyCell => {
     const property = new AreaSite(1000, owner);
-    return new PropertyCell('Site' as never, property);
+    return new PropertyCell('Site', property);
   };
   const PROP_INDEX = 7;
 
@@ -86,24 +86,36 @@ describe('computeBuyProperty', () => {
       .toThrow('Insufficient funds');
   });
 
-  it('returns PROPERTY_PURCHASED with previousOwnerId=null for an unowned property', () => {
-    expect(computeBuyProperty(players, board.flatCells, 'p1', index, cell.object.price)).toEqual([{
+  it('returns PROPERTY_PURCHASED with the passed-in price (not the cell listing) and previousOwnerId=null', () => {
+    // Deliberately use a custom price different from cell.object.price so the test
+    // catches any regression where the function silently reads from the cell instead
+    // of passing the argument through.
+    const customPrice = 7;
+    expect(computeBuyProperty(players, board.flatCells, 'p1', index, customPrice)).toEqual([{
       type: 'PROPERTY_PURCHASED',
       buyerPlayerId: 'p1',
       propertyIndex: index,
-      price: cell.object.price,
+      price: customPrice,
       previousOwnerId: null,
     }]);
   });
 
   it('returns PROPERTY_PURCHASED carrying the previous owner id when re-buying', () => {
     cell.object.owner = 'p2';
-    const [effect] = computeBuyProperty(players, board.flatCells, 'p1', index, cell.object.price);
-    expect(effect).toMatchObject({ type: 'PROPERTY_PURCHASED', previousOwnerId: 'p2' });
+    const customPrice = 13;
+    const [effect] = computeBuyProperty(players, board.flatCells, 'p1', index, customPrice);
+    expect(effect).toEqual({
+      type: 'PROPERTY_PURCHASED',
+      buyerPlayerId: 'p1',
+      propertyIndex: index,
+      price: customPrice,
+      previousOwnerId: 'p2',
+    });
   });
 
   it('allows a purchase when the buyer has exactly the price (boundary)', () => {
-    const price = cell.object.price;
+    // Custom literal price so the test does not tautologically match cell.object.price.
+    const price = 12_345;
     const exactBuyer = [{ Id: 'p1', Money: price }];
     const effects = computeBuyProperty(exactBuyer, board.flatCells, 'p1', index, price);
     expect(effects).toEqual([{

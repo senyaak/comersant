@@ -251,9 +251,12 @@ describe('Game.nextTurn integration (real applyEffect)', () => {
 
     expect(game.stateManager.state).toBe(GameStateType.WaitingForPropertyAction);
     expect(game.EventInProgress).not.toBeNull();
-    expect(game.EventInProgress?.eventData).toMatchObject({
-      propertyIndex: propIdx,
+    expect(game.EventInProgress?.eventData).toEqual({
       playerIndices: [0],
+      price: cell.object.price,
+      propertyIndex: propIdx,
+      currentBidderIndex: null,
+      passedPlayerIndices: [],
     });
   });
 
@@ -323,7 +326,13 @@ describe('Game.buyProperty', () => {
 
   it('current-player overload buys the cell at the current position at its listed price', () => {
     const result = game.buyProperty();
-    expect(result).toMatchObject({ success: true, propertyIndex: propIdx, newOwnerId: 'p1' });
+    expect(result).toEqual({
+      success: true,
+      propertyIndex: propIdx,
+      newOwnerId: 'p1',
+      price: cell.object.price,
+      oldOwnerId: null,
+    });
     expect(cell.object.owner).toBe('p1');
   });
 
@@ -517,9 +526,12 @@ describe('Game.moveToCenter', () => {
     expect(() => game.moveToCenter('p1', 0)).toThrow('Invalid cell index');
   });
 
-  it('throws when the player id is unknown', () => {
+  it('throws via @ValidateActivePlayer when the player id is unknown', () => {
+    // Dead-code observation: moveToCenter has its own "Player not found" check,
+    // but @ValidateActivePlayer runs first and rejects unknown ids before the body,
+    // so the message we see here is the validator one, not "Player not found".
     const innerStart = Board.Cells[0].length;
-    expect(() => game.moveToCenter('unknown', innerStart)).toThrow();
+    expect(() => game.moveToCenter('unknown', innerStart)).toThrow(/unknown turn/);
   });
 
   it('throws via @RequireGameState when called outside WaitingForMoveToCenter', () => {

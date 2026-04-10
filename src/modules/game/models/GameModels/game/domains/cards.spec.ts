@@ -129,25 +129,44 @@ describe('computeCardEvent — per EventType branch', () => {
 });
 
 describe('computeCardEvent — GetEvent variants', () => {
-  it('EventItem.Mail recurses through computePrepareCard("post")', () => {
+  const nestedDraw = (effects: ReturnType<typeof computeCardEvent>) =>
+    effects.filter(e => e.type === 'CARD_DRAWN')[1];
+
+  it('EventItem.Mail draws a Post-deck card after the GetEvent trigger', () => {
     const card: GameEvent = { msg: 'x', type: EventType.GetEvent, item: EventItem.Mail };
     const effects = computeCardEvent(card, 'post', 0, 'p1', 3, flatCells());
 
-    // Outer CARD_DRAWN for the trigger card, plus a nested CARD_DRAWN for the mail draw
     expect(effects[0]).toEqual({ type: 'CARD_DRAWN', cardType: 'post', card });
-    expect(effects.some(e => e.type === 'CARD_DRAWN' && e !== effects[0])).toBe(true);
+    const nested = nestedDraw(effects);
+    expect(nested).toBeDefined();
+    if (nested?.type === 'CARD_DRAWN') {
+      expect(nested.cardType).toBe('post');
+      expect(Object.values(Post)).toContain(nested.card);
+    }
   });
 
-  it('EventItem.Risk recurses through computePrepareCard("risk")', () => {
+  it('EventItem.Risk draws a Risk-deck card after the GetEvent trigger', () => {
     const card: GameEvent = { msg: 'x', type: EventType.GetEvent, item: EventItem.Risk };
     const effects = computeCardEvent(card, 'risk', 0, 'p1', 3, flatCells());
-    expect(effects.filter(e => e.type === 'CARD_DRAWN').length).toBeGreaterThanOrEqual(2);
+
+    const nested = nestedDraw(effects);
+    expect(nested).toBeDefined();
+    if (nested?.type === 'CARD_DRAWN') {
+      expect(nested.cardType).toBe('risk');
+      expect(Object.values(Risk)).toContain(nested.card);
+    }
   });
 
-  it('EventItem.Surprise recurses through computePrepareCard("surprise")', () => {
+  it('EventItem.Surprise draws a Surprise-deck card after the GetEvent trigger', () => {
     const card: GameEvent = { msg: 'x', type: EventType.GetEvent, item: EventItem.Surprise };
     const effects = computeCardEvent(card, 'surprise', 0, 'p1', 3, flatCells());
-    expect(effects.filter(e => e.type === 'CARD_DRAWN').length).toBeGreaterThanOrEqual(2);
+
+    const nested = nestedDraw(effects);
+    expect(nested).toBeDefined();
+    if (nested?.type === 'CARD_DRAWN') {
+      expect(nested.cardType).toBe('surprise');
+      expect(Object.values(Surprise)).toContain(nested.card);
+    }
   });
 
   it('EventItem.TaxFree → ITEM_RECEIVED with ItemType.TaxFree', () => {

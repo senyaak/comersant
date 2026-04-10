@@ -176,7 +176,10 @@ describe('Player.skipTurn', () => {
     p.skipTurn();
     expect(() => p.move(1)).toThrow();
     expect(() => p.move(1)).toThrow();
-    expect(() => p.move(1)).not.toThrow();
+    expect(p.Position).toBe(0); // blocked moves must not advance the player
+
+    p.move(3);
+    expect(p.Position).toBe(3); // first unfrozen move actually advances
   });
 });
 
