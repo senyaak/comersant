@@ -1,4 +1,6 @@
-import { Player, PlayerColor } from './player';
+import { Board } from '../FieldModels/board';
+import { ItemType } from './items';
+import { IRawPlayer, Player, PlayerColor } from './player';
 
 describe('Player.changeMoney elimination', () => {
   let player: Player;
@@ -46,38 +48,141 @@ describe('Player.changeMoney elimination', () => {
 });
 
 describe('Player constructor', () => {
-  it.todo('creates a player from (id, color, name) tuple with default money and position');
-  it.todo('restores a player from an IRawPlayer object (id, color, name, money, position)');
-  it.todo('throws on invalid constructor arguments');
+  it('creates a player from (id, color, name) tuple with default money and position', () => {
+    const p = new Player('id1', PlayerColor.green, 'Bob');
+    expect(p.Id).toBe('id1');
+    expect(p.Color).toBe(PlayerColor.green);
+    expect(p.Name).toBe('Bob');
+    expect(p.Money).toBe(150_000);
+    expect(p.Position).toBe(0);
+  });
+
+  it('restores a player from an IRawPlayer object (id, color, name, money, position)', () => {
+    const raw: IRawPlayer = {
+      id: 'id2',
+      color: PlayerColor.yellow,
+      name: 'Carol',
+      money: 12_345,
+      position: 7,
+      raccito: false,
+      raccitoCounter: 0,
+    };
+    const p = new Player(raw);
+    expect(p.Id).toBe('id2');
+    expect(p.Color).toBe(PlayerColor.yellow);
+    expect(p.Name).toBe('Carol');
+    expect(p.Money).toBe(12_345);
+    expect(p.Position).toBe(7);
+  });
+
+  it('throws on invalid constructor arguments', () => {
+    expect(() => new Player({ totally: 'wrong' } as never)).toThrow('Invalid Player constructor argument');
+  });
 });
 
 describe('Player.move', () => {
-  it.todo('advances position by the given step count');
-  it.todo('wraps position around Board.CellsCounter when crossing the start');
-  it.todo('decrements raccitoCounter by step count while raccito is active');
-  it.todo('throws and decrements freezeTurns when the player is frozen');
-  it.todo('does not throw on the next move after freezeTurns reaches zero');
+  let p: Player;
+  beforeEach(() => { p = new Player('p', PlayerColor.red, 'P'); });
+
+  it('advances position by the given step count', () => {
+    p.move(5);
+    expect(p.Position).toBe(5);
+  });
+
+  it('wraps position around Board.CellsCounter when crossing the start', () => {
+    const total = Board.CellsCounter;
+    p.move(total - 1);
+    p.move(3);
+    expect(p.Position).toBe(2);
+  });
+
+  it('decrements raccitoCounter by step count while raccito is active', () => {
+    p.setRaccito();
+    const start = p.RaccitoCounter;
+    p.move(4);
+    expect(p.RaccitoCounter).toBe(start - 4);
+  });
+
+  it('throws and decrements freezeTurns when the player is frozen', () => {
+    p.skipTurn();
+    p.skipTurn();
+    expect(() => p.move(3)).toThrow('frozen');
+    expect(() => p.move(3)).toThrow('frozen');
+  });
+
+  it('does not throw on the next move after freezeTurns reaches zero', () => {
+    p.skipTurn();
+    expect(() => p.move(2)).toThrow();
+    expect(() => p.move(2)).not.toThrow();
+    expect(p.Position).toBe(2);
+  });
 });
 
 describe('Player.moveTo', () => {
-  it.todo('moves the player to the position resolved from the target cell name');
+  it('moves the player to the position resolved from the target cell name', () => {
+    const p = new Player('p', PlayerColor.red, 'P');
+    const cells = new Board().flatCells;
+    const taxIdx = cells.findIndex(c => c.name === 'TaxService');
+    p.moveTo('TaxService');
+    expect(p.Position).toBe(taxIdx);
+  });
 });
 
 describe('Player.skipTurn', () => {
-  it.todo('increments the freezeTurns counter');
-  it.todo('stacks multiple skipTurn calls so each future move is blocked once');
+  it('increments the freezeTurns counter', () => {
+    const p = new Player('p', PlayerColor.red, 'P');
+    p.skipTurn();
+    expect(() => p.move(1)).toThrow('frozen');
+  });
+
+  it('stacks multiple skipTurn calls so each future move is blocked once', () => {
+    const p = new Player('p', PlayerColor.red, 'P');
+    p.skipTurn();
+    p.skipTurn();
+    expect(() => p.move(1)).toThrow();
+    expect(() => p.move(1)).toThrow();
+    expect(() => p.move(1)).not.toThrow();
+  });
 });
 
 describe('Player raccito', () => {
-  it.todo('setRaccito enables the flag and seeds the counter to two full board laps');
-  it.todo('removeRaccito throws while the counter is still positive');
-  it.todo('removeRaccito clears the flag once the counter has been drained by moves');
+  it('setRaccito enables the flag and seeds the counter to two full board laps', () => {
+    const p = new Player('p', PlayerColor.red, 'P');
+    p.setRaccito();
+    expect(p.Raccito).toBe(true);
+    expect(p.RaccitoCounter).toBe(Board.CellsCounter * 2);
+  });
+
+  it('removeRaccito throws while the counter is still positive', () => {
+    const p = new Player('p', PlayerColor.red, 'P');
+    p.setRaccito();
+    expect(() => p.removeRaccito()).toThrow('Cannot remove raccito');
+  });
+
+  it('removeRaccito clears the flag once the counter has been drained by moves', () => {
+    const p = new Player('p', PlayerColor.red, 'P');
+    p.setRaccito();
+    p.move(p.RaccitoCounter);
+    expect(() => p.removeRaccito()).not.toThrow();
+    expect(p.Raccito).toBe(false);
+    expect(p.RaccitoCounter).toBe(0);
+  });
 });
 
 describe('Player.giveItem', () => {
-  it.todo('appends an item to the inventory');
+  it('appends an item to the inventory without throwing', () => {
+    const p = new Player('p', PlayerColor.red, 'P');
+    expect(() => {
+      p.giveItem(ItemType.TaxFree);
+      p.giveItem(ItemType.Security);
+    }).not.toThrow();
+  });
 });
 
 describe('Player.Id setter', () => {
-  it.todo('updates the id (used by reconnect flow via IGame.updatePlayerIdByName)');
+  it('updates the id (used by reconnect flow via IGame.updatePlayerIdByName)', () => {
+    const p = new Player('old', PlayerColor.red, 'P');
+    p.Id = 'new';
+    expect(p.Id).toBe('new');
+  });
 });
