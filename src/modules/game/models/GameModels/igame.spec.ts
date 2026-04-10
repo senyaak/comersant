@@ -52,6 +52,10 @@ describe('IGame default constructor', () => {
     expect(game.board).toBeInstanceOf(Board);
     expect(game.board.flatCells.length).toBeGreaterThan(0);
   });
+
+  it('EventInProgress returns null initially', () => {
+    expect(game.EventInProgress).toBeNull();
+  });
 });
 
 describe('IGame restoring constructor', () => {
@@ -114,6 +118,19 @@ describe('IGame.updatePlayerIdByName', () => {
 
   it('throws when the name is not present in the player list', () => {
     expect(() => game.updatePlayerIdByName('Nobody', 'x')).toThrow('not found');
+  });
+
+  it('updates the player id without touching any board cells when the player owns nothing', () => {
+    // Seed another player\'s ownership so we can prove it is left alone
+    const cells = game.board.flatCells.filter(PropertyCell.isPropertyCell);
+    cells[0].object.owner = 'p2';
+
+    game.updatePlayerIdByName('Alice', 'new-id');
+
+    expect(game.players.find(p => p.Name === 'Alice')!.Id).toBe('new-id');
+    expect(cells[0].object.owner).toBe('p2');
+    // null-owner cells stay null (guard against "null === undefined?.Id" type confusion)
+    expect(cells[1].object.owner).toBeNull();
   });
 });
 

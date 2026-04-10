@@ -88,4 +88,82 @@ describe('@RequireGameState', () => {
       /Required: waiting_trade.*Current: active/,
     );
   });
+
+  it('preserves the return value of the original method', () => {
+    const original = jest.fn().mockReturnValue({ some: 'payload' });
+    const wrapped = wrapRequireGameState(GameStateType.Active, original);
+
+    const result = wrapped.call({ stateManager: new StateManager() } as never);
+
+    expect(result).toEqual({ some: 'payload' });
+  });
+
+  it('forwards multiple arguments to the wrapped method unchanged', () => {
+    const original = jest.fn();
+    const wrapped = wrapRequireGameState(GameStateType.Active, original);
+
+    wrapped.call({ stateManager: new StateManager() } as never, 1, 'two', { three: 3 });
+
+    expect(original).toHaveBeenCalledWith(1, 'two', { three: 3 });
+  });
+});
+
+describe('@RequireGameState + @ValidateActivePlayer composition', () => {
+  const wrapBoth = <T extends unknown[], R>(
+    state: GameStateType,
+    fn: (playerId: string, ...args: T) => R,
+  ) => {
+    const descriptor: PropertyDescriptor = {
+      value: fn,
+      writable: true,
+      enumerable: false,
+      configurable: true,
+    };
+    // Apply in the same order TypeScript applies stacked decorators in Game.ts:
+    //   @RequireGameState(...)
+    //   @ValidateActivePlayer
+    //   method()
+    // Decorators run bottom-up: ValidateActivePlayer wraps first, then RequireGameState.
+    ValidateActivePlayer({}, 'test', descriptor as never);
+    RequireGameState(state)({}, 'test', descriptor);
+    return descriptor.value as (playerId: string, ...args: T) => R;
+  };
+
+  it('invokes the original only when both state and active player checks pass', () => {
+    const original = jest.fn().mockReturnValue('ok');
+    const wrapped = wrapBoth(GameStateType.Active, original);
+
+    const context = {
+      stateManager: new StateManager(),
+      isPlayerActive: (id: string) => id === 'p1',
+    };
+    const result = wrapped.call(context as never, 'p1');
+
+    expect(result).toBe('ok');
+    expect(original).toHaveBeenCalledWith('p1');
+  });
+
+  it('state check runs first: throws on wrong state even if player would be active', () => {
+    const original = jest.fn();
+    const wrapped = wrapBoth(GameStateType.WaitingForTrade, original);
+
+    const context = {
+      stateManager: new StateManager(),
+      isPlayerActive: () => true,
+    };
+    expect(() => wrapped.call(context as never, 'p1')).toThrow(/Required: waiting_trade/);
+    expect(original).not.toHaveBeenCalled();
+  });
+
+  it('throws on wrong player when state is valid', () => {
+    const original = jest.fn();
+    const wrapped = wrapBoth(GameStateType.Active, original);
+
+    const context = {
+      stateManager: new StateManager(),
+      isPlayerActive: () => false,
+    };
+    expect(() => wrapped.call(context as never, 'wrong')).toThrow(/wrong turn/);
+    expect(original).not.toHaveBeenCalled();
+  });
 });

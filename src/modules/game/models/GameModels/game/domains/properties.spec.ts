@@ -40,6 +40,13 @@ describe('computePropertyStep', () => {
     cell.object.owner = 'me';
     expect(computePropertyStep(cell, 'me', 0, index)).toEqual([]);
   });
+
+  it('identifies ownership by player id, not by player index', () => {
+    // Regression guard: if the check were "cell.owner === currentPlayerIndex"
+    // (a plausible mistake), this would still return TAX_PAID for a non-zero index.
+    cell.object.owner = 'me';
+    expect(computePropertyStep(cell, 'me', 2, index)).toEqual([]);
+  });
 });
 
 describe('computeBuyProperty', () => {
@@ -95,6 +102,13 @@ describe('computeBuyProperty', () => {
     const [effect] = computeBuyProperty(players, board.flatCells, 'p1', index, cell.object.price);
     expect(effect).toMatchObject({ type: 'PROPERTY_PURCHASED', previousOwnerId: 'p2' });
   });
+
+  it('allows a purchase when the buyer has exactly the price (boundary)', () => {
+    const exactBuyer = [{ Id: 'p1', Money: cell.object.price }];
+    expect(() =>
+      computeBuyProperty(exactBuyer, board.flatCells, 'p1', index, cell.object.price),
+    ).not.toThrow();
+  });
 });
 
 describe('computeLoseProperty', () => {
@@ -138,5 +152,28 @@ describe('computeLoseProperty', () => {
     expect(computeLoseProperty(board.flatCells, 'p1', BusinessGrade.Enterprise)).toEqual([
       { type: 'PROPERTY_LOST', propertyIndex: null },
     ]);
+  });
+
+  it('picks exactly one index from the set of owned matching properties', () => {
+    // Own three Business cells and mark them all as Office grade
+    const businessIdxs = board.flatCells
+      .map((c, i) => ({ c, i }))
+      .filter(({ c }) => PropertyCell.isPropertyCell(c) && Business.isBusiness(c.object))
+      .slice(0, 3)
+      .map(({ i }) => i);
+
+    for (const i of businessIdxs) {
+      const c = board.flatCells[i] as PropertyCell<Business>;
+      c.object.owner = 'p1';
+      c.object.grade = BusinessGrade.Office;
+    }
+
+    const effects = computeLoseProperty(board.flatCells, 'p1', BusinessGrade.Office);
+    expect(effects).toHaveLength(1);
+    const [effect] = effects;
+    expect(effect.type).toBe('PROPERTY_LOST');
+    if (effect.type === 'PROPERTY_LOST') {
+      expect(businessIdxs).toContain(effect.propertyIndex);
+    }
   });
 });

@@ -9,6 +9,13 @@ describe('Player.changeMoney elimination', () => {
     player = new Player('p1', PlayerColor.red, 'Alice');
   });
 
+  it('adds money on a positive amount without touching the eliminated flag', () => {
+    const before = player.Money;
+    player.changeMoney(500);
+    expect(player.Money).toBe(before + 500);
+    expect(player.Eliminated).toBe(false);
+  });
+
   it('does not flag elimination while money stays positive', () => {
     player.changeMoney(-1000);
     expect(player.Eliminated).toBe(false);
@@ -78,6 +85,24 @@ describe('Player constructor', () => {
   it('throws on invalid constructor arguments', () => {
     expect(() => new Player({ totally: 'wrong' } as never)).toThrow('Invalid Player constructor argument');
   });
+
+  it('known gap: restoring from IRawPlayer drops freezeTurns / raccito / raccitoCounter', () => {
+    // If this test starts failing it is almost certainly because the restore path was fixed —
+    // in that case, delete this guard and assert the new restored state instead.
+    const raw: IRawPlayer = {
+      id: 'id3',
+      color: PlayerColor.purple,
+      name: 'Dave',
+      money: 1000,
+      position: 0,
+      raccito: true,
+      raccitoCounter: 42,
+    };
+    const p = new Player(raw);
+    // Not restored — raccito flag and counter silently default
+    expect(p.Raccito).toBe(false);
+    expect(p.RaccitoCounter).toBe(0);
+  });
 });
 
 describe('Player.move', () => {
@@ -94,6 +119,12 @@ describe('Player.move', () => {
     p.move(total - 1);
     p.move(3);
     expect(p.Position).toBe(2);
+  });
+
+  it('wraps correctly when steps exceed a full board lap', () => {
+    const total = Board.CellsCounter;
+    p.move(total * 2 + 5);
+    expect(p.Position).toBe(5);
   });
 
   it('decrements raccitoCounter by step count while raccito is active', () => {
@@ -166,6 +197,14 @@ describe('Player raccito', () => {
     expect(() => p.removeRaccito()).not.toThrow();
     expect(p.Raccito).toBe(false);
     expect(p.RaccitoCounter).toBe(0);
+  });
+
+  it('setRaccito called twice resets the counter to a full two laps (non-cumulative)', () => {
+    const p = new Player('p', PlayerColor.red, 'P');
+    p.setRaccito();
+    p.move(10); // drain a bit
+    p.setRaccito();
+    expect(p.RaccitoCounter).toBe(Board.CellsCounter * 2);
   });
 });
 

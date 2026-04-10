@@ -122,6 +122,18 @@ describe('Game constructor', () => {
     game.players[1].changeMoney(-game.players[1].Money);
     expect(listener).toHaveBeenCalledWith({ playerId: 'p2', playerName: 'Bob' });
   });
+
+  it('known gap: a 7th player crashes the constructor with a cryptic Player error', () => {
+    // PlayerColor enum only has 6 values. The 7th Object.values(PlayerColor)[6] is undefined,
+    // which makes Player\'s own constructor fall through its "color && name" guard and throw
+    // a generic "Invalid Player constructor argument" rather than a meaningful "too many
+    // players" error from Game. Worth fixing in Game.ts — caught by this guard.
+    const sevenPlayers = Array.from({ length: 7 }, (_, i) => ({
+      id: `p${i + 1}`,
+      name: `P${i + 1}`,
+    }));
+    expect(() => new Game(sevenPlayers)).toThrow('Invalid Player constructor argument');
+  });
 });
 
 describe('Game.nextTurn rotation', () => {
@@ -205,6 +217,76 @@ describe('Game.nextTurn rotation', () => {
     expect(result.turn_finished?.[0].success).toBe(true);
     expect(game.CurrentPlayerIndex).toBe(1);
     expect(game.CurrentTurnState).toBe(Turn.Trading);
+  });
+});
+
+describe('Game.nextTurn integration (real applyEffect)', () => {
+  let game: Game;
+  let randomSpy: jest.SpyInstance;
+
+  beforeEach(() => {
+    game = buildGame();
+    // Force dice rolls to 1 across the board (Math.floor(0 * 6) + 1 = 1)
+    randomSpy = jest.spyOn(Math, 'random').mockReturnValue(0);
+  });
+
+  afterEach(() => {
+    randomSpy.mockRestore();
+  });
+
+  it('landing on an unowned property opens the trading event and waits for property action', () => {
+    const propIdx = firstPropertyIndex(game);
+    const cell = game.board.flatCells[propIdx] as PropertyCell;
+    cell.object.owner = null;
+
+    // Position the current player so dice=1 lands them exactly on the property cell
+    game.players[0].move(propIdx - game.players[0].Position - 1);
+
+    game.nextTurn('p1', 1);
+
+    expect(game.stateManager.state).toBe(GameStateType.WaitingForPropertyAction);
+    expect(game.EventInProgress).not.toBeNull();
+    expect(game.EventInProgress?.eventData).toMatchObject({
+      propertyIndex: propIdx,
+      playerIndices: [0],
+    });
+  });
+
+  it('landing on a property already owned by the current player produces no state change', () => {
+    const propIdx = firstPropertyIndex(game);
+    const cell = game.board.flatCells[propIdx] as PropertyCell;
+    cell.object.owner = 'p1';
+
+    game.players[0].move(propIdx - game.players[0].Position - 1);
+
+    game.nextTurn('p1', 1);
+
+    expect(game.stateManager.state).toBe(GameStateType.Active);
+    expect(game.EventInProgress).toBeNull();
+  });
+});
+
+describe('Game elimination effects pipeline', () => {
+  let game: Game;
+  beforeEach(() => { game = buildGame(); });
+
+  it('two BALANCE_CHANGED effects draining two players in sequence fire gameOver exactly once', () => {
+    const playerElim = jest.fn();
+    const gameOver = jest.fn();
+    game.events.on('playerEliminated', playerElim);
+    game.events.on('gameOver', gameOver);
+
+    // Reach into the private effect dispatcher to simulate a multi-target batch
+    const applyEffect = (game as never as {
+      applyEffect: (effect: { type: string; playerIndex: number; amount: number }) => void;
+    }).applyEffect.bind(game);
+
+    applyEffect({ type: 'BALANCE_CHANGED', playerIndex: 0, amount: -9_999_999 });
+    applyEffect({ type: 'BALANCE_CHANGED', playerIndex: 1, amount: -9_999_999 });
+
+    expect(playerElim).toHaveBeenCalledTimes(2);
+    expect(gameOver).toHaveBeenCalledTimes(1);
+    expect(gameOver).toHaveBeenCalledWith({ winnerId: 'p3', winnerName: 'Carol' });
   });
 });
 
@@ -299,17 +381,29 @@ describe('Game.auctionPlaceBid', () => {
     } as never;
   });
 
-  it('returns invalidBid when the bid is not strictly greater than the current price', () => {
+  it('returns invalidBid on a non-increasing bid, leaving eventData untouched', () => {
+    const snapshot = JSON.parse(JSON.stringify(
+      (game.EventInProgress as { eventData: unknown }).eventData,
+    ));
     const currentPrice =
       (game.EventInProgress as { eventData: { price: number } }).eventData.price;
+
     const result = game.auctionPlaceBid('p2', currentPrice);
+
     expect(result.invalidBid).toBeDefined();
+    expect(result.eventData).toEqual(snapshot);
   });
 
-  it('returns invalidBid when the bidder cannot afford the bid', () => {
+  it('returns invalidBid when the bidder cannot afford the bid, leaving eventData untouched', () => {
+    const snapshot = JSON.parse(JSON.stringify(
+      (game.EventInProgress as { eventData: unknown }).eventData,
+    ));
     const huge = 9_999_999;
+
     const result = game.auctionPlaceBid('p2', huge);
+
     expect(result.invalidBid?.reason).toMatch(/Insufficient/);
+    expect(result.eventData).toEqual(snapshot);
   });
 
   it('updates eventData.price and currentBidderIndex on a successful bid', () => {
@@ -428,6 +522,7 @@ describe('Game.moveToCenter', () => {
 
   it('moves the current player to the supplied position', () => {
     const innerStart = Board.Cells[0].length;
-    expect(() => game.moveToCenter('p1', innerStart)).not.toThrow();
+    game.moveToCenter('p1', innerStart);
+    expect(game.players[0].Position).toBe(innerStart);
   });
 });

@@ -18,6 +18,20 @@ describe('StateManager defaults', () => {
   });
 });
 
+describe('StateManager constructor with initial values', () => {
+  it('accepts initial context, state and expected players', () => {
+    const sm = new StateManager(
+      { seeded: true },
+      GameStateType.WaitingForTrade,
+      ['p1', 'p2'],
+    );
+    expect(sm.state).toBe(GameStateType.WaitingForTrade);
+    expect(sm.isWaiting).toBe(true);
+    expect(sm.expectedPlayers).toEqual(['p1', 'p2']);
+    expect(sm.gameContext).toEqual({ seeded: true });
+  });
+});
+
 describe('StateManager.setWaiting', () => {
   let sm: StateManager;
   beforeEach(() => { sm = new StateManager(); });
@@ -43,6 +57,15 @@ describe('StateManager.setWaiting', () => {
   it('isWaiting becomes true after entering any non-Active state', () => {
     sm.setWaiting(GameStateType.WaitingForPlayerChoice, ['p1']);
     expect(sm.isWaiting).toBe(true);
+  });
+
+  it('a second setWaiting overwrites the previous expectedPlayers and gameContext (not additive)', () => {
+    sm.setWaiting(GameStateType.WaitingForPropertyAction, ['p1', 'p2'], { price: 100 });
+    sm.setWaiting(GameStateType.WaitingForTrade, ['p3'], { offer: 500 });
+
+    expect(sm.state).toBe(GameStateType.WaitingForTrade);
+    expect(sm.expectedPlayers).toEqual(['p3']);
+    expect(sm.gameContext).toEqual({ offer: 500 });
   });
 });
 
@@ -74,6 +97,14 @@ describe('StateManager.isPlayerExpected', () => {
   it('returns false for ids that were not registered', () => {
     const sm = new StateManager();
     sm.setWaiting(GameStateType.WaitingForPropertyAction, ['p1']);
+    expect(sm.isPlayerExpected('p2')).toBe(false);
+  });
+
+  it('returns false for previously-expected ids after clearWaiting', () => {
+    const sm = new StateManager();
+    sm.setWaiting(GameStateType.WaitingForPropertyAction, ['p1', 'p2']);
+    sm.clearWaiting();
+    expect(sm.isPlayerExpected('p1')).toBe(false);
     expect(sm.isPlayerExpected('p2')).toBe(false);
   });
 });

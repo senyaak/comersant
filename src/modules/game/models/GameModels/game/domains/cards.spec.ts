@@ -6,6 +6,7 @@ import {
   PropertyCell,
   StaticEventCell,
 } from '../../../FieldModels/cells';
+import { ItemType } from '../../items';
 import { Business, BusinessGrade } from '../../properties';
 import {
   computeCardEvent,
@@ -89,6 +90,22 @@ describe('computeCardEvent — per EventType branch', () => {
     ]);
   });
 
+  it('PropertyLoss → CARD_DRAWN + PROPERTY_LOST with a concrete index when the player owns a matching business', () => {
+    const cells = flatCells();
+    const idx = cells.findIndex(c =>
+      PropertyCell.isPropertyCell(c) && Business.isBusiness(c.object),
+    );
+    const cell = cells[idx] as PropertyCell<Business>;
+    cell.object.owner = 'p1';
+    cell.object.grade = BusinessGrade.Enterprise;
+
+    const card: GameEvent = { msg: 'x', type: EventType.PropertyLoss, grade: BusinessGrade.Enterprise };
+    const effects = computeCardEvent(card, 'risk', 0, 'p1', 3, cells);
+
+    expect(effects[0]).toEqual({ type: 'CARD_DRAWN', cardType: 'risk', card });
+    expect(effects[1]).toEqual({ type: 'PROPERTY_LOST', propertyIndex: idx });
+  });
+
   it('TaxService → CARD_DRAWN + PLAYER_MOVED_TO_POSITION pointing at the tax service cell', () => {
     const cells = flatCells();
     const taxIdx = cells.findIndex(c => c.name === 'TaxService');
@@ -125,15 +142,20 @@ describe('computeCardEvent — GetEvent variants', () => {
 
   it('EventItem.TaxFree → ITEM_RECEIVED with ItemType.TaxFree', () => {
     const card: GameEvent = { msg: 'x', type: EventType.GetEvent, item: EventItem.TaxFree };
-    expect(computeCardEvent(card, 'post', 1, 'p2', 3, flatCells())).toContainEqual(
-      expect.objectContaining({ type: 'ITEM_RECEIVED', playerIndex: 1 }),
-    );
+    expect(computeCardEvent(card, 'post', 1, 'p2', 3, flatCells())).toContainEqual({
+      type: 'ITEM_RECEIVED',
+      playerIndex: 1,
+      item: ItemType.TaxFree,
+    });
   });
 
   it('EventItem.Security → ITEM_RECEIVED with ItemType.Security', () => {
     const card: GameEvent = { msg: 'x', type: EventType.GetEvent, item: EventItem.Security };
-    const effects = computeCardEvent(card, 'post', 0, 'p1', 3, flatCells());
-    expect(effects.some(e => e.type === 'ITEM_RECEIVED')).toBe(true);
+    expect(computeCardEvent(card, 'post', 0, 'p1', 3, flatCells())).toContainEqual({
+      type: 'ITEM_RECEIVED',
+      playerIndex: 0,
+      item: ItemType.Security,
+    });
   });
 
   it('throws on an unknown EventItem', () => {
@@ -145,6 +167,13 @@ describe('computeCardEvent — GetEvent variants', () => {
 describe('computeCardEvent — error paths', () => {
   it('throws on an unknown EventType', () => {
     const card = { msg: 'x', type: 9999 } as unknown as GameEvent;
+    expect(() => computeCardEvent(card, 'post', 0, 'p1', 3, flatCells())).toThrow('Unknown event type');
+  });
+
+  it('throws on EventType.Raccito — the enum value is declared but not handled in the switch', () => {
+    // Regression guard: if Raccito support is implemented later, this test should be updated
+    // to assert the new behavior rather than removed silently.
+    const card = { msg: 'x', type: EventType.Raccito } as unknown as GameEvent;
     expect(() => computeCardEvent(card, 'post', 0, 'p1', 3, flatCells())).toThrow('Unknown event type');
   });
 });
@@ -191,6 +220,15 @@ describe('computeEventCell', () => {
     expect(computeEventCell(cell, 1, 'p2', 3, flatCells())).toEqual([
       { type: 'STATIC_EVENT', eventType: EventType.BalanceChange, amount: 300 },
       { type: 'BALANCE_CHANGED', playerIndex: 1, amount: 300 },
+    ]);
+  });
+
+  it('StaticEventCell BalanceChange without an amount defaults BALANCE_CHANGED to 0', () => {
+    // The no-arg StaticEventCell overload leaves amount undefined — the ?? 0 fallback kicks in.
+    const cell = new StaticEventCell(EventType.BalanceChange);
+    expect(computeEventCell(cell, 0, 'p1', 3, flatCells())).toEqual([
+      { type: 'STATIC_EVENT', eventType: EventType.BalanceChange, amount: undefined },
+      { type: 'BALANCE_CHANGED', playerIndex: 0, amount: 0 },
     ]);
   });
 
